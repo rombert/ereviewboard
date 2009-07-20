@@ -60,11 +60,11 @@ public interface ReviewboardClient {
 
     List<ReviewRequest> getReviewRequests(String query) throws ReviewboardException;
 
-    ReviewRequest newReviewRequest(ReviewRequest reviewRequest);
+    ReviewRequest newReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException;
 
     ReviewRequest getReviewRequest(int reviewRequestId) throws ReviewboardException;
 
-    void updateReviewRequest(ReviewRequest reviewRequest);
+    void updateReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException;
 
     void updateRepositoryData(boolean force, IProgressMonitor monitor);
 

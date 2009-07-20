@@ -39,11 +39,14 @@ package org.review_board.ereviewboard.core.client;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -56,6 +59,7 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
+import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
@@ -170,6 +174,29 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return "";
     }
 
+    private String executePost(String url, JSONObject body) {
+        return executePost(url, body, new HashMap<String, String>());
+    }
+
+    private String executePost(String url, JSONObject body, Map<String, String> parameters) {
+        PostMethod post = createPostMethod(url);
+
+        for (String key : parameters.keySet()) {
+            post.setParameter(key, parameters.get(key));
+        }
+
+        try {
+            post.setRequestEntity(new StringRequestEntity(body.toString(), "application/json",
+                    characterEncoding));
+            httpClient.executeMethod(post);
+            return post.getResponseBodyAsString();
+        } catch (IOException e) {
+            new RuntimeException(e);
+        }
+
+        return "";
+    }
+
     public List<Repository> getRepositories() throws ReviewboardException {
         return reviewboardReader.readRepositories(executeGet("/api/json/repositories/"));
     }
@@ -187,9 +214,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 .readReviewRequests(executeGet("/api/json/reviewrequests/" + query));
     }
 
-    public ReviewRequest newReviewRequest(ReviewRequest reviewRequest) {
-        // TODO Auto-generated method stub
-        return null;
+    public ReviewRequest newReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("repository_id", String.valueOf(reviewRequest.getRepository().getId()));
+        if (reviewRequest.getChangeNumber() != null) {
+            parameters.put("changenum", String.valueOf(reviewRequest.getChangeNumber()));
+        }
+
+        ReviewRequest newReviewRequest = reviewboardReader.readReviewRequest(executePost(
+                "/api/json/reviewrequests/new/", new JSONObject(), parameters));
+        reviewRequest.setId(newReviewRequest.getId());
+        reviewRequest.setTimeAdded(newReviewRequest.getTimeAdded());
+        reviewRequest.setLastUpdated(newReviewRequest.getLastUpdated());
+        reviewRequest.setSubmitter(newReviewRequest.getSubmitter());
+        updateReviewRequest(reviewRequest);
+
+        return reviewRequest;
     }
 
     public ReviewRequest getReviewRequest(int reviewRequestId) throws ReviewboardException {
@@ -197,9 +237,13 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 + reviewRequestId + "/"));
     }
 
-    public void updateReviewRequest(ReviewRequest reviewRequest) {
-        // TODO Auto-generated method stub
-
+    public void updateReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException {
+        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/set/",
+                reviewRequest.unmarshall());
+        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/save/",
+                new JSONObject());
+        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/publish/",
+                new JSONObject());
     }
 
     public boolean hasRepositoryData() {
