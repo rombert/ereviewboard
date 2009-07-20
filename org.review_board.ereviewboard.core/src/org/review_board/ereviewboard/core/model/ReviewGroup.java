@@ -124,22 +124,30 @@ public class ReviewGroup implements Marshallable {
         this.mailingList = mailingList;
     }
 
-    public void marshall(JSONObject jsonObject) throws JSONException {
-        id = jsonObject.getInt("id");
-        name = jsonObject.getString("name");
-        displayName = jsonObject.getString("display_name");
-        url = jsonObject.getString("url");
-        mailingList = jsonObject.getString("mailing_list");
+    public void marshall(JSONObject jsonObject) {
+        try {
+            id = jsonObject.getInt("id");
+            name = jsonObject.getString("name");
+            displayName = jsonObject.getString("display_name");
+            url = jsonObject.getString("url");
+            mailingList = jsonObject.getString("mailing_list");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public JSONObject unmarshall() throws JSONException {
+    public JSONObject unmarshall() {
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("id", id);
-        jsonObject.put("name", name);
-        jsonObject.put("display_name", displayName);
-        jsonObject.put("url", url);
-        jsonObject.put("mailing_list", mailingList);
+        try {
+            jsonObject.put("id", id);
+            jsonObject.put("name", name);
+            jsonObject.put("display_name", displayName);
+            jsonObject.put("url", url);
+            jsonObject.put("mailing_list", mailingList);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
 
         return jsonObject;
     }

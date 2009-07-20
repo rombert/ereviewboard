@@ -39,7 +39,6 @@ package org.review_board.ereviewboard.core.model;
 
 import java.io.Serializable;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -48,8 +47,8 @@ import org.json.JSONObject;
  */
 public interface Marshallable extends Serializable {
 
-    void marshall(JSONObject jsonObject) throws JSONException;
+    void marshall(JSONObject jsonObject);
 
-    JSONObject unmarshall() throws JSONException;
+    JSONObject unmarshall();
 
 }

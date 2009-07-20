@@ -113,20 +113,30 @@ public class Comment implements Marshallable {
         this.text = text;
     }
 
-    public void marshall(JSONObject jsonObject) throws JSONException {
-        id = jsonObject.getInt("id");
-        replyTo = ReviewboardUtil.parseEntity(Comment.class, jsonObject.getJSONObject("replyTo"));
-        timestamp = ReviewboardUtil.marshallDate(jsonObject.getString("timestamp"));
-        text = jsonObject.getString("text");
+    public void marshall(JSONObject jsonObject) {
+        try {
+            id = jsonObject.getInt("id");
+            replyTo = ReviewboardUtil.parseEntity(Comment.class, jsonObject
+                    .getJSONObject("replyTo"));
+            timestamp = ReviewboardUtil.marshallDate(jsonObject.getString("timestamp"));
+            text = jsonObject.getString("text");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public JSONObject unmarshall() throws JSONException {
+    public JSONObject unmarshall() {
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("id", id);
-        jsonObject.put("replyTo", replyTo.unmarshall());
-        jsonObject.put("timestamp", ReviewboardUtil.unmarshallDate(timestamp));
-        jsonObject.put("text", text);
+        try {
+            jsonObject.put("id", id);
+            jsonObject.put("replyTo", replyTo.unmarshall());
+            jsonObject.put("timestamp", ReviewboardUtil.unmarshallDate(timestamp));
+            jsonObject.put("text", text);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
 
         return jsonObject;
     }

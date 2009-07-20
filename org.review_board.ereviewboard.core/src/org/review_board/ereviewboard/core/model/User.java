@@ -46,9 +46,9 @@ import org.json.JSONObject;
  */
 public class User implements Marshallable {
 
-	private static final long serialVersionUID = -7560403653228576009L;
+    private static final long serialVersionUID = -7560403653228576009L;
 
-	private int id;
+    private int id;
     private String username;
     private String firstName;
     private String lastName;
@@ -155,31 +155,39 @@ public class User implements Marshallable {
         return firstName + " " + lastName;
     }
 
-    public void marshall(JSONObject jsonObject) throws JSONException {
-        id = jsonObject.getInt("id");
-        url = jsonObject.getString("url");
-        username = jsonObject.getString("username");
-        email = jsonObject.getString("email");
-        firstName = jsonObject.getString("first_name");
-        lastName = jsonObject.getString("last_name");
+    public void marshall(JSONObject jsonObject) {
+        try {
+            id = jsonObject.getInt("id");
+            url = jsonObject.getString("url");
+            username = jsonObject.getString("username");
+            email = jsonObject.getString("email");
+            firstName = jsonObject.getString("first_name");
+            lastName = jsonObject.getString("last_name");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public JSONObject unmarshall() throws JSONException {
+    public JSONObject unmarshall() {
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("id", id);
-        jsonObject.put("url", url);
-        jsonObject.put("username", username);
-        jsonObject.put("email", email);
-        jsonObject.put("first_name", firstName);
-        jsonObject.put("last_name", lastName);
+        try {
+            jsonObject.put("id", id);
+            jsonObject.put("url", url);
+            jsonObject.put("username", username);
+            jsonObject.put("email", email);
+            jsonObject.put("first_name", firstName);
+            jsonObject.put("last_name", lastName);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
 
         return jsonObject;
     }
 
     @Override
     public String toString() {
-    	return username;
+        return username;
     }
 
 }

@@ -109,20 +109,28 @@ public class Repository implements Marshallable {
         this.path = path;
     }
 
-    public void marshall(JSONObject jsonObject) throws JSONException {
-        id = jsonObject.getInt("id");
-        name = jsonObject.getString("name");
-        tool = jsonObject.getString("tool");
-        path = jsonObject.getString("path");
+    public void marshall(JSONObject jsonObject) {
+        try {
+            id = jsonObject.getInt("id");
+            name = jsonObject.getString("name");
+            tool = jsonObject.getString("tool");
+            path = jsonObject.getString("path");
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public JSONObject unmarshall() throws JSONException {
+    public JSONObject unmarshall() {
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("id", id);
-        jsonObject.put("name", name);
-        jsonObject.put("tool", tool);
-        jsonObject.put("path", path);
+        try {
+            jsonObject.put("id", id);
+            jsonObject.put("name", name);
+            jsonObject.put("tool", tool);
+            jsonObject.put("path", path);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
 
         return jsonObject;
     }

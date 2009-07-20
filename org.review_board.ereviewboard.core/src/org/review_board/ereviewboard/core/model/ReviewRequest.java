@@ -285,68 +285,65 @@ public class ReviewRequest implements Marshallable {
         this.targetUsers = targetUsers;
     }
 
-    public void marshall(JSONObject jsonObject) throws JSONException {
-        id = jsonObject.getInt("id");
-        submitter = ReviewboardUtil.parseEntity(User.class, jsonObject.getJSONObject("submitter"));
-        timeAdded = ReviewboardUtil.marshallDate(jsonObject.getString("time_added"));
-        lastUpdated = ReviewboardUtil.marshallDate(jsonObject.getString("last_updated"));
-        status = ReviewRequestStatus.parseStatus(jsonObject.getString("status"));
-        isPublic = ReviewboardUtil.marshallBoolean(jsonObject.getInt("public"));
-        marshallChangeNumber(jsonObject);
-        repository = ReviewboardUtil.parseEntity(Repository.class, jsonObject
-                .getJSONObject("repository"));
-        summary = jsonObject.getString("summary");
-        description = jsonObject.getString("description");
-        testingDone = jsonObject.getString("testing_done");
-        marshallClosedBugs(jsonObject);
-        branch = jsonObject.getString("branch");
-        targetGroups = ReviewboardUtil.parseEntities(ReviewGroup.class, jsonObject
-                .getJSONArray("target_groups"));
-        targetUsers = ReviewboardUtil.parseEntities(User.class, jsonObject
-                .getJSONArray("target_people"));
-    }
-
-    private void marshallChangeNumber(JSONObject jsonObject) {
+    public void marshall(JSONObject jsonObject) {
         try {
+            id = jsonObject.getInt("id");
+            submitter = ReviewboardUtil.parseEntity(User.class, jsonObject
+                    .getJSONObject("submitter"));
+            timeAdded = ReviewboardUtil.marshallDate(jsonObject.getString("time_added"));
+            lastUpdated = ReviewboardUtil.marshallDate(jsonObject.getString("last_updated"));
+            status = ReviewRequestStatus.parseStatus(jsonObject.getString("status"));
+            isPublic = ReviewboardUtil.marshallBoolean(jsonObject.getInt("public"));
             changeNumber = jsonObject.getInt("changenum");
+            repository = ReviewboardUtil.parseEntity(Repository.class, jsonObject
+                    .getJSONObject("repository"));
+            summary = jsonObject.getString("summary");
+            description = jsonObject.getString("description");
+            testingDone = jsonObject.getString("testing_done");
+            marshallClosedBugs(jsonObject);
+            branch = jsonObject.getString("branch");
+            targetGroups = ReviewboardUtil.parseEntities(ReviewGroup.class, jsonObject
+                    .getJSONArray("target_groups"));
+            targetUsers = ReviewboardUtil.parseEntities(User.class, jsonObject
+                    .getJSONArray("target_people"));
         } catch (JSONException e) {
-            changeNumber = null;
+            throw new RuntimeException(e);
         }
     }
 
     private void marshallClosedBugs(JSONObject jsonObject) throws JSONException {
-        try {
-            JSONArray jsonBugsClosed = jsonObject.getJSONArray("bugs_closed");
-            bugsClosed.clear();
-            for (int iter = 0; iter < jsonBugsClosed.length(); iter++) {
-                // FIXME Should string like "1 2" be parsed or is this a Review
-                // Board bug?
-                String bugsClosedString = jsonBugsClosed.getString(iter);
-                bugsClosed.add(Integer.parseInt(bugsClosedString));
-            }
-        } catch (Exception e) {
-            // ignore
+        JSONArray jsonBugsClosed = jsonObject.getJSONArray("bugs_closed");
+        bugsClosed.clear();
+        for (int iter = 0; iter < jsonBugsClosed.length(); iter++) {
+            // FIXME Should string like "1 2" be parsed or is this a Review
+            // Board bug?
+            String bugsClosedString = jsonBugsClosed.getString(iter);
+            bugsClosed.add(Integer.parseInt(bugsClosedString));
         }
     }
 
-    public JSONObject unmarshall() throws JSONException {
+    public JSONObject unmarshall() {
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("id", id);
-        jsonObject.put("submitter", submitter.unmarshall());
-        jsonObject.put("time_added", ReviewboardUtil.unmarshallDate(timeAdded));
-        jsonObject.put("last_updated", ReviewboardUtil.unmarshallDate(lastUpdated));
-        jsonObject.put("text", status);
-        jsonObject.put("public", ReviewboardUtil.unmarshallBoolean(isPublic));
-        jsonObject.put("changenum", changeNumber);
-        jsonObject.put("repository", repository.unmarshall());
-        jsonObject.put("summary", summary);
-        jsonObject.put("description", description);
-        jsonObject.put("testing_done", testingDone);
-        jsonObject.put("bugs_closed", bugsClosed);
-        jsonObject.put("branch", branch);
-        jsonObject.put("target_groups", targetGroups);
-        jsonObject.put("target_people", targetUsers);
+        try {
+            jsonObject.put("id", id);
+            jsonObject.put("submitter", submitter.unmarshall());
+            jsonObject.put("time_added", ReviewboardUtil.unmarshallDate(timeAdded));
+            jsonObject.put("last_updated", ReviewboardUtil.unmarshallDate(lastUpdated));
+            jsonObject.put("text", status);
+            jsonObject.put("public", ReviewboardUtil.unmarshallBoolean(isPublic));
+            jsonObject.put("changenum", changeNumber);
+            jsonObject.put("repository", repository.unmarshall());
+            jsonObject.put("summary", summary);
+            jsonObject.put("description", description);
+            jsonObject.put("testing_done", testingDone);
+            jsonObject.put("bugs_closed", bugsClosed);
+            jsonObject.put("branch", branch);
+            jsonObject.put("target_groups", targetGroups);
+            jsonObject.put("target_people", targetUsers);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
 
         return jsonObject;
     }
