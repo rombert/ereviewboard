@@ -56,7 +56,7 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
         if (status == null) {
             return "";
         } else {
-            return "?status=" + status.getDisplayname().toLowerCase();
+            return "/?status=" + status.getDisplayname().toLowerCase();
         }
     }
 
