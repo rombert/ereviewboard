@@ -1,0 +1,11 @@
+{
+   "stat":"ok",
+   "repositories":[
+      {
+         "path":"file:///home/joe/svn/test",
+         "tool":"Subversion",
+         "id":2,
+         "name":"Test"
+      }
+   ]
+}

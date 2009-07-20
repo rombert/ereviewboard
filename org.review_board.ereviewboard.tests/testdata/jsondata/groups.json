@@ -1,0 +1,13 @@
+{
+   "stat":"ok",
+   "groups":[
+      {
+         "url":"/iphone/groups/Test/",
+         "display_name":"GSOC Test",
+         "id":1,
+         "mailing_list":"",
+         "name":"Test"
+      }
+   ]
+}
+

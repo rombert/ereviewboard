@@ -1,0 +1,84 @@
+{
+   "stat":"ok",
+   "screenshot_comments":[
+
+   ],
+   "comments":[
+      {
+         "user":{
+            "username":"admin",
+            "first_name":"Joe",
+            "last_name":"Doe",
+            "url":"/users/admin/",
+            "email":"joe.doe@example.com",
+            "fullname":"Joe Doe",
+            "id":1
+         },
+         "public":1,
+         "interfilediff":null,
+         "num_lines":1,
+         "timestamp":"2009-06-29 16:40:12",
+         "first_line":2,
+         "text":"Test",
+         "timesince":"1 week, 6 days",
+         "id":1,
+         "filediff":{
+            "diffset":{
+               "timestamp":"2009-06-12 09:16:06",
+               "revision":1,
+               "id":1,
+               "repository":{
+                  "path":"file:///home/joe/svn/test",
+                  "tool":"Subversion",
+                  "id":2,
+                  "name":"Test"
+               },
+               "name":"test.diff"
+            },
+            "dest_detail":"(working copy)",
+            "source_revision":"1",
+            "source_file":"/test.txt",
+            "dest_file":"/test.txt",
+            "id":1
+         }
+      },
+      {
+         "user":{
+            "username":"admin",
+            "first_name":"Joe",
+            "last_name":"Doe",
+            "url":"/users/admin/",
+            "email":"joe.doe@example.com",
+            "fullname":"Joe Doe",
+            "id":1
+         },
+         "public":1,
+         "interfilediff":null,
+         "num_lines":1,
+         "timestamp":"2009-06-29 16:40:27",
+         "first_line":1,
+         "text":"Test2",
+         "timesince":"1 week, 6 days",
+         "id":2,
+         "filediff":{
+            "diffset":{
+               "timestamp":"2009-06-12 09:16:06",
+               "revision":1,
+               "id":1,
+               "repository":{
+                  "path":"file:///home/joe/svn/test",
+                  "tool":"Subversion",
+                  "id":2,
+                  "name":"Test"
+               },
+               "name":"test.diff"
+            },
+            "dest_detail":"(working copy)",
+            "source_revision":"1",
+            "source_file":"/test.txt",
+            "dest_file":"/test.txt",
+            "id":1
+         }
+      }
+   ]
+}

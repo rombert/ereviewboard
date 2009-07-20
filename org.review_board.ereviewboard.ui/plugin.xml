@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.mylyn.tasks.ui.repositories">
+      <connectorCore
+            class="org.review_board.ereviewboard.core.ReviewboardRepositoryConnector"
+            id="reviewboard"
+            name="Reviewboard">
+      </connectorCore>
+      <connectorUi
+            brandingIcon="icons/eview16/reviewboard-icon.png"
+            class="org.review_board.ereviewboard.ui.ReviewboardConnectorUi"
+            id="reviewboard"
+            name="Reviewboard"
+            overlayIcon="icons/eview16/reviewboard-overlay-icon.png">
+      </connectorUi>
+   </extension>
+   <extension
+         point="org.eclipse.mylyn.tasks.ui.editors">
+      <pageFactory
+            class="org.review_board.ereviewboard.ui.editor.ReviewRequestEditorPageFactory"
+            id="org.review_board.ereviewboard.ui.pageFactory">
+      </pageFactory>
+   </extension>
+
+</plugin>

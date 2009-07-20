@@ -1,0 +1,23 @@
+{
+   "stat":"ok",
+   "users":[
+      {
+         "username":"admin",
+         "first_name":"Joe",
+         "last_name":"Doe",
+         "url":"/users/admin/",
+         "email":"joe.doe@example.com",
+         "fullname":"Joe Doe",
+         "id":1
+      },
+      {
+         "username":"max",
+         "first_name":"Max",
+         "last_name":"Mustermann",
+         "url":"/users/max/",
+         "email":"max.mustermann@example.com",
+         "fullname":"Max Mustermann",
+         "id":2
+      }
+   ]
+}

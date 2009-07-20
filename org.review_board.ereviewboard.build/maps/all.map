@@ -1,0 +1,3 @@
+feature@org.review_board.ereviewboard=COPY,/home/mak/workspaces/mylyn,reviewboard-gsoc/org.review_board.ereviewboard
+plugin@org.review_board.ereviewboard.core=COPY,/home/mak/workspaces/mylyn,reviewboard-gsoc/org.review_board.ereviewboard.core
+plugin@org.review_board.ereviewboard.ui=COPY,/home/mak/workspaces/mylyn,reviewboard-gsoc/org.review_board.ereviewboard.ui

@@ -1,0 +1,64 @@
+{
+   "stat":"ok",
+   "review_requests":[
+      {
+         "status":"pending",
+         "last_updated":"2009-06-29 16:02:51",
+         "description":"Test",
+         "repository":{
+            "path":"file:///home/joe/svn/test",
+            "tool":"Subversion",
+            "id":2,
+            "name":"Test"
+         },
+         "bugs_closed":[
+            "1"
+         ],
+         "id":1,
+         "target_people":[
+            {
+               "username":"admin",
+               "first_name":"Joe",
+               "last_name":"Doe",
+               "url":"/users/admin/",
+               "email":"joe.doe@example.com",
+               "fullname":"Joe Doe",
+               "id":1
+            },
+            {
+               "username":"max",
+               "first_name":"Max",
+               "last_name":"Mustermann",
+               "url":"/users/max/",
+               "email":"max.mustermann@example.com",
+               "fullname":"Max Mustermann",
+               "id":2
+            }
+         ],
+         "target_groups":[
+            {
+               "url":"/iphone/groups/Test/",
+               "display_name":"GSOC Test",
+               "id":1,
+               "mailing_list":"",
+               "name":"Test"
+            }
+         ],
+         "summary":"Test",
+         "changenum":null,
+         "testing_done":"No",
+         "branch":"trunk",
+         "submitter":{
+            "username":"admin",
+            "first_name":"Joe",
+            "last_name":"Doe",
+            "url":"/users/admin/",
+            "email":"joe.doe@example.com",
+            "fullname":"Joe Doe",
+            "id":1
+         },
+         "time_added":"2009-06-12 09:16:06",
+         "public":1
+      }
+   ]
+}
