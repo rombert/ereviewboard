@@ -294,7 +294,7 @@ public class ReviewRequest implements Marshallable {
             lastUpdated = ReviewboardUtil.marshallDate(jsonObject.getString("last_updated"));
             status = ReviewRequestStatus.parseStatus(jsonObject.getString("status"));
             isPublic = ReviewboardUtil.marshallBoolean(jsonObject.getInt("public"));
-            changeNumber = jsonObject.getInt("changenum");
+            marshallChangeNumber(jsonObject);
             repository = ReviewboardUtil.parseEntity(Repository.class, jsonObject
                     .getJSONObject("repository"));
             summary = jsonObject.getString("summary");
@@ -308,6 +308,14 @@ public class ReviewRequest implements Marshallable {
                     .getJSONArray("target_people"));
         } catch (JSONException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void marshallChangeNumber(JSONObject jsonObject) {
+        try {
+            changeNumber = jsonObject.getInt("changenum");
+        } catch (JSONException e) {
+            // ignore
         }
     }
 
