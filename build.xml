@@ -1,6 +1,6 @@
 <project name="eReviewboard">
-	<ant dir="org.review_board.ereviewboard.build/" />
+	<ant dir="org.review_board.ereviewboard.build" />
 	<copy todir="/home/www/web1/html/ereviewboard/update" preservelastmodified="true" overwrite="true">
-    		<fileset dir="/tmp/pluginbuilder/org.review_board.ereviewboard.build/stage/updateSite"/>
+    		<fileset dir="/home/www/web1/tmp/pluginbuilder/org.review_board.ereviewboard.build/stage/updateSite"/>
   	</copy>
 </project>
