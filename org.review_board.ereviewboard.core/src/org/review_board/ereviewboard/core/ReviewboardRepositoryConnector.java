@@ -83,7 +83,8 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
     @Override
     public boolean canCreateNewTask(TaskRepository repository) {
-        return repository.getConnectorKind().equals(getConnectorKind());
+        return false;
+        // return repository.getConnectorKind().equals(getConnectorKind());
     }
 
     @Override
