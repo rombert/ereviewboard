@@ -319,15 +319,20 @@ public class ReviewRequest implements Marshallable {
         }
     }
 
-    private void marshallClosedBugs(JSONObject jsonObject) throws JSONException {
-        JSONArray jsonBugsClosed = jsonObject.getJSONArray("bugs_closed");
-        bugsClosed.clear();
-        for (int iter = 0; iter < jsonBugsClosed.length(); iter++) {
-            // FIXME Should string like "1 2" be parsed or is this a Review
-            // Board bug?
-            String bugsClosedString = jsonBugsClosed.getString(iter);
-            bugsClosed.add(Integer.parseInt(bugsClosedString));
+    private void marshallClosedBugs(JSONObject jsonObject) {
+        try {
+            JSONArray jsonBugsClosed = jsonObject.getJSONArray("bugs_closed");
+            bugsClosed.clear();
+            for (int iter = 0; iter < jsonBugsClosed.length(); iter++) {
+                // FIXME Should string like "1 2" be parsed or is this a Review
+                // Board bug?
+                String bugsClosedString = jsonBugsClosed.getString(iter);
+                bugsClosed.add(Integer.parseInt(bugsClosedString));
+            }
+        } catch (Exception e) {
+            // ignore
         }
+
     }
 
     public JSONObject unmarshall() {
