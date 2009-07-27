@@ -37,10 +37,11 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.wizard;
 
-import org.eclipse.mylyn.tasks.core.ITaskMapping;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.wizards.NewTaskWizard;
 import org.eclipse.ui.INewWizard;
+import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 
 /**
  * @author Markus Knittig
@@ -48,15 +49,29 @@ import org.eclipse.ui.INewWizard;
  */
 public class NewReviewboardReviewRequestWizard extends NewTaskWizard implements INewWizard {
 
-    public NewReviewboardReviewRequestWizard(TaskRepository taskRepository,
-            ITaskMapping taskSelection) {
-        super(taskRepository, taskSelection);
-        // TODO Auto-generated constructor stub
+    private ReviewboardClient client;
+
+    private NewReviewRequestPage newReviewRequestWizardPage;
+
+    public NewReviewboardReviewRequestWizard(TaskRepository taskRepository, ReviewboardClient client) {
+        super(taskRepository, null);
+        this.client = client;
     }
 
     @Override
     public void addPages() {
-        addPage(new ReviewboardPage());
+        newReviewRequestWizardPage = new NewReviewRequestPage(client.getClientData());
+        addPage(newReviewRequestWizardPage);
+    }
+
+    @Override
+    public boolean performFinish() {
+        try {
+            client.newReviewRequest(newReviewRequestWizardPage.getReviewRequest());
+        } catch (ReviewboardException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
     }
 
 }

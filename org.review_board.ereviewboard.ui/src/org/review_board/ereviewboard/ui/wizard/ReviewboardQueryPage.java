@@ -38,8 +38,6 @@
 package org.review_board.ereviewboard.ui.wizard;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -77,6 +75,7 @@ import org.review_board.ereviewboard.core.model.ReviewRequestQuery;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.StatusReviewRequestQuery;
 import org.review_board.ereviewboard.core.model.ToUserReviewRequestQuery;
+import org.review_board.ereviewboard.ui.ReviewboardUiUtil;
 
 /**
  * @author Markus Knittig
@@ -179,33 +178,17 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         }
 
         ReviewboardClientData clientData = client.getClientData();
-        groupCombo.setInput(getStringList(clientData.getGroups()));
-        repositoryCombo.setInput(getStringList(clientData.getRepositories()));
+        groupCombo.setInput(ReviewboardUiUtil.getStringList(clientData.getGroups()));
+        repositoryCombo.setInput(ReviewboardUiUtil.getStringList(clientData.getRepositories()));
 
         // TODO replace with another control
-        toUserCombo.setInput(getStringList(clientData.getUsers()));
-        fromUserCombo.setInput(getStringList(clientData.getUsers()));
+        toUserCombo.setInput(ReviewboardUiUtil.getStringList(clientData.getUsers()));
+        fromUserCombo.setInput(ReviewboardUiUtil.getStringList(clientData.getUsers()));
 
-        selectDefaultItem(groupCombo);
-        selectDefaultItem(toUserCombo);
-        selectDefaultItem(fromUserCombo);
-        selectDefaultItem(repositoryCombo);
-    }
-
-    private List<String> getStringList(List<?> list) {
-        List<String> result = new ArrayList<String>();
-
-        for (Object string : list) {
-            result.add(string.toString());
-        }
-
-        return result;
-    }
-
-    private void selectDefaultItem(ComboViewer comboViewer) {
-        if (comboViewer.getCombo().getItemCount() > 0 && comboViewer.getSelection().isEmpty()) {
-            comboViewer.getCombo().select(0);
-        }
+        ReviewboardUiUtil.selectDefaultComboItem(groupCombo);
+        ReviewboardUiUtil.selectDefaultComboItem(toUserCombo);
+        ReviewboardUiUtil.selectDefaultComboItem(fromUserCombo);
+        ReviewboardUiUtil.selectDefaultComboItem(repositoryCombo);
     }
 
     private void restoreQuery(IRepositoryQuery query) {
@@ -277,20 +260,16 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
         Composite groupComposite = createRadioCompositeWithCombo(radioComposite, "With group");
         groupCombo = createGroupCombo(groupComposite);
-        groupCombo.setContentProvider(new ArrayContentProvider());
 
         Composite fromUserComposite = createRadioCompositeWithCombo(radioComposite, "From the user");
         fromUserCombo = createFromUserCombo(fromUserComposite);
-        fromUserCombo.setContentProvider(new ArrayContentProvider());
 
         Composite toUserComposite = createRadioCompositeWithCombo(radioComposite, "To the user");
         toUserCombo = createToUserCombo(toUserComposite);
-        toUserCombo.setContentProvider(new ArrayContentProvider());
 
         Composite repositoryComposite = createRadioCompositeWithCombo(radioComposite,
                 "From repository");
         repositoryCombo = createRepositoryCombo(repositoryComposite);
-        repositoryCombo.setContentProvider(new ArrayContentProvider());
         Label changeNumLabel = new Label(repositoryComposite, SWT.NONE);
         changeNumLabel.setText("with change number:");
         Text changeNumText = new Text(repositoryComposite, SWT.BORDER);
@@ -363,6 +342,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private ComboViewer createGroupCombo(Composite parent) {
         ComboViewer combo = createCombo(parent);
+        combo.setContentProvider(new ArrayContentProvider());
 
         combo.getCombo().addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {

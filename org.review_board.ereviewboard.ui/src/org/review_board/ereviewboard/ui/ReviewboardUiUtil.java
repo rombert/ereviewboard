@@ -35,23 +35,37 @@
  *     Markus Knittig - adapted Trac, Redmine & Atlassian implementations for
  *                      Review Board
  *******************************************************************************/
-package org.review_board.ereviewboard.ui.wizard;
+package org.review_board.ereviewboard.ui;
 
-import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.widgets.Composite;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.jface.viewers.ComboViewer;
 
 /**
  * @author Markus Knittig
  *
  */
-public class ReviewboardPage extends WizardPage {
+public final class ReviewboardUiUtil {
 
-    protected ReviewboardPage() {
-        super("TODO");
+    private ReviewboardUiUtil() {
+        super();
     }
 
-    public void createControl(Composite parent) {
-        // TODO Auto-generated method stub
+    public static List<String> getStringList(List<?> list) {
+        List<String> result = new ArrayList<String>();
+
+        for (Object string : list) {
+            result.add(string.toString());
+        }
+
+        return result;
+    }
+
+    public static void selectDefaultComboItem(ComboViewer comboViewer) {
+        if (comboViewer.getCombo().getItemCount() > 0 && comboViewer.getSelection().isEmpty()) {
+            comboViewer.getCombo().select(0);
+        }
     }
 
 }

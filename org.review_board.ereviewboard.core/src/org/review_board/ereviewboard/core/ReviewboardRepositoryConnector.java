@@ -38,6 +38,7 @@
 package org.review_board.ereviewboard.core;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,8 +50,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.tasks.core.AbstractRepositoryConnector;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.ITask;
+import org.eclipse.mylyn.tasks.core.ITaskMapping;
+import org.eclipse.mylyn.tasks.core.RepositoryResponse;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.TaskRepositoryLocationFactory;
+import org.eclipse.mylyn.tasks.core.data.AbstractTaskDataHandler;
+import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
+import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
@@ -83,8 +89,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
     @Override
     public boolean canCreateNewTask(TaskRepository repository) {
-        return false;
-        // return repository.getConnectorKind().equals(getConnectorKind());
+        return repository.getConnectorKind().equals(getConnectorKind());
     }
 
     @Override
@@ -205,4 +210,30 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         }
     }
 
+    @Override
+    public AbstractTaskDataHandler getTaskDataHandler() {
+        return new AbstractTaskDataHandler() {
+            @Override
+            public TaskAttributeMapper getAttributeMapper(TaskRepository taskRepository) {
+                return new TaskAttributeMapper(taskRepository) {
+                };
+            }
+
+            @Override
+            public boolean initializeTaskData(TaskRepository repository, TaskData data,
+                    ITaskMapping initializationData, IProgressMonitor monitor) throws CoreException {
+                // ignore
+                return false;
+            }
+
+              @Override
+            public RepositoryResponse postTaskData(TaskRepository repository, TaskData taskData,
+                    Set<TaskAttribute> oldAttributes, IProgressMonitor monitor)
+                    throws CoreException {
+                // ignore
+                return null;
+            }
+        };
+
+    }
 }

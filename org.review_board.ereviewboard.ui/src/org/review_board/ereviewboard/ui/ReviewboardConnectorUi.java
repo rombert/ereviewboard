@@ -43,9 +43,12 @@ import org.eclipse.mylyn.tasks.core.ITask;
 import org.eclipse.mylyn.tasks.core.ITaskMapping;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.AbstractRepositoryConnectorUi;
+import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.wizards.ITaskRepositoryPage;
 import org.eclipse.mylyn.tasks.ui.wizards.RepositoryQueryWizard;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
+import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
+import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.ui.wizard.NewReviewboardReviewRequestWizard;
 import org.review_board.ereviewboard.ui.wizard.ReviewboardQueryPage;
 import org.review_board.ereviewboard.ui.wizard.ReviewboardRepositorySettingsPage;
@@ -73,7 +76,12 @@ public class ReviewboardConnectorUi extends AbstractRepositoryConnectorUi {
 
     @Override
     public IWizard getNewTaskWizard(TaskRepository taskRepository, ITaskMapping taskSelection) {
-        return new NewReviewboardReviewRequestWizard(taskRepository, taskSelection);
+        ReviewboardRepositoryConnector connector = (ReviewboardRepositoryConnector) TasksUi
+                .getRepositoryManager().getRepositoryConnector(
+                        ReviewboardCorePlugin.REPOSITORY_KIND);
+        final ReviewboardClient client = connector.getClientManager().getClient(taskRepository);
+
+        return new NewReviewboardReviewRequestWizard(taskRepository, client);
     }
 
     @Override
