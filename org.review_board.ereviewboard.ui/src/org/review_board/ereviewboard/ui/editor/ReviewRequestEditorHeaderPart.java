@@ -101,6 +101,8 @@ public class ReviewRequestEditorHeaderPart extends AbstractFormPagePart {
 
     private void createSummaryText() {
         summaryText = toolkit.createText(parentComposite, getTask().getSummary());
+        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).hint(600, 15).applyTo(
+                summaryText);
         summaryText.setFont(titleFont);
     }
 
