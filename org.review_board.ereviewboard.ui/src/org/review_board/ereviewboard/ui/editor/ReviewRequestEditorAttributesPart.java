@@ -37,18 +37,28 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.client.ReviewboardClientData;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
  * @author Markus Knittig
@@ -57,13 +67,28 @@ import org.review_board.ereviewboard.core.model.User;
 public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
 
     private Composite parentComposite;
-
     private FormToolkit toolkit;
 
-    private ReviewRequest reviewRequest;
+    private Label sumbitterLabel;
+    private Label reviewersLabel;
+    private Text branchText;
+    private Text groupsText;
+    private Text bugsText;
+    private Text peopleText;
+    private Label changeNumLabel;
+    private Label repositoryLabel;
+    private Text descriptionText;
+    private Text testingDoneText;
 
-    public ReviewRequestEditorAttributesPart(ReviewRequest reviewRequest) {
+    private ReviewRequest reviewRequest;
+    private ReviewboardClient client;
+    private ReviewRequestEditorHeaderPart headerPart;
+
+    public ReviewRequestEditorAttributesPart(ReviewRequest reviewRequest, ReviewboardClient client,
+            ReviewRequestEditorHeaderPart headerPart) {
         this.reviewRequest = reviewRequest;
+        this.client = client;
+        this.headerPart = headerPart;
     }
 
     @Override
@@ -73,8 +98,6 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
         ExpandableComposite expandableComposite = toolkit.createExpandableComposite(parent,
                 ExpandableComposite.TWISTIE);
         expandableComposite.setText("Attributes");
-        // GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL,
-        // SWT.CENTER).applyTo(expandableComposite);
         GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).applyTo(expandableComposite);
 
         parentComposite = new Composite(expandableComposite, SWT.NONE);
@@ -86,74 +109,65 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
         expandableComposite.setExpanded(true);
 
         createAttributeName("Submitter:");
-        if (reviewRequest.getSubmitter() == null) {
-            createLabelAttribute("");
-        } else {
-            createLabelAttribute(reviewRequest.getSubmitter().getUsername());
-        }
+        sumbitterLabel = createLabelAttribute();
 
-        Label reviewersLabel = createAttributeName("Reviewers");
-        reviewersLabel.setForeground(parentComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        createLabelAttribute("");
+        createAttributeName("Reviewers").setForeground(
+                parentComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        reviewersLabel = createLabelAttribute();
 
         createAttributeName("Branch:");
-        createTextAttribute(reviewRequest.getBranch());
+        branchText = createTextAttribute();
 
         createAttributeName("Groups");
-        String groups = "";
-        for (ReviewGroup group : reviewRequest.getTargetGroups()) {
-            groups += ", " + group.getName();
-        }
-        createTextAttribute(substract(groups));
+        groupsText = createTextAttribute();
 
-        createAttributeName("Bugs:");
-        String bugs = "";
-        for (Integer bug : reviewRequest.getBugsClosed()) {
-            bugs += ", " + bug;
-        }
-        createTextAttribute(substract(bugs));
+        createAttributeName("Bugs closed:");
+        bugsText = createTextAttribute();
 
         createAttributeName("People:");
-        String people = "";
-        for (User user : reviewRequest.getTargetUsers()) {
-            people += ", " + user.getUsername();
-        }
-        createTextAttribute(substract(people));
+        peopleText = createTextAttribute();
 
-        createAttributeName("Change Number:");
-        if (reviewRequest.getChangeNumber() == null) {
-            createLabelAttribute("None");
-        } else {
-            createLabelAttribute(String.valueOf(reviewRequest.getChangeNumber()));
-        }
+        createAttributeName("Change number:");
+        changeNumLabel = createLabelAttribute();
 
         createAttributeName("Repository:");
-        if (reviewRequest.getRepository() == null) {
-            createLabelAttribute("");
-        } else {
-            createLabelAttribute(reviewRequest.getRepository().getName());
-        }
+        repositoryLabel = createLabelAttribute();
 
-        createMultiTextAttribute("Description:", reviewRequest.getDescription());
-        createMultiTextAttribute("Testing done:", reviewRequest.getTestingDone());
+        descriptionText = createMultiTextAttribute("Description:");
+        testingDoneText = createMultiTextAttribute("Testing done:");
+
+        Button updateAttributesButton = toolkit.createButton(parentComposite,
+                "Update attributes", SWT.NONE);
+        updateAttributesButton.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(final SelectionEvent e) {
+                try {
+                    ReviewRequest reviewRequest = getInput();
+                    client.updateReviewRequest(reviewRequest);
+                    setInput(reviewRequest);
+                } catch (ReviewboardException ex) {
+                    // TODO Auto-generated catch block
+                    ex.printStackTrace();
+                }
+            }
+        });
+        new Label(expandableComposite, SWT.NONE);
+        new Label(expandableComposite, SWT.NONE);
+        new Label(expandableComposite, SWT.NONE);
+
+        setInput(reviewRequest);
 
         return expandableComposite;
     }
 
-    private String substract(String string) {
-        if (string.length() > 2) {
-            return string.substring(2);
-        }
-        return "";
-    }
-
-    private void createMultiTextAttribute(String name, String content) {
+    private Text createMultiTextAttribute(String name) {
         Label descriptionLabel = createAttributeName(name);
         GridDataFactory.fillDefaults().span(4, 1).applyTo(descriptionLabel);
 
-        Text text = toolkit.createText(parentComposite, content, SWT.MULTI | SWT.WRAP
+        Text text = toolkit.createText(parentComposite, "", SWT.MULTI | SWT.WRAP
                 | SWT.V_SCROLL);
         GridDataFactory.swtDefaults().span(4, 1).hint(700, 100).applyTo(text);
+
+        return text;
     }
 
     private Label createAttributeName(String name) {
@@ -163,15 +177,94 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
         return label;
     }
 
-    private Label createLabelAttribute(String text) {
-        return toolkit.createLabel(parentComposite, text);
+    private Label createLabelAttribute() {
+        return toolkit.createLabel(parentComposite, "");
     }
 
-    private Text createTextAttribute(String content) {
-        Text text = toolkit.createText(parentComposite, content);
-        text.setEditable(false);
+    private Text createTextAttribute() {
+        Text text = toolkit.createText(parentComposite, "");
         GridDataFactory.fillDefaults().grab(true, false).applyTo(text);
         return text;
+    }
+
+    public void setInput(ReviewRequest reviewRequest) {
+        sumbitterLabel.setText(reviewRequest.getSubmitter().getUsername());
+        branchText.setText(reviewRequest.getBranch());
+
+        bugsText.setText(ReviewboardUtil.unmarshallBugsClosed(reviewRequest.getBugsClosed()));
+        groupsText.setText(ReviewboardUtil.unmarshallTargetGroup(reviewRequest.getTargetGroups()));
+        peopleText.setText(ReviewboardUtil.unmarshallTargetPeople(reviewRequest.getTargetPeople()));
+
+        if (reviewRequest.getChangeNumber() == null) {
+            changeNumLabel.setText("None");
+        } else {
+            changeNumLabel.setText(String.valueOf(reviewRequest.getChangeNumber()));
+        }
+
+        repositoryLabel.setText(reviewRequest.getRepository().getName());
+        descriptionText.setText(reviewRequest.getDescription());
+        testingDoneText.setText(reviewRequest.getTestingDone());
+
+        headerPart.setSummary(reviewRequest.getSummary());
+    }
+
+    public ReviewRequest getInput() {
+        ReviewRequest reviewRequest = ReviewboardUtil.cloneEntity(this.reviewRequest);
+
+        reviewRequest.setBugsClosed(marshallBugsClosed(bugsText.getText()));
+        reviewRequest.setTargetGroups(marshallTargetGroups(groupsText.getText()));
+        reviewRequest.setTargetPeople(marshallTargetPeople(peopleText.getText()));
+
+        reviewRequest.setBranch(branchText.getText());
+        reviewRequest.setDescription(descriptionText.getText());
+        reviewRequest.setTestingDone(testingDoneText.getText());
+
+        reviewRequest.setSummary(headerPart.getSummary());
+
+        return reviewRequest;
+    }
+
+    private List<Integer> marshallBugsClosed(String bugsClosed) {
+        List<Integer> result = new ArrayList<Integer>();
+
+        for (String bugClosed : bugsClosed.split(",")) {
+            try {
+                int bug = Integer.parseInt(bugClosed.trim());
+                result.add(bug);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+
+        return result;
+    }
+
+    private List<User> marshallTargetPeople(String targetPeople) {
+        List<User> result = new ArrayList<User>();
+        int index;
+
+        for (String username : targetPeople.split(",")) {
+            index = client.getClientData().getUsers().indexOf(new User(username.trim()));
+            if (index >= 0) {
+                result.add(client.getClientData().getUsers().get(index));
+            }
+        }
+
+        return result;
+    }
+
+    private List<ReviewGroup> marshallTargetGroups(String targetGroups) {
+        List<ReviewGroup> result = new ArrayList<ReviewGroup>();
+        int index;
+
+        for (String group : targetGroups.split(",")) {
+            index = client.getClientData().getGroups().indexOf(new ReviewGroup(group.trim()));
+            if (index >= 0) {
+                result.add(client.getClientData().getGroups().get(index));
+            }
+        }
+
+        return result;
     }
 
 }

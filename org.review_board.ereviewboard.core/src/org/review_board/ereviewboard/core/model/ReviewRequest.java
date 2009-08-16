@@ -58,231 +58,141 @@ public class ReviewRequest implements Marshallable {
     private User submitter;
     private Date timeAdded;
     private Date lastUpdated;
-    private ReviewRequestStatus status;
-    private boolean isPublic;
+    private ReviewRequestStatus status = ReviewRequestStatus.PENDING;
+    private boolean publicReviewRequest;
     private Integer changeNumber;
     private Repository repository;
-    private String summary;
-    private String description;
-    private String testingDone;
+    private String summary = "";
+    private String description = "";
+    private String testingDone = "";
     private List<Integer> bugsClosed = new ArrayList<Integer>();
-    private String branch;
+    private String branch = "";
     private List<ReviewGroup> targetGroups = new ArrayList<ReviewGroup>();
-    private List<User> targetUsers = new ArrayList<User>();
+    private List<User> targetPeople = new ArrayList<User>();
 
     // TODO Add Diffs
     // TODO Add Screenshots
     // TODO Add Inactive screenshots
     // TODO Add Change descriptions
 
-    /**
-     * @return the id
-     */
     public int getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
     public void setId(int id) {
         this.id = id;
     }
 
-    /**
-     * @return the submitter
-     */
     public User getSubmitter() {
         return submitter;
     }
 
-    /**
-     * @param submitter the submitter to set
-     */
     public void setSubmitter(User submitter) {
         this.submitter = submitter;
     }
 
-    /**
-     * @return the timeAdded
-     */
     public Date getTimeAdded() {
         return timeAdded;
     }
 
-    /**
-     * @param timeAdded the timeAdded to set
-     */
     public void setTimeAdded(Date timeAdded) {
         this.timeAdded = timeAdded;
     }
 
-    /**
-     * @param lastUpdated the lastUpdated to set
-     */
     public void setLastUpdated(Date lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
-    /**
-     * @return the lastUpdated
-     */
     public Date getLastUpdated() {
         return lastUpdated;
     }
 
-    /**
-     * @return the status
-     */
     public ReviewRequestStatus getStatus() {
         return status;
     }
 
-    /**
-     * @param status the status to set
-     */
     public void setStatus(ReviewRequestStatus status) {
         this.status = status;
     }
 
-    /**
-     * @return the isPublic
-     */
     public boolean isPublic() {
-        return isPublic;
+        return publicReviewRequest;
     }
 
-    /**
-     * @param isPublic the isPublic to set
-     */
     public void setPublic(boolean isPublic) {
-        this.isPublic = isPublic;
+        this.publicReviewRequest = isPublic;
     }
 
-    /**
-     * @return the changeNumber
-     */
     public Integer getChangeNumber() {
         return changeNumber;
     }
 
-    /**
-     * @param changeNumber the changeNumber to set
-     */
     public void setChangeNumber(Integer changeNumber) {
         this.changeNumber = changeNumber;
     }
 
-    /**
-     * @return the repository
-     */
     public Repository getRepository() {
         return repository;
     }
 
-    /**
-     * @param repository the repository to set
-     */
     public void setRepository(Repository repository) {
         this.repository = repository;
     }
 
-    /**
-     * @return the summary
-     */
     public String getSummary() {
         return summary;
     }
 
-    /**
-     * @param summary the summary to set
-     */
     public void setSummary(String summary) {
         this.summary = summary;
     }
 
-    /**
-     * @return the description
-     */
     public String getDescription() {
         return description;
     }
 
-    /**
-     * @param description the description to set
-     */
     public void setDescription(String description) {
         this.description = description;
     }
 
-    /**
-     * @return the testingDone
-     */
     public String getTestingDone() {
         return testingDone;
     }
 
-    /**
-     * @param testingDone the testingDone to set
-     */
     public void setTestingDone(String testingDone) {
         this.testingDone = testingDone;
     }
 
-    /**
-     * @return the bugs
-     */
     public List<Integer> getBugsClosed() {
         return bugsClosed;
     }
 
-    /**
-     * @param bugs the bugs to set
-     */
     public void setBugsClosed(List<Integer> bugsClosed) {
         this.bugsClosed = bugsClosed;
     }
 
-    /**
-     * @return the branch
-     */
     public String getBranch() {
         return branch;
     }
 
-    /**
-     * @param branch the branch to set
-     */
     public void setBranch(String branch) {
         this.branch = branch;
     }
 
-    /**
-     * @return the targetGroups
-     */
     public List<ReviewGroup> getTargetGroups() {
         return targetGroups;
     }
 
-    /**
-     * @param targetGroups the targetGroups to set
-     */
     public void setTargetGroups(List<ReviewGroup> targetGroups) {
         this.targetGroups = targetGroups;
     }
 
-    /**
-     * @return the targetUsers
-     */
-    public List<User> getTargetUsers() {
-        return targetUsers;
+    public List<User> getTargetPeople() {
+        return targetPeople;
     }
 
-    /**
-     * @param targetUsers the targetUsers to set
-     */
-    public void setTargetUsers(List<User> targetUsers) {
-        this.targetUsers = targetUsers;
+    public void setTargetPeople(List<User> targetUsers) {
+        this.targetPeople = targetUsers;
     }
 
     public void marshall(JSONObject jsonObject) {
@@ -293,7 +203,7 @@ public class ReviewRequest implements Marshallable {
             timeAdded = ReviewboardUtil.marshallDate(jsonObject.getString("time_added"));
             lastUpdated = ReviewboardUtil.marshallDate(jsonObject.getString("last_updated"));
             status = ReviewRequestStatus.parseStatus(jsonObject.getString("status"));
-            isPublic = ReviewboardUtil.marshallBoolean(jsonObject.getInt("public"));
+            publicReviewRequest = ReviewboardUtil.marshallBoolean(jsonObject, "public");
             marshallChangeNumber(jsonObject);
             repository = ReviewboardUtil.parseEntity(Repository.class, jsonObject
                     .getJSONObject("repository"));
@@ -304,7 +214,7 @@ public class ReviewRequest implements Marshallable {
             branch = jsonObject.getString("branch");
             targetGroups = ReviewboardUtil.parseEntities(ReviewGroup.class, jsonObject
                     .getJSONArray("target_groups"));
-            targetUsers = ReviewboardUtil.parseEntities(User.class, jsonObject
+            targetPeople = ReviewboardUtil.parseEntities(User.class, jsonObject
                     .getJSONArray("target_people"));
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -344,7 +254,7 @@ public class ReviewRequest implements Marshallable {
             jsonObject.put("time_added", ReviewboardUtil.unmarshallDate(timeAdded));
             jsonObject.put("last_updated", ReviewboardUtil.unmarshallDate(lastUpdated));
             jsonObject.put("text", status);
-            jsonObject.put("public", ReviewboardUtil.unmarshallBoolean(isPublic));
+            jsonObject.put("public", ReviewboardUtil.unmarshallBoolean(publicReviewRequest));
             jsonObject.put("changenum", changeNumber);
             jsonObject.put("repository", repository.unmarshall());
             jsonObject.put("summary", summary);
@@ -353,7 +263,7 @@ public class ReviewRequest implements Marshallable {
             jsonObject.put("bugs_closed", bugsClosed);
             jsonObject.put("branch", branch);
             jsonObject.put("target_groups", targetGroups);
-            jsonObject.put("target_people", targetUsers);
+            jsonObject.put("target_people", targetPeople);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

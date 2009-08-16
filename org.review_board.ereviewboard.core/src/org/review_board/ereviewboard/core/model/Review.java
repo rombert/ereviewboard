@@ -134,7 +134,7 @@ public class Review implements Marshallable {
             timestamp = ReviewboardUtil.marshallDate(jsonObject.getString("timestamp"));
             user = ReviewboardUtil.parseEntity(User.class, jsonObject
                     .getJSONObject("user"));
-            publicReview = ReviewboardUtil.marshallBoolean(jsonObject.getInt("public"));
+            publicReview = ReviewboardUtil.marshallBoolean(jsonObject, "public");
             comments = ReviewboardUtil.parseEntities(Comment.class, jsonObject
                     .getJSONArray("comments"));
         } catch (JSONException e) {

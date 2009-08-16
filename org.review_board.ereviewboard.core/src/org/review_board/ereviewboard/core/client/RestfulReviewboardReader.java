@@ -81,6 +81,7 @@ public class RestfulReviewboardReader {
                     jsonReviewRequests.getJSONArray("review_requests"));
             return reviewRequests;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ReviewboardException(e.getMessage(), e);
         }
     }

@@ -169,7 +169,7 @@ public class Comment implements Marshallable {
             }
             firstLine = jsonObject.getInt("first_line");
             numLines = jsonObject.getInt("num_lines");
-            publicComment = ReviewboardUtil.marshallBoolean(jsonObject.getInt("public"));
+            publicComment = ReviewboardUtil.marshallBoolean(jsonObject, "public");
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

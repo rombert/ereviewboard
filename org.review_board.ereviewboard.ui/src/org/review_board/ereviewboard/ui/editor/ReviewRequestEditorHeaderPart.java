@@ -61,7 +61,7 @@ public class ReviewRequestEditorHeaderPart extends AbstractFormPagePart {
 
     private FormToolkit toolkit;
 
-    private Text txtTest;
+    private Text summaryText;
 
     private Label lblUpdatedWeek;
 
@@ -78,7 +78,7 @@ public class ReviewRequestEditorHeaderPart extends AbstractFormPagePart {
         this.toolkit = toolkit;
 
         parentComposite = toolkit.createComposite(parent);
-        // toolkit.paintBordersFor(parentComposite);
+        toolkit.paintBordersFor(parentComposite);
         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(parentComposite);
         GridDataFactory.fillDefaults().grab(true, false).applyTo(parentComposite);
 
@@ -100,9 +100,8 @@ public class ReviewRequestEditorHeaderPart extends AbstractFormPagePart {
     }
 
     private void createSummaryText() {
-        txtTest = toolkit.createText(parentComposite, getTask().getSummary());
-        txtTest.setEditable(false);
-        txtTest.setFont(titleFont);
+        summaryText = toolkit.createText(parentComposite, getTask().getSummary());
+        summaryText.setFont(titleFont);
     }
 
     private void createLastUpdatedLabel() {
@@ -111,6 +110,14 @@ public class ReviewRequestEditorHeaderPart extends AbstractFormPagePart {
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).span(2, 1).applyTo(
                 lblUpdatedWeek);
         lblUpdatedWeek.setForeground(attributeNameColor);
+    }
+
+    public String getSummary() {
+        return summaryText.getText();
+    }
+
+    public void setSummary(String summary) {
+        summaryText.setText(summary);
     }
 
 }

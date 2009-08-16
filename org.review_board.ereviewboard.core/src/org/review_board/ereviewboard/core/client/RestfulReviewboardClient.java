@@ -38,12 +38,15 @@
 package org.review_board.ereviewboard.core.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -51,6 +54,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
@@ -61,6 +65,7 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
@@ -182,6 +187,27 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return executePost(url, body, new HashMap<String, String>());
     }
 
+    private String executePost(String url) {
+        return executePost(url, new HashMap<String, String>());
+    }
+
+    private String executePost(String url, Map<String, String> parameters) {
+        PostMethod post = createPostMethod(url);
+
+        for (String key : parameters.keySet()) {
+            post.setParameter(key, parameters.get(key));
+        }
+
+        try {
+            httpClient.executeMethod(post);
+            return post.getResponseBodyAsString();
+        } catch (IOException e) {
+            new RuntimeException(e);
+        }
+
+        return "";
+    }
+
     private String executePost(String url, JSONObject body, Map<String, String> parameters) {
         PostMethod post = createPostMethod(url);
 
@@ -226,11 +252,17 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         }
 
         ReviewRequest newReviewRequest = reviewboardReader.readReviewRequest(executePost(
-                "/api/json/reviewrequests/new/", new JSONObject(), parameters));
+                "/api/json/reviewrequests/new/", parameters));
         reviewRequest.setId(newReviewRequest.getId());
         reviewRequest.setTimeAdded(newReviewRequest.getTimeAdded());
         reviewRequest.setLastUpdated(newReviewRequest.getLastUpdated());
         reviewRequest.setSubmitter(newReviewRequest.getSubmitter());
+
+        //TODO
+        //reviewRequest.getTargetPeople().add(newReviewRequest.getSubmitter());
+        //reviewRequest.setSummary("Test");
+        //reviewRequest.setDescription("Test");
+        //updateReviewRequest(reviewRequest);
 
         return reviewRequest;
     }
@@ -257,12 +289,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public void updateReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        parameters.put("status", reviewRequest.getStatus().toString());
+        //parameters.put("public", reviewRequest.getPublicReviewRequest());
+        parameters.put("summary", reviewRequest.getSummary());
+        parameters.put("description", reviewRequest.getDescription());
+        parameters.put("testing_done", reviewRequest.getTestingDone());
+        parameters.put("branch", reviewRequest.getBranch());
+        parameters.put("bugs_closed", ReviewboardUtil.unmarshallBugsClosed(reviewRequest.getBugsClosed()));
+        parameters.put("target_groups", ReviewboardUtil.unmarshallTargetGroup(reviewRequest.getTargetGroups()));
+        parameters.put("target_people", ReviewboardUtil.unmarshallTargetPeople(reviewRequest.getTargetPeople()));
+
         executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/set/",
-                reviewRequest.unmarshall());
-        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/save/",
-                new JSONObject());
-        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/publish/",
-                new JSONObject());
+                parameters);
+        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/save/");
+        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/publish/");
     }
 
     public boolean hasRepositoryData() {
@@ -289,8 +331,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
             clientData.lastupdate = new Date().getTime();
         } catch (Exception e) {
-            throw new RuntimeException(e);
             // TODO: handle exception
+            throw new RuntimeException(e);
         }
     }
 

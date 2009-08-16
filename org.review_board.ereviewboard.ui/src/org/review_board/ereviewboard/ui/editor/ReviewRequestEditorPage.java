@@ -84,10 +84,16 @@ public class ReviewRequestEditorPage extends TaskFormPage {
 
     private ReviewRequest reviewRequest;
 
+    private ReviewboardClient client;
+
     public ReviewRequestEditorPage(TaskEditor editor, String title) {
         super(editor, ReviewboardCorePlugin.REPOSITORY_KIND, title);
         this.editor = editor;
         parts = new ArrayList<AbstractFormPagePart>();
+
+        ReviewboardRepositoryConnector connector = ReviewboardCorePlugin.getDefault()
+                .getConnector();
+        client = connector.getClientManager().getClient(getTaskRepository());
     }
 
     @Override
@@ -129,9 +135,10 @@ public class ReviewRequestEditorPage extends TaskFormPage {
     }
 
     private void createFormParts() {
-        parts.add(new ReviewRequestEditorHeaderPart(editor));
+        ReviewRequestEditorHeaderPart headerPart = new ReviewRequestEditorHeaderPart(editor);
+        parts.add(headerPart);
         if (reviewRequest != null) {
-            parts.add(new ReviewRequestEditorAttributesPart(reviewRequest));
+            parts.add(new ReviewRequestEditorAttributesPart(reviewRequest, client, headerPart));
         }
     }
 
@@ -155,11 +162,6 @@ public class ReviewRequestEditorPage extends TaskFormPage {
         Job job = new Job(NLS.bind("Retrieving review request {0}...", getTask().getTaskId())) {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                ReviewboardRepositoryConnector connector = ReviewboardCorePlugin.getDefault()
-                        .getConnector();
-                ReviewboardClient client = connector.getClientManager().getClient(
-                        getTaskRepository());
-
                 monitor.subTask("Retrieving review request");
                 try {
                     reviewRequest = client.getReviewRequest(Integer.valueOf(getTask().getTaskId()));

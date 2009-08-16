@@ -117,7 +117,7 @@ public class RestfulReviewboardReaderTest extends TestCase {
         ReviewRequest reviewRequest = testReader.readReviewRequest(inputStreamToString(in));
 
         assertNotNull(reviewRequest);
-        assertEquals(2, reviewRequest.getTargetUsers().size());
+        assertEquals(2, reviewRequest.getTargetPeople().size());
     }
 
     public void testReadReviews() throws Exception {

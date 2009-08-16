@@ -45,7 +45,9 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.review_board.ereviewboard.core.client.ReviewboardClientData;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
@@ -90,6 +92,11 @@ public class NewReviewRequestPage extends WizardPage {
         repositoryCombo = comboViewer.getCombo();
         gridDataFactory.applyTo(repositoryCombo);
         comboViewer.setInput(ReviewboardUiUtil.getStringList(clientData.getRepositories()));
+        repositoryCombo.addListener(SWT.Modify, new Listener() {
+            public void handleEvent(Event event) {
+                getContainer().updateButtons();
+            }
+        });
 
         final Label changeNumLabel = new Label(composite, SWT.NONE);
         changeNumLabel.setText("Change number:");
@@ -100,7 +107,7 @@ public class NewReviewRequestPage extends WizardPage {
 
     @Override
     public boolean isPageComplete() {
-        return repositoryCombo.getSelectionIndex() != -1;
+        return repositoryCombo.getSelectionIndex() >= 0;
     }
 
     public ReviewRequest getReviewRequest() {

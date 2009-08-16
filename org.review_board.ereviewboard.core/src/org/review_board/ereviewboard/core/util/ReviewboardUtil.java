@@ -47,7 +47,12 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardConstants;
+import org.review_board.ereviewboard.core.client.ReviewboardClientData;
 import org.review_board.ereviewboard.core.model.Marshallable;
+import org.review_board.ereviewboard.core.model.ReviewGroup;
+import org.review_board.ereviewboard.core.model.User;
+
+import com.rits.cloning.Cloner;
 
 /**
  * @author Markus Knittig
@@ -55,7 +60,13 @@ import org.review_board.ereviewboard.core.model.Marshallable;
  */
 public final class ReviewboardUtil {
 
-    public static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private static Cloner cloner = new Cloner();
+
+    private ReviewboardUtil() {
+        super();
+    }
 
     public static Date marshallDate(String time) {
         Date date = null;
@@ -73,11 +84,21 @@ public final class ReviewboardUtil {
         return dateFormat.format(date);
     }
 
-    public static boolean marshallBoolean(int bool) {
-        if (bool > 0) {
-            return true;
-        }
+    public static boolean marshallBoolean(JSONObject jsonObject, String key) {
+        try {
+            Object bool = jsonObject.get(key);
+            if (bool instanceof Boolean) {
+                return (Boolean) bool;
+            } else {
+                if (((Integer) bool) > 0) {
+                    return true;
+                }
 
+                return false;
+            }
+        } catch (Exception e) {
+            // ignore
+        }
         return false;
     }
 
@@ -121,6 +142,50 @@ public final class ReviewboardUtil {
 
     public static String getReviewRequestUrl(String repositoryUrl, String taskId) {
         return repositoryUrl + ReviewboardConstants.REVIEW_REQUEST_URL + taskId;
+    }
+
+    public static <T> T cloneEntity(T entity) {
+        return cloner.deepClone(entity);
+    }
+
+    public static String unmarshallBugsClosed(List<Integer> bugsClosed) {
+        StringBuilder result = new StringBuilder();
+
+        for (Integer bugClosed : bugsClosed) {
+            result.append(", ");
+            result.append(String.valueOf(bugClosed));
+        }
+
+        return substractComma(result.toString());
+    }
+
+    public static String unmarshallTargetPeople(List<User> targetPeople) {
+        StringBuilder result = new StringBuilder();
+
+        for (User user : targetPeople) {
+            result.append(", ");
+            result.append(user.getUsername());
+        }
+
+        return substractComma(result.toString());
+    }
+
+    public static String unmarshallTargetGroup(List<ReviewGroup> targetGroup) {
+        StringBuilder result = new StringBuilder();
+
+        for (ReviewGroup group : targetGroup) {
+            result.append(", ");
+            result.append(group.getName());
+        }
+
+        return substractComma(result.toString());
+    }
+
+    public static String substractComma(String string) {
+        if (string.length() > 2) {
+            return string.substring(2);
+        }
+        return "";
     }
 
 }

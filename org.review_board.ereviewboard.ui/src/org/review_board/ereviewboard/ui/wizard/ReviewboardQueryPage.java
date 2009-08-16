@@ -267,8 +267,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         Composite toUserComposite = createRadioCompositeWithCombo(radioComposite, "To the user");
         toUserCombo = createToUserCombo(toUserComposite);
 
-        Composite repositoryComposite = createRadioCompositeWithCombo(radioComposite,
-                "From repository");
+        Composite repositoryComposite = createRadioCompositeWithCombo(radioComposite, "From repository");
         repositoryCombo = createRepositoryCombo(repositoryComposite);
         Label changeNumLabel = new Label(repositoryComposite, SWT.NONE);
         changeNumLabel.setText("with change number:");
@@ -329,6 +328,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     private ComboViewer createCombo(Composite parent) {
         final ComboViewer combo = new ComboViewer(parent, SWT.DROP_DOWN | SWT.BORDER
                 | SWT.READ_ONLY);
+        combo.setContentProvider(new ArrayContentProvider());
 
         parent.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
@@ -342,7 +342,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private ComboViewer createGroupCombo(Composite parent) {
         ComboViewer combo = createCombo(parent);
-        combo.setContentProvider(new ArrayContentProvider());
 
         combo.getCombo().addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
@@ -371,6 +370,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private ComboViewer createToUserCombo(Composite parent) {
         ComboViewer combo = createCombo(parent);
+        combo.setContentProvider(new ArrayContentProvider());
 
         combo.getCombo().addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {

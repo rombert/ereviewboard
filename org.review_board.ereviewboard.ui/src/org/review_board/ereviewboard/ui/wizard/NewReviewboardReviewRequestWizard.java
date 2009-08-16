@@ -39,6 +39,7 @@ package org.review_board.ereviewboard.ui.wizard;
 
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.wizards.NewTaskWizard;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.INewWizard;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
@@ -62,6 +63,11 @@ public class NewReviewboardReviewRequestWizard extends NewTaskWizard implements 
     public void addPages() {
         newReviewRequestWizardPage = new NewReviewRequestPage(client.getClientData());
         addPage(newReviewRequestWizardPage);
+    }
+
+    @Override
+    public void createPageControls(Composite pageContainer) {
+            super.createPageControls(pageContainer);
     }
 
     @Override
