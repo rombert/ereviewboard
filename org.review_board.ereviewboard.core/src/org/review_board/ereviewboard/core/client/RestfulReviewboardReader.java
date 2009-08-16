@@ -41,7 +41,9 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.User;
@@ -98,6 +100,36 @@ public class RestfulReviewboardReader {
             JSONObject jsonReviewRequest = new JSONObject(source);
             return ReviewboardUtil.parseEntity(ReviewRequest.class, jsonReviewRequest
                     .getJSONObject("review_request"));
+        } catch (Exception e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
+    public List<Review> readReviews(String source) throws ReviewboardException {
+        try {
+            JSONObject jsonReviewRequest = new JSONObject(source);
+            return ReviewboardUtil.parseEntities(Review.class, jsonReviewRequest
+                    .getJSONArray("reviews"));
+        } catch (Exception e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
+    public List<Comment> readComments(String source) throws ReviewboardException {
+        try {
+            JSONObject jsonReviewRequest = new JSONObject(source);
+            return ReviewboardUtil.parseEntities(Comment.class, jsonReviewRequest
+                    .getJSONArray("comments"));
+        } catch (Exception e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
+    public List<Review> readReplies(String source) throws ReviewboardException {
+        try {
+            JSONObject jsonReviewRequest = new JSONObject(source);
+            return ReviewboardUtil.parseEntities(Review.class, jsonReviewRequest
+                    .getJSONArray("replies"));
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }

@@ -38,6 +38,8 @@
 package org.review_board.ereviewboard.core.client;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +65,9 @@ import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.User;
@@ -227,7 +231,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         reviewRequest.setTimeAdded(newReviewRequest.getTimeAdded());
         reviewRequest.setLastUpdated(newReviewRequest.getLastUpdated());
         reviewRequest.setSubmitter(newReviewRequest.getSubmitter());
-        updateReviewRequest(reviewRequest);
 
         return reviewRequest;
     }
@@ -235,6 +238,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public ReviewRequest getReviewRequest(int reviewRequestId) throws ReviewboardException {
         return reviewboardReader.readReviewRequest(executeGet("/api/json/reviewrequests/"
                 + reviewRequestId + "/"));
+    }
+
+    public List<Review> getReviews(int reviewRequestId) throws ReviewboardException {
+        List<Review> result =  reviewboardReader.readReviews(executeGet("/api/json/reviewrequests/"
+                + reviewRequestId + "/reviews/"));
+
+        for (Review review : result) {
+            // Sort comments by line
+            Collections.sort(review.getComments(), new Comparator<Comment>() {
+                public int compare(Comment comment1, Comment comment2) {
+                    return ((Integer) comment1.getFirstLine()).compareTo(comment2.getFirstLine());
+                }
+            });
+        }
+
+        return result;
     }
 
     public void updateReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException {

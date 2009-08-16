@@ -45,7 +45,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.User;
@@ -116,6 +118,33 @@ public class RestfulReviewboardReaderTest extends TestCase {
 
         assertNotNull(reviewRequest);
         assertEquals(2, reviewRequest.getTargetUsers().size());
+    }
+
+    public void testReadReviews() throws Exception {
+        InputStream in = getClass().getResourceAsStream("/jsondata/reviews.json");
+
+        List<Review> reviews = testReader.readReviews(inputStreamToString(in));
+
+        assertNotNull(reviews);
+        assertEquals(1, reviews.get(0).getId());
+    }
+
+    public void testReadReviewComments() throws Exception {
+        InputStream in = getClass().getResourceAsStream("/jsondata/review_comments.json");
+
+        List<Comment> comments = testReader.readComments(inputStreamToString(in));
+
+        assertNotNull(comments);
+        assertEquals(1, comments.get(0).getId());
+    }
+
+    public void testReadReviewReplies() throws Exception {
+        InputStream in = getClass().getResourceAsStream("/jsondata/review_replies.json");
+
+        List<Review> comments = testReader.readReplies(inputStreamToString(in));
+
+        assertNotNull(comments);
+        assertEquals(2, comments.get(0).getId());
     }
 
 }

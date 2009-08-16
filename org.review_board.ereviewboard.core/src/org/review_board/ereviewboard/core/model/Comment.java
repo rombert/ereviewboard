@@ -52,74 +52,124 @@ public class Comment implements Marshallable {
     private static final long serialVersionUID = 2864269615892045077L;
 
     private int id;
-    // TODO Add Interdiff
     private Comment replyTo;
     private Date timestamp;
     private String text;
+    private User user;
+    private int firstLine;
+    private int numLines;
+    private FileDiff fileDiff;
+    private FileDiff interFileDiff;
+    private boolean publicComment;
 
-    /**
-     * @return the id
-     */
     public int getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
     public void setId(int id) {
         this.id = id;
     }
 
-    /**
-     * @return the replyTo
-     */
     public Comment getReplyTo() {
         return replyTo;
     }
 
-    /**
-     * @param replyTo the replyTo to set
-     */
     public void setReplyTo(Comment replyTo) {
         this.replyTo = replyTo;
     }
 
-    /**
-     * @return the timestamp
-     */
     public Date getTimestamp() {
         return timestamp;
     }
 
-    /**
-     * @param timestamp the timestamp to set
-     */
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
-    /**
-     * @return the text
-     */
     public String getText() {
         return text;
     }
 
-    /**
-     * @param text the text to set
-     */
     public void setText(String text) {
         this.text = text;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public int getFirstLine() {
+        return firstLine;
+    }
+
+    public void setFirstLine(int firstLine) {
+        this.firstLine = firstLine;
+    }
+
+    public int getNumLines() {
+        return numLines;
+    }
+
+    public void setNumLines(int numLines) {
+        this.numLines = numLines;
+    }
+
+    public int getLastLine() {
+        return firstLine + numLines;
+    }
+
+    public FileDiff getFileDiff() {
+        return fileDiff;
+    }
+
+    public void setFileDiff(FileDiff fileDiff) {
+        this.fileDiff = fileDiff;
+    }
+
+    public FileDiff getInterFileDiff() {
+        return interFileDiff;
+    }
+
+    public void setInterFileDiff(FileDiff interFileDiff) {
+        this.interFileDiff = interFileDiff;
+    }
+
+    public boolean isPublicComment() {
+        return publicComment;
+    }
+
+    public void setPublicComment(boolean publicComment) {
+        this.publicComment = publicComment;
     }
 
     public void marshall(JSONObject jsonObject) {
         try {
             id = jsonObject.getInt("id");
-            replyTo = ReviewboardUtil.parseEntity(Comment.class, jsonObject
-                    .getJSONObject("replyTo"));
+            if (jsonObject.has("reply_to")) {
+                replyTo = ReviewboardUtil.parseEntity(Comment.class, jsonObject
+                        .getJSONObject("reply_to"));
+            } else {
+                replyTo = null;
+            }
             timestamp = ReviewboardUtil.marshallDate(jsonObject.getString("timestamp"));
             text = jsonObject.getString("text");
+            user = ReviewboardUtil.parseEntity(User.class, jsonObject
+                    .getJSONObject("user"));
+            fileDiff = ReviewboardUtil.parseEntity(FileDiff.class, jsonObject
+                    .getJSONObject("filediff"));
+            if (jsonObject.getString("interfilediff").equals("null")) {
+                interFileDiff = null;
+            } else {
+                interFileDiff = ReviewboardUtil.parseEntity(FileDiff.class, jsonObject
+                        .getJSONObject("interfilediff"));
+            }
+            firstLine = jsonObject.getInt("first_line");
+            numLines = jsonObject.getInt("num_lines");
+            publicComment = ReviewboardUtil.marshallBoolean(jsonObject.getInt("public"));
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -130,13 +180,24 @@ public class Comment implements Marshallable {
 
         try {
             jsonObject.put("id", id);
-            jsonObject.put("replyTo", replyTo.unmarshall());
+            if (replyTo != null) {
+                jsonObject.put("reply_to", replyTo.unmarshall());
+            }
             jsonObject.put("timestamp", ReviewboardUtil.unmarshallDate(timestamp));
             jsonObject.put("text", text);
+            jsonObject.put("user", user.unmarshall());
+            jsonObject.put("filediff", fileDiff.unmarshall());
+            if (interFileDiff == null) {
+                jsonObject.put("interfilediff", "null");
+            } else {
+                jsonObject.put("interfilediff", interFileDiff);
+            }
+            jsonObject.put("first_line", firstLine);
+            jsonObject.put("num_lines", numLines);
+            jsonObject.put("public", ReviewboardUtil.unmarshallBoolean(publicComment));
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
 
         return jsonObject;
     }
