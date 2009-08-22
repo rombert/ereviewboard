@@ -56,7 +56,7 @@ public class RepositoryReviewRequestQuery extends StatusReviewRequestQuery {
 
     @Override
     public String getQuery() {
-        return "repository/" + repositoryId + "/changenum/" + changeNum + super.getQuery();
+        return String.format("repository/%s/changenum/%s%s", repositoryId, changeNum, super.getQuery());
     }
 
     public boolean isValid() {

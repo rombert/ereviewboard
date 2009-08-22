@@ -43,42 +43,39 @@ package org.review_board.ereviewboard.core.model;
  */
 public enum ReviewRequestStatus {
 
-    PENDING,
-    SUBMITTED,
-    DISCARDED,
-    NONE;
+    PENDING, SUBMITTED, DISCARDED, NONE;
 
     public static ReviewRequestStatus parseStatus(String status) {
-    	ReviewRequestStatus result;
+        ReviewRequestStatus result;
 
-    	switch (status.charAt(0)) {
-		case 'P':
-			result = ReviewRequestStatus.PENDING;
-			break;
-		case 'S':
-			result = ReviewRequestStatus.SUBMITTED;
-			break;
-		case 'D':
-			result = ReviewRequestStatus.DISCARDED;
-			break;
-		default:
-			result = ReviewRequestStatus.NONE;
-		}
+        switch (status.charAt(0)) {
+        case 'P':
+            result = ReviewRequestStatus.PENDING;
+            break;
+        case 'S':
+            result = ReviewRequestStatus.SUBMITTED;
+            break;
+        case 'D':
+            result = ReviewRequestStatus.DISCARDED;
+            break;
+        default:
+            result = ReviewRequestStatus.NONE;
+        }
 
-    	return result;
+        return result;
     }
 
     @Override
     public String toString() {
-    	if (super.toString().startsWith("N")) {
-    		return "";
-    	} else {
-    		return super.toString().substring(0, 1);
-    	}
+        if (super.toString().startsWith("N")) {
+            return "";
+        } else {
+            return super.toString().substring(0, 1);
+        }
     }
 
     public String getDisplayname() {
-    	return super.toString().substring(0, 1) + super.toString().substring(1).toLowerCase();
+        return super.toString().substring(0, 1) + super.toString().substring(1).toLowerCase();
     }
 
 }
