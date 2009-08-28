@@ -50,6 +50,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.review_board.ereviewboard.core.client.ReviewboardClientData;
+import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.ui.ReviewboardUiUtil;
 
@@ -94,6 +95,11 @@ public class NewReviewRequestPage extends WizardPage {
         comboViewer.setInput(ReviewboardUiUtil.getStringList(clientData.getRepositories()));
         repositoryCombo.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
+                changeNumText.setEnabled(false);
+                if (getRepository().getTool().equals("Perforce")) {
+                    changeNumText.setEnabled(true);
+                }
+
                 getContainer().updateButtons();
             }
         });
@@ -103,6 +109,7 @@ public class NewReviewRequestPage extends WizardPage {
 
         changeNumText = new Text(composite, SWT.BORDER);
         gridDataFactory.applyTo(changeNumText);
+        changeNumText.setEnabled(false);
     }
 
     @Override
@@ -113,13 +120,16 @@ public class NewReviewRequestPage extends WizardPage {
     public ReviewRequest getReviewRequest() {
         ReviewRequest reviewRequest = new ReviewRequest();
 
-        reviewRequest.setRepository(clientData.getRepositories().get(
-                repositoryCombo.getSelectionIndex()));
-        if (changeNumText.getText().length() > 0) {
+        reviewRequest.setRepository(getRepository());
+        if (changeNumText.getEnabled() && changeNumText.getText().length() > 0) {
             reviewRequest.setChangeNumber(Integer.parseInt(changeNumText.getText()));
         }
 
         return reviewRequest;
+    }
+
+    private Repository getRepository() {
+        return clientData.getRepositories().get(repositoryCombo.getSelectionIndex());
     }
 
 }
