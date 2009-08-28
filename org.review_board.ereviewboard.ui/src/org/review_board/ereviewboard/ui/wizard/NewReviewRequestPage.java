@@ -129,6 +129,9 @@ public class NewReviewRequestPage extends WizardPage {
     }
 
     private Repository getRepository() {
+        if (repositoryCombo.getSelectionIndex() == -1) {
+            return null;
+        }
         return clientData.getRepositories().get(repositoryCombo.getSelectionIndex());
     }
 
