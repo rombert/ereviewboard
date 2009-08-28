@@ -116,19 +116,12 @@ public class NewReviewRequestPage extends WizardPage {
     public ReviewRequest getReviewRequest() {
         ReviewRequest reviewRequest = new ReviewRequest();
 
-        reviewRequest.setRepository(getRepository());
+        reviewRequest.setRepository(getSelectedRepository());
         if (changeNumText.getEnabled() && changeNumText.getText().length() > 0) {
             reviewRequest.setChangeNumber(Integer.parseInt(changeNumText.getText()));
         }
 
         return reviewRequest;
-    }
-
-    private Repository getRepository() {
-        if (repositoryCombo.getSelectionIndex() == -1) {
-            return null;
-        }
-        return clientData.getRepositories().get(repositoryCombo.getSelectionIndex());
     }
 
     /**
@@ -138,9 +131,17 @@ public class NewReviewRequestPage extends WizardPage {
      */
     private void validateChangeNumberTextField() {
         changeNumText.setEnabled(false);
-        if (getRepository().getTool().equals("Perforce")) {
+        if (getSelectedRepository().getTool().equals("Perforce")) {
             changeNumText.setEnabled(true);
         }
     }
+
+    private Repository getSelectedRepository() {
+        if (repositoryCombo.getSelectionIndex() == -1) {
+            return null;
+        }
+        return clientData.getRepositories().get(repositoryCombo.getSelectionIndex());
+    }
+
 
 }
