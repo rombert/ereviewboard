@@ -95,11 +95,7 @@ public class NewReviewRequestPage extends WizardPage {
         comboViewer.setInput(ReviewboardUiUtil.getStringList(clientData.getRepositories()));
         repositoryCombo.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
-                changeNumText.setEnabled(false);
-                if (getRepository().getTool().equals("Perforce")) {
-                    changeNumText.setEnabled(true);
-                }
-
+                validateChangeNumberTextField();
                 getContainer().updateButtons();
             }
         });
@@ -109,7 +105,7 @@ public class NewReviewRequestPage extends WizardPage {
 
         changeNumText = new Text(composite, SWT.BORDER);
         gridDataFactory.applyTo(changeNumText);
-        changeNumText.setEnabled(false);
+        validateChangeNumberTextField();
     }
 
     @Override
@@ -133,6 +129,18 @@ public class NewReviewRequestPage extends WizardPage {
             return null;
         }
         return clientData.getRepositories().get(repositoryCombo.getSelectionIndex());
+    }
+
+    /**
+     * Validates if the change number text field is activated. This is only the
+     * case if the type of the choosen repository is "Perforce", otherwise the
+     * text field is disabled.
+     */
+    private void validateChangeNumberTextField() {
+        changeNumText.setEnabled(false);
+        if (getRepository().getTool().equals("Perforce")) {
+            changeNumText.setEnabled(true);
+        }
     }
 
 }
