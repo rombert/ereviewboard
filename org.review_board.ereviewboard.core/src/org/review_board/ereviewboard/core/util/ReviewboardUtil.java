@@ -150,41 +150,40 @@ public final class ReviewboardUtil {
     public static String unmarshallBugsClosed(List<Integer> bugsClosed) {
         StringBuilder result = new StringBuilder();
 
+        String delimiter = "";
         for (Integer bugClosed : bugsClosed) {
-            result.append(", ");
+            result.append(delimiter);
             result.append(String.valueOf(bugClosed));
+            delimiter = ", ";
         }
 
-        return substractComma(result.toString());
+        return result.toString();
     }
 
     public static String unmarshallTargetPeople(List<User> targetPeople) {
         StringBuilder result = new StringBuilder();
 
+        String delimiter = "";
         for (User user : targetPeople) {
-            result.append(", ");
+            result.append(delimiter);
             result.append(user.getUsername());
+            delimiter = ", ";
         }
 
-        return substractComma(result.toString());
+        return result.toString();
     }
 
     public static String unmarshallTargetGroup(List<ReviewGroup> targetGroup) {
         StringBuilder result = new StringBuilder();
 
+        String delimiter = "";
         for (ReviewGroup group : targetGroup) {
-            result.append(", ");
+            result.append(delimiter);
             result.append(group.getName());
+            delimiter = ", ";
         }
 
-        return substractComma(result.toString());
-    }
-
-    public static String substractComma(String string) {
-        if (string.length() > 2) {
-            return string.substring(2);
-        }
-        return "";
+        return result.toString();
     }
 
 }

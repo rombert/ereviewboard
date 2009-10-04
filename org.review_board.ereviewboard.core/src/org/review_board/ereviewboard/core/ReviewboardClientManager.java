@@ -82,8 +82,8 @@ public class ReviewboardClientManager implements IRepositoryListener {
         ReviewboardClient repository = clientByUrl.get(repositoryUrl);
 
         if (repository == null) {
-            AbstractWebLocation location = taskRepositoryLocationFactory
-                    .createWebLocation(taskRepository);
+            AbstractWebLocation location =
+                    taskRepositoryLocationFactory.createWebLocation(taskRepository);
 
             ReviewboardClientData data = dataByUrl.get(repositoryUrl);
             if (data == null) {

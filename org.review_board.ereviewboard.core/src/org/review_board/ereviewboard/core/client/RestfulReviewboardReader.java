@@ -67,8 +67,8 @@ public class RestfulReviewboardReader {
     public List<ReviewGroup> readGroups(String source) throws ReviewboardException {
         try {
             JSONObject jsonGroups = new JSONObject(source);
-            return ReviewboardUtil.parseEntities(ReviewGroup.class, jsonGroups
-                    .getJSONArray("groups"));
+            return ReviewboardUtil.parseEntities(ReviewGroup.class,
+                    jsonGroups.getJSONArray("groups"));
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
@@ -81,7 +81,6 @@ public class RestfulReviewboardReader {
                     jsonReviewRequests.getJSONArray("review_requests"));
             return reviewRequests;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
@@ -89,8 +88,8 @@ public class RestfulReviewboardReader {
     public List<Repository> readRepositories(String source) throws ReviewboardException {
         try {
             JSONObject jsonRepositories = new JSONObject(source);
-            return ReviewboardUtil.parseEntities(Repository.class, jsonRepositories
-                    .getJSONArray("repositories"));
+            return ReviewboardUtil.parseEntities(Repository.class,
+                    jsonRepositories.getJSONArray("repositories"));
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
@@ -99,8 +98,8 @@ public class RestfulReviewboardReader {
     public ReviewRequest readReviewRequest(String source) throws ReviewboardException {
         try {
             JSONObject jsonReviewRequest = new JSONObject(source);
-            return ReviewboardUtil.parseEntity(ReviewRequest.class, jsonReviewRequest
-                    .getJSONObject("review_request"));
+            return ReviewboardUtil.parseEntity(ReviewRequest.class,
+                    jsonReviewRequest.getJSONObject("review_request"));
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
@@ -109,8 +108,8 @@ public class RestfulReviewboardReader {
     public List<Review> readReviews(String source) throws ReviewboardException {
         try {
             JSONObject jsonReviewRequest = new JSONObject(source);
-            return ReviewboardUtil.parseEntities(Review.class, jsonReviewRequest
-                    .getJSONArray("reviews"));
+            return ReviewboardUtil.parseEntities(Review.class,
+                    jsonReviewRequest.getJSONArray("reviews"));
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
@@ -119,8 +118,8 @@ public class RestfulReviewboardReader {
     public List<Comment> readComments(String source) throws ReviewboardException {
         try {
             JSONObject jsonReviewRequest = new JSONObject(source);
-            return ReviewboardUtil.parseEntities(Comment.class, jsonReviewRequest
-                    .getJSONArray("comments"));
+            return ReviewboardUtil.parseEntities(Comment.class,
+                    jsonReviewRequest.getJSONArray("comments"));
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
@@ -129,8 +128,8 @@ public class RestfulReviewboardReader {
     public List<Review> readReplies(String source) throws ReviewboardException {
         try {
             JSONObject jsonReviewRequest = new JSONObject(source);
-            return ReviewboardUtil.parseEntities(Review.class, jsonReviewRequest
-                    .getJSONArray("replies"));
+            return ReviewboardUtil.parseEntities(Review.class,
+                    jsonReviewRequest.getJSONArray("replies"));
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }

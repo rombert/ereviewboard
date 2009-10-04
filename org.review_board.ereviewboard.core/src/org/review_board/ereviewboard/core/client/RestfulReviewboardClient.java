@@ -235,8 +235,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public List<ReviewRequest> getReviewRequests(String query) throws ReviewboardException {
-        return reviewboardReader
-                .readReviewRequests(executeGet("/api/json/reviewrequests/" + query));
+        return reviewboardReader.readReviewRequests(
+                executeGet("/api/json/reviewrequests/" + query));
     }
 
     public ReviewRequest newReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException {
@@ -268,19 +268,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public List<Review> getReviews(int reviewRequestId) throws ReviewboardException {
-        List<Review> result =  reviewboardReader.readReviews(executeGet("/api/json/reviewrequests/"
-                + reviewRequestId + "/reviews/"));
+        List<Review> result =  reviewboardReader.readReviews(
+                executeGet("/api/json/reviewrequests/" + reviewRequestId + "/reviews/"));
 
         for (Review review : result) {
-            // Sort comments by line
-            Collections.sort(review.getComments(), new Comparator<Comment>() {
-                public int compare(Comment comment1, Comment comment2) {
-                    return ((Integer) comment1.getFirstLine()).compareTo(comment2.getFirstLine());
-                }
-            });
+            sortCommentsByLine(review);
         }
 
         return result;
+    }
+
+    private void sortCommentsByLine(Review review) {
+        Collections.sort(review.getComments(), new Comparator<Comment>() {
+            public int compare(Comment comment1, Comment comment2) {
+                return ((Integer) comment1.getFirstLine()).compareTo(comment2.getFirstLine());
+            }
+        });
     }
 
     public void updateReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException {

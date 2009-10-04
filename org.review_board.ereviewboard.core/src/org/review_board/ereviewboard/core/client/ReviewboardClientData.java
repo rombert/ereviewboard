@@ -59,44 +59,26 @@ public class ReviewboardClientData implements Serializable {
 
     long lastupdate = 0;
 
-    /**
-     * @return the users
-     */
     public List<User> getUsers() {
         return users;
     }
 
-    /**
-     * @param users the users to set
-     */
     public void setUsers(List<User> users) {
         this.users = users;
     }
 
-    /**
-     * @return the groups
-     */
     public List<ReviewGroup> getGroups() {
         return groups;
     }
 
-    /**
-     * @param groups the groups to set
-     */
     public void setGroups(List<ReviewGroup> groups) {
         this.groups = groups;
     }
 
-    /**
-     * @return the repositories
-     */
     public List<Repository> getRepositories() {
         return repositories;
     }
 
-    /**
-     * @param repositories the repositories to set
-     */
     public void setRepositories(List<Repository> repositories) {
         this.repositories = repositories;
     }
