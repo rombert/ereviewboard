@@ -191,9 +191,9 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
         sumbitterLabel.setText(reviewRequest.getSubmitter().getUsername());
         branchText.setText(reviewRequest.getBranch());
 
-        bugsText.setText(ReviewboardUtil.unmarshallBugsClosed(reviewRequest.getBugsClosed()));
-        groupsText.setText(ReviewboardUtil.unmarshallTargetGroup(reviewRequest.getTargetGroups()));
-        peopleText.setText(ReviewboardUtil.unmarshallTargetPeople(reviewRequest.getTargetPeople()));
+        bugsText.setText(ReviewboardUtil.joinList(reviewRequest.getBugsClosed()));
+        groupsText.setText(ReviewboardUtil.joinList(reviewRequest.getTargetGroups()));
+        peopleText.setText(ReviewboardUtil.joinList(reviewRequest.getTargetPeople()));
 
         if (reviewRequest.getChangeNumber() == null) {
             changeNumLabel.setText("None");

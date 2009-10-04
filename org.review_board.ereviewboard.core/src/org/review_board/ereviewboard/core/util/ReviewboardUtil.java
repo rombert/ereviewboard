@@ -147,39 +147,13 @@ public final class ReviewboardUtil {
         return cloner.deepClone(entity);
     }
 
-    public static String unmarshallBugsClosed(List<Integer> bugsClosed) {
+    public static <T> String joinList(List<T> list) {
         StringBuilder result = new StringBuilder();
 
         String delimiter = "";
-        for (Integer bugClosed : bugsClosed) {
+        for (T item : list) {
             result.append(delimiter);
-            result.append(String.valueOf(bugClosed));
-            delimiter = ", ";
-        }
-
-        return result.toString();
-    }
-
-    public static String unmarshallTargetPeople(List<User> targetPeople) {
-        StringBuilder result = new StringBuilder();
-
-        String delimiter = "";
-        for (User user : targetPeople) {
-            result.append(delimiter);
-            result.append(user.getUsername());
-            delimiter = ", ";
-        }
-
-        return result.toString();
-    }
-
-    public static String unmarshallTargetGroup(List<ReviewGroup> targetGroup) {
-        StringBuilder result = new StringBuilder();
-
-        String delimiter = "";
-        for (ReviewGroup group : targetGroup) {
-            result.append(delimiter);
-            result.append(group.getName());
+            result.append(item.toString());
             delimiter = ", ";
         }
 

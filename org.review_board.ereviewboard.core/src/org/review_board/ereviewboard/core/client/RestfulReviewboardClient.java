@@ -295,9 +295,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         parameters.put("description", reviewRequest.getDescription());
         parameters.put("testing_done", reviewRequest.getTestingDone());
         parameters.put("branch", reviewRequest.getBranch());
-        parameters.put("bugs_closed", ReviewboardUtil.unmarshallBugsClosed(reviewRequest.getBugsClosed()));
-        parameters.put("target_groups", ReviewboardUtil.unmarshallTargetGroup(reviewRequest.getTargetGroups()));
-        parameters.put("target_people", ReviewboardUtil.unmarshallTargetPeople(reviewRequest.getTargetPeople()));
+        parameters.put("bugs_closed", ReviewboardUtil.joinList(reviewRequest.getBugsClosed()));
+        parameters.put("target_groups", ReviewboardUtil.joinList(reviewRequest.getTargetGroups()));
+        parameters.put("target_people", ReviewboardUtil.joinList(reviewRequest.getTargetPeople()));
 
         executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/set/",
                 parameters);
