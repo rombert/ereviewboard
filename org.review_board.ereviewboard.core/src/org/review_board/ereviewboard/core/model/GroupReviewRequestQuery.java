@@ -43,8 +43,6 @@ package org.review_board.ereviewboard.core.model;
  */
 public class GroupReviewRequestQuery extends StatusReviewRequestQuery {
 
-    private static final long serialVersionUID = -6024320417154430028L;
-
     private String groupname;
 
     public GroupReviewRequestQuery(ReviewRequestStatus status, String groupname) {

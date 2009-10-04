@@ -51,8 +51,6 @@ import org.review_board.ereviewboard.core.model.User;
  */
 public class ReviewboardClientData implements Serializable {
 
-    private static final long serialVersionUID = 9156255577082704349L;
-
     private List<User> users = new ArrayList<User>();
     private List<ReviewGroup> groups = new ArrayList<ReviewGroup>();
     private List<Repository> repositories = new ArrayList<Repository>();

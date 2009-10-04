@@ -43,8 +43,6 @@ package org.review_board.ereviewboard.core.exception;
  */
 public class ReviewboardException extends Exception {
 
-    private static final long serialVersionUID = -7600603951139662547L;
-
     public ReviewboardException() {
         super();
     }

@@ -43,8 +43,6 @@ package org.review_board.ereviewboard.core.model;
  */
 public class AllReviewRequestQuery extends StatusReviewRequestQuery {
 
-    private static final long serialVersionUID = 7439335361296671368L;
-
     public AllReviewRequestQuery(ReviewRequestStatus status) {
         super(status);
     }

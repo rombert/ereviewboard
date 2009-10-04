@@ -46,8 +46,6 @@ import org.json.JSONObject;
  */
 public class Repository implements Marshallable {
 
-    private static final long serialVersionUID = 67636667992419648L;
-
     private int id;
     private String name;
     private String tool;

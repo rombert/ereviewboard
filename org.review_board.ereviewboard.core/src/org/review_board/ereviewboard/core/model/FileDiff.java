@@ -47,8 +47,6 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  */
 public class FileDiff implements Marshallable {
 
-    private static final long serialVersionUID = -5573524996122740041L;
-
     private int id;
     private DiffSet diffSet;
     private String destDetail;

@@ -49,8 +49,6 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  */
 public class DiffSet implements Marshallable {
 
-    private static final long serialVersionUID = 7279481793108470862L;
-
     private int id;
     private String name;
     private Date timestamp;

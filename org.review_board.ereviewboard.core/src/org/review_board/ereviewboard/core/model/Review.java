@@ -50,8 +50,6 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  */
 public class Review implements Marshallable {
 
-    private static final long serialVersionUID = -7242357272778386934L;
-
     private int id;
     private String bodyTop;
     private String bodyBottom;

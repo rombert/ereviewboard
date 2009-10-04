@@ -48,8 +48,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardConstants;
 import org.review_board.ereviewboard.core.model.Marshallable;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.User;
 
 import com.rits.cloning.Cloner;
 

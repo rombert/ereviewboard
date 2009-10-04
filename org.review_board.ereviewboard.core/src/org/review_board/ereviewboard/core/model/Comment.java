@@ -49,8 +49,6 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  */
 public class Comment implements Marshallable {
 
-    private static final long serialVersionUID = 2864269615892045077L;
-
     private int id;
     private Comment replyTo;
     private Date timestamp;
