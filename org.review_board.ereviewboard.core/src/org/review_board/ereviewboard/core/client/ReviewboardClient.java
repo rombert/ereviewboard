@@ -65,6 +65,8 @@ public interface ReviewboardClient {
 
     ReviewRequest getReviewRequest(int reviewRequestId) throws ReviewboardException;
 
+    List<String> getRawDiffs(int reviewRequestId) throws ReviewboardException;
+
     List<Review> getReviews(int reviewRequestId) throws ReviewboardException;
 
     void updateReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException;

@@ -43,18 +43,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
@@ -65,7 +61,6 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
@@ -379,6 +374,23 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         mapper.setTaskUrl(ReviewboardUtil.getReviewRequestUrl(taskRepository.getUrl(), id));
 
         return taskData;
+    }
+
+    public List<String> getRawDiffs(int reviewRequestId) throws ReviewboardException {
+        List<String> diffs = new ArrayList<String>();
+        int iter = 1;
+
+        //XXX Ugly hack, there should ba an API call for this function
+        while (true) {
+            try {
+                diffs.add(executeGet(String.format("/r/%d/diff/%d/raw/", reviewRequestId, iter)));
+                iter++;
+            } catch (Exception e) {
+                break;
+            }
+        }
+
+        return diffs;
     }
 
 }
