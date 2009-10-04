@@ -7,10 +7,17 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.review_board.ereviewboard.core.ReviewboardConstants;
 
 import junit.framework.TestCase;
 
 public class ReviewboardUtilTest extends TestCase {
+
+    public void testGetReviewRequestUrl() {
+        String expected = "foobar" + ReviewboardConstants.REVIEW_REQUEST_URL + "1";
+        assertEquals(expected, ReviewboardUtil.getReviewRequestUrl("foobar", "1"));
+        assertEquals(expected, ReviewboardUtil.getReviewRequestUrl("foobar/", "1"));
+    }
 
     public void testCloneEntitySimple() {
         CustomClass testObject = buildCustomClassObject();

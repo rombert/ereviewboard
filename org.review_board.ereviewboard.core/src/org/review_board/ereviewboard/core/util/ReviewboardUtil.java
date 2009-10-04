@@ -140,7 +140,14 @@ public final class ReviewboardUtil {
     }
 
     public static String getReviewRequestUrl(String repositoryUrl, String taskId) {
-        return repositoryUrl + ReviewboardConstants.REVIEW_REQUEST_URL + taskId;
+        return stripEndingSlash(repositoryUrl) + ReviewboardConstants.REVIEW_REQUEST_URL + taskId;
+    }
+
+    private static String stripEndingSlash(String url) {
+        if (url.endsWith("/")) {
+            return url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 
     public static <T> T cloneEntity(T entity) {
