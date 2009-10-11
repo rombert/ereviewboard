@@ -38,6 +38,7 @@
 package org.review_board.ereviewboard.ui.editor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -57,6 +58,7 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.core.util.CollectionUtil;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -190,16 +192,10 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
         sumbitterLabel.setText(reviewRequest.getSubmitter().getUsername());
         branchText.setText(reviewRequest.getBranch());
 
-        bugsText.setText(ReviewboardUtil.joinList(reviewRequest.getBugsClosed()));
-        groupsText.setText(ReviewboardUtil.joinList(reviewRequest.getTargetGroups()));
-        peopleText.setText(ReviewboardUtil.joinList(reviewRequest.getTargetPeople()));
-
-        if (reviewRequest.getChangeNumber() == null) {
-            changeNumLabel.setText("None");
-        } else {
-            changeNumLabel.setText(String.valueOf(reviewRequest.getChangeNumber()));
-        }
-
+        bugsText.setText(reviewRequest.getBugsClosedText());
+        groupsText.setText(reviewRequest.getTargetGroupsText());
+        peopleText.setText(reviewRequest.getTargetPeopleText());
+        changeNumLabel.setText(reviewRequest.getChangeNumberText());
         repositoryLabel.setText(reviewRequest.getRepository().getName());
         descriptionText.setText(reviewRequest.getDescription());
         testingDoneText.setText(reviewRequest.getTestingDone());
@@ -210,9 +206,11 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
     public ReviewRequest getInput() {
         ReviewRequest reviewRequest = ReviewboardUtil.cloneEntity(this.reviewRequest);
 
-        reviewRequest.setBugsClosed(marshallBugsClosed(bugsText.getText()));
-        reviewRequest.setTargetGroups(marshallTargetGroups(groupsText.getText()));
-        reviewRequest.setTargetPeople(marshallTargetPeople(peopleText.getText()));
+        reviewRequest.setBugsClosedText(bugsText.getText());
+        reviewRequest.setTargetGroups(client.getClientData().marshallTargetGroups(
+                groupsText.getText()));
+        reviewRequest.setTargetPeople(client.getClientData().marshallTargetPeople(
+                peopleText.getText()));
 
         reviewRequest.setBranch(branchText.getText());
         reviewRequest.setDescription(descriptionText.getText());
@@ -221,49 +219,6 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
         reviewRequest.setSummary(headerPart.getSummary());
 
         return reviewRequest;
-    }
-
-    private List<Integer> marshallBugsClosed(String bugsClosed) {
-        List<Integer> result = new ArrayList<Integer>();
-
-        for (String bugClosed : bugsClosed.split(",")) {
-            try {
-                int bug = Integer.parseInt(bugClosed.trim());
-                result.add(bug);
-            } catch (NumberFormatException e) {
-                // ignore
-            }
-        }
-
-        return result;
-    }
-
-    private List<User> marshallTargetPeople(String targetPeople) {
-        List<User> result = new ArrayList<User>();
-        int index;
-
-        for (String username : targetPeople.split(",")) {
-            index = client.getClientData().getUsers().indexOf(new User(username.trim()));
-            if (index >= 0) {
-                result.add(client.getClientData().getUsers().get(index));
-            }
-        }
-
-        return result;
-    }
-
-    private List<ReviewGroup> marshallTargetGroups(String targetGroups) {
-        List<ReviewGroup> result = new ArrayList<ReviewGroup>();
-        int index;
-
-        for (String group : targetGroups.split(",")) {
-            index = client.getClientData().getGroups().indexOf(new ReviewGroup(group.trim()));
-            if (index >= 0) {
-                result.add(client.getClientData().getGroups().get(index));
-            }
-        }
-
-        return result;
     }
 
 }

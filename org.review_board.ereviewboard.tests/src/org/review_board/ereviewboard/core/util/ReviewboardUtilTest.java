@@ -51,6 +51,16 @@ public class ReviewboardUtilTest extends TestCase {
         assertEquals("bla, bla", ReviewboardUtil.joinList(list));
     }
 
+    public void testSplitString() {
+        List<String> expected = Arrays.asList("foo", "bar");
+        assertEquals(expected, ReviewboardUtil.splitString("foo, bar"));
+    }
+
+    public void testSplitStringWithWhitespace() {
+        List<String> expected = Arrays.asList("foo", "bar");
+        assertEquals(expected, ReviewboardUtil.splitString("foo , bar"));
+    }
+
     private static class CustomClass implements Serializable {
         private String string;
         private int integer;

@@ -125,6 +125,13 @@ public class ReviewRequest implements Marshallable {
         return changeNumber;
     }
 
+    public String getChangeNumberText() {
+        if (changeNumber == null) {
+            return "None";
+        }
+        return String.valueOf(changeNumber);
+    }
+
     public void setChangeNumber(Integer changeNumber) {
         this.changeNumber = changeNumber;
     }
@@ -165,8 +172,23 @@ public class ReviewRequest implements Marshallable {
         return bugsClosed;
     }
 
+    public String getBugsClosedText() {
+        return ReviewboardUtil.joinList(bugsClosed);
+    }
+
     public void setBugsClosed(List<Integer> bugsClosed) {
         this.bugsClosed = bugsClosed;
+    }
+
+    public void setBugsClosedText(String bugsClosedText) {
+        bugsClosed.clear();
+        for (String bugClosed : ReviewboardUtil.splitString(bugsClosedText)) {
+            try {
+                bugsClosed.add(Integer.parseInt(bugClosed));
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
     }
 
     public String getBranch() {
@@ -181,12 +203,20 @@ public class ReviewRequest implements Marshallable {
         return targetGroups;
     }
 
+    public String getTargetGroupsText() {
+        return ReviewboardUtil.joinList(targetGroups);
+    }
+
     public void setTargetGroups(List<ReviewGroup> targetGroups) {
         this.targetGroups = targetGroups;
     }
 
     public List<User> getTargetPeople() {
         return targetPeople;
+    }
+
+    public String getTargetPeopleText() {
+        return ReviewboardUtil.joinList(targetPeople);
     }
 
     public void setTargetPeople(List<User> targetUsers) {

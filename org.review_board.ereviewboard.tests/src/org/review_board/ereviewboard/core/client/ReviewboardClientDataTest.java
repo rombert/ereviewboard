@@ -37,87 +37,43 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.User;
-import org.review_board.ereviewboard.core.util.CollectionUtil;
-import org.review_board.ereviewboard.core.util.ReviewboardUtil;
+
+import junit.framework.TestCase;
 
 /**
  * @author Markus Knittig
  *
  */
-public class ReviewboardClientData implements Serializable {
+public class ReviewboardClientDataTest extends TestCase {
 
-    private List<User> users = new ArrayList<User>();
-    private List<ReviewGroup> groups = new ArrayList<ReviewGroup>();
-    private List<Repository> repositories = new ArrayList<Repository>();
+    private ReviewboardClientData reviewboardClientData;
 
-    long lastupdate = 0;
-
-    public List<User> getUsers() {
-        return users;
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        reviewboardClientData = new ReviewboardClientData();
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void testGetUser() {
+        User joe = new User("Joe");
+        reviewboardClientData.getUsers().add(joe);
+        assertEquals(joe, reviewboardClientData.getUser("Joe"));
     }
 
-    public List<ReviewGroup> getGroups() {
-        return groups;
+    public void testGetNotExistingUser() {
+        assertEquals(null, reviewboardClientData.getUser("Joe"));
     }
 
-    public void setGroups(List<ReviewGroup> groups) {
-        this.groups = groups;
+    public void testGetGroup() {
+        ReviewGroup test = new ReviewGroup("Test");
+        reviewboardClientData.getGroups().add(test);
+        assertEquals(test, reviewboardClientData.getGroup("Test"));
     }
 
-    public List<Repository> getRepositories() {
-        return repositories;
+    public void testGetNotExistingGroup() {
+        assertEquals(null, reviewboardClientData.getGroup("Test"));
     }
-
-    public void setRepositories(List<Repository> repositories) {
-        this.repositories = repositories;
-    }
-
-    public User getUser(String username) {
-        return getItem(users, new User(username));
-    }
-
-    public ReviewGroup getGroup(String groupname) {
-        return getItem(groups, new ReviewGroup(groupname));
-    }
-
-    private <T> T getItem(List<T> list, T search) {
-        int index = list.indexOf(search);
-        if (index > -1) {
-            return list.get(index);
-        }
-        return null;
-    }
-
-    public List<User> marshallTargetPeople(String targetPeople) {
-        List<User> result = new ArrayList<User>();
-
-        for (String username : ReviewboardUtil.splitString(targetPeople)) {
-            CollectionUtil.addItemSafely(result, getUser(username));
-        }
-
-        return result;
-    }
-
-    public List<ReviewGroup> marshallTargetGroups(String targetGroups) {
-        List<ReviewGroup> result = new ArrayList<ReviewGroup>();
-
-        for (String groupname : ReviewboardUtil.splitString(targetGroups)) {
-            CollectionUtil.addItemSafely(result, getGroup(groupname));
-        }
-
-        return result;
-    }
-
 
 }
