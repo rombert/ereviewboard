@@ -44,7 +44,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.wizards.AbstractRepositorySettingsPage;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 
 /**
@@ -57,15 +64,17 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
 
     private static final String DESCRIPTION = "Example: reviews.your-domain.org";
 
+    private final TaskRepository taskRepository;
+
     private String checkedUrl = null;
 
     public ReviewboardRepositorySettingsPage(TaskRepository taskRepository) {
         super(TITLE, DESCRIPTION, taskRepository);
 
+        this.taskRepository = taskRepository;
         setNeedsAnonymousLogin(false);
         setNeedsEncoding(false);
         setNeedsTimeZone(false);
-        setNeedsAdvanced(false);
         setNeedsValidation(true);
     }
 
@@ -83,8 +92,14 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
 
     @Override
     protected void createAdditionalControls(Composite parent) {
-        // nothing to do yet
-
+        final Button selfSignedSSLCheckbox = new Button(parent, SWT.CHECK);
+        selfSignedSSLCheckbox.setText("Accept self-signed SSL certificates");
+        selfSignedSSLCheckbox.addListener(SWT.Modify, new Listener() {
+            public void handleEvent(Event event) {
+                taskRepository.setProperty("selfSignedSSL",
+                        String.valueOf(selfSignedSSLCheckbox.getSelection()));
+            }
+        });
     }
 
     @Override
@@ -113,7 +128,6 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
                 // ignore
             }
         }
-
         return false;
     }
 

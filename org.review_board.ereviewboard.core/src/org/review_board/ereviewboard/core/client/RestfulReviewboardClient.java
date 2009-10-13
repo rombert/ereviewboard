@@ -45,10 +45,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -93,6 +97,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     public RestfulReviewboardClient(AbstractWebLocation location, ReviewboardClientData clientData,
             TaskRepository repository) {
+        if (Boolean.valueOf(repository.getProperty("selfSignedSSL"))) {
+            Protocol.registerProtocol("https",
+                    new Protocol("https", new EasySSLProtocolSocketFactory(), 443));
+        }
+
         this.location = location;
         this.clientData = clientData;
         this.httpClient = new HttpClient();
@@ -135,6 +144,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            loginRequest.releaseConnection();
         }
     }
 
@@ -173,6 +184,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             return get.getResponseBodyAsString();
         } catch (IOException e) {
             new RuntimeException(e);
+        } finally {
+            get.releaseConnection();
         }
 
         return "";
@@ -198,6 +211,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             return post.getResponseBodyAsString();
         } catch (IOException e) {
             new RuntimeException(e);
+        } finally {
+            post.releaseConnection();
         }
 
         return "";
