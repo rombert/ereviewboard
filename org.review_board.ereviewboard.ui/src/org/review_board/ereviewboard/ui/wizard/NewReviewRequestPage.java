@@ -131,7 +131,11 @@ public class NewReviewRequestPage extends WizardPage {
      */
     private void validateChangeNumberTextField() {
         changeNumText.setEnabled(false);
-        if (getSelectedRepository().getTool().equals("Perforce")) {
+        //sag 11/03/2009 avoid NPE
+        Repository selectedRepo = getSelectedRepository();         
+        if (selectedRepo!=null && 
+            selectedRepo.getTool()!=null&&
+            selectedRepo.getTool().equals("Perforce")) {
             changeNumText.setEnabled(true);
         }
     }
