@@ -73,17 +73,13 @@ import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 public class ReviewRequestEditorPage extends TaskFormPage {
 
     private TaskEditor editor;
-
     private ScrolledForm form;
-
     private FormToolkit toolkit;
-
     private Composite editorComposite;
 
     private List<AbstractFormPagePart> parts;
 
     private ReviewRequest reviewRequest;
-
     private ReviewboardClient client;
 
     public ReviewRequestEditorPage(TaskEditor editor, String title) {

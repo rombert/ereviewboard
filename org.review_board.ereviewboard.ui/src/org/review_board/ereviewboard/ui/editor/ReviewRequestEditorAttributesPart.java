@@ -37,10 +37,6 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -55,10 +51,7 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.User;
-import org.review_board.ereviewboard.core.util.CollectionUtil;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -141,14 +134,7 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
                 "Update attributes", SWT.NONE);
         updateAttributesButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(final SelectionEvent e) {
-                try {
-                    ReviewRequest reviewRequest = getInput();
-                    client.updateReviewRequest(reviewRequest);
-                    setInput(reviewRequest);
-                } catch (ReviewboardException ex) {
-                    // TODO Auto-generated catch block
-                    ex.printStackTrace();
-                }
+                updateReviewRequest();
             }
         });
         new Label(expandableComposite, SWT.NONE);
@@ -158,6 +144,17 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
         setInput(reviewRequest);
 
         return expandableComposite;
+    }
+
+    private void updateReviewRequest() {
+        try {
+            ReviewRequest reviewRequest = getInput();
+            client.updateReviewRequest(reviewRequest);
+            setInput(reviewRequest);
+        } catch (ReviewboardException ex) {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
+        }
     }
 
     private Text createMultiTextAttribute(String name) {
