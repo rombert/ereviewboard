@@ -150,10 +150,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     private String getCookie() {
-        if (cookie == "") {
+        if (cookie.equals("")) {
             login();
         }
-
         return cookie;
     }
 
