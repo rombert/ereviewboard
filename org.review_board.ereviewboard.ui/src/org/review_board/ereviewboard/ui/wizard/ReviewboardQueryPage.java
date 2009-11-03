@@ -388,19 +388,25 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
         combo.getCombo().addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
-                Repository repository = client.getClientData().getRepositories().get(
-                        ((Combo) event.widget).getSelectionIndex());
+                int selectedIndex =  ((Combo) event.widget).getSelectionIndex();
+                // 11/03/09 sag .. completely ignore an empty combo or unselected repo
+                if(((Combo) event.widget).getItemCount()>0&&
+                    selectedIndex > -1 ){
+                                                            
+                    Repository repository = client.getClientData().getRepositories().get(selectedIndex);
 
-                int changeNumInt = 0;
-                try {
-                    changeNumInt = Integer.valueOf(changeNum);
-                } catch (NumberFormatException e) {
-                    // ignore
+                    int changeNumInt = 0;
+                    try {
+                        changeNumInt = Integer.valueOf(changeNum);
+                    } catch (NumberFormatException e) {
+                        // ignore
+                    }
+
+                    reviewRequestQuery = new RepositoryReviewRequestQuery(status, repository.getId(),
+                            changeNumInt);
+                    getContainer().updateButtons();
+                    
                 }
-
-                reviewRequestQuery = new RepositoryReviewRequestQuery(status, repository.getId(),
-                        changeNumInt);
-                getContainer().updateButtons();
             }
         });
 
