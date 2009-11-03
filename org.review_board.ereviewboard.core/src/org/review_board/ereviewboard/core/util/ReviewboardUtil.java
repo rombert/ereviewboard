@@ -41,7 +41,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -170,6 +169,14 @@ public final class ReviewboardUtil {
         List<String> result = new ArrayList<String>();
         for (String item : string.split(",\\s?")) {
             result.add(item.trim());
+        }
+        return result;
+    }
+
+    public static List<String> toStringList(List<?> list) {
+        List<String> result = new ArrayList<String>();
+        for (Object string : list) {
+            result.add(string.toString());
         }
         return result;
     }

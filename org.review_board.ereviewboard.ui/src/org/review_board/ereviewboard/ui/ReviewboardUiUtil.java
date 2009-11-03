@@ -37,8 +37,6 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.jface.viewers.ComboViewer;
 
@@ -50,16 +48,6 @@ public final class ReviewboardUiUtil {
 
     private ReviewboardUiUtil() {
         super();
-    }
-
-    public static List<String> getStringList(List<?> list) {
-        List<String> result = new ArrayList<String>();
-
-        for (Object string : list) {
-            result.add(string.toString());
-        }
-
-        return result;
     }
 
     public static void selectDefaultComboItem(ComboViewer comboViewer) {

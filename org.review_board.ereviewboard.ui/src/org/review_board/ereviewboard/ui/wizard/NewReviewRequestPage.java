@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Text;
 import org.review_board.ereviewboard.core.client.ReviewboardClientData;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.ui.ReviewboardUiUtil;
+import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
  * @author Markus Knittig
@@ -92,7 +92,7 @@ public class NewReviewRequestPage extends WizardPage {
         comboViewer.setContentProvider(new ArrayContentProvider());
         repositoryCombo = comboViewer.getCombo();
         gridDataFactory.applyTo(repositoryCombo);
-        comboViewer.setInput(ReviewboardUiUtil.getStringList(clientData.getRepositories()));
+        comboViewer.setInput(ReviewboardUtil.toStringList(clientData.getRepositories()));
         repositoryCombo.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
                 validateChangeNumberTextField();

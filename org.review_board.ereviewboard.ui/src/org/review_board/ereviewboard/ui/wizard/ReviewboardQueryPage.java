@@ -75,6 +75,7 @@ import org.review_board.ereviewboard.core.model.ReviewRequestQuery;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.StatusReviewRequestQuery;
 import org.review_board.ereviewboard.core.model.ToUserReviewRequestQuery;
+import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 import org.review_board.ereviewboard.ui.ReviewboardUiUtil;
 
 /**
@@ -178,12 +179,12 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         }
 
         ReviewboardClientData clientData = client.getClientData();
-        groupCombo.setInput(ReviewboardUiUtil.getStringList(clientData.getGroups()));
-        repositoryCombo.setInput(ReviewboardUiUtil.getStringList(clientData.getRepositories()));
+        groupCombo.setInput(ReviewboardUtil.toStringList(clientData.getGroups()));
+        repositoryCombo.setInput(ReviewboardUtil.toStringList(clientData.getRepositories()));
 
         // TODO replace with another control
-        toUserCombo.setInput(ReviewboardUiUtil.getStringList(clientData.getUsers()));
-        fromUserCombo.setInput(ReviewboardUiUtil.getStringList(clientData.getUsers()));
+        toUserCombo.setInput(ReviewboardUtil.toStringList(clientData.getUsers()));
+        fromUserCombo.setInput(ReviewboardUtil.toStringList(clientData.getUsers()));
 
         ReviewboardUiUtil.selectDefaultComboItem(groupCombo);
         ReviewboardUiUtil.selectDefaultComboItem(toUserCombo);
