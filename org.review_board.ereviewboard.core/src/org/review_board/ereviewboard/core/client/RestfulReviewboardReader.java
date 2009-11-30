@@ -55,6 +55,30 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  */
 public class RestfulReviewboardReader {
 
+    public boolean isStatOK(String source) throws ReviewboardException {
+        try {
+            JSONObject jsonStat = new JSONObject(source);
+            return jsonStat.getString("stat").equals("ok");
+        } catch (Exception e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
+    public String getErrorMessage(String source) throws ReviewboardException {
+        try {
+            JSONObject jsonStat = new JSONObject(source);
+            if (jsonStat.getString("err").equals("fail")) {
+                JSONObject jsonError = jsonStat.getJSONObject("err");
+                return jsonError.getString("msg") + " (Errorcode: " +
+                        jsonError.getString("code") + ")!";
+            } else {
+                throw new IllegalStateException("Request didn't fail!");
+            }
+        } catch (Exception e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
     public List<User> readUsers(String source) throws ReviewboardException {
         try {
             JSONObject jsonUsers = new JSONObject(source);

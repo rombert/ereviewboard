@@ -140,8 +140,18 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         loginRequest.setParameter("password", credentials.getPassword());
 
         try {
-            httpClient.executeMethod(loginRequest);
-            cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
+            if (httpClient.executeMethod(loginRequest) == 200) {
+                if (reviewboardReader.isStatOK(loginRequest.getResponseBodyAsString())) {
+                    cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
+                } else {
+                  //TODO Use a custom exception for error handling
+                    throw new RuntimeException(reviewboardReader.getErrorMessage(
+                            loginRequest.getResponseBodyAsString()));
+                }
+            } else {
+                //TODO Use a custom exception for error handling
+                throw new RuntimeException("Review Board site is not up!");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -267,11 +277,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         reviewRequest.setLastUpdated(newReviewRequest.getLastUpdated());
         reviewRequest.setSubmitter(newReviewRequest.getSubmitter());
 
-        //TODO
-        //reviewRequest.getTargetPeople().add(newReviewRequest.getSubmitter());
-        //reviewRequest.setSummary("Test");
-        //reviewRequest.setDescription("Test");
-        //updateReviewRequest(reviewRequest);
+        // TODO
+        // reviewRequest.getTargetPeople().add(newReviewRequest.getSubmitter());
+        // reviewRequest.setSummary("Test");
+        // reviewRequest.setDescription("Test");
+        // updateReviewRequest(reviewRequest);
 
         return reviewRequest;
     }
@@ -282,7 +292,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public List<Review> getReviews(int reviewRequestId) throws ReviewboardException {
-        List<Review> result =  reviewboardReader.readReviews(
+        List<Review> result = reviewboardReader.readReviews(
                 executeGet("/api/json/reviewrequests/" + reviewRequestId + "/reviews/"));
 
         for (Review review : result) {
@@ -304,7 +314,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         Map<String, String> parameters = new HashMap<String, String>();
 
         parameters.put("status", reviewRequest.getStatus().toString());
-        //parameters.put("public", reviewRequest.getPublicReviewRequest());
+        // parameters.put("public", reviewRequest.getPublicReviewRequest());
         parameters.put("summary", reviewRequest.getSummary());
         parameters.put("description", reviewRequest.getDescription());
         parameters.put("testing_done", reviewRequest.getTestingDone());
@@ -397,7 +407,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         List<String> diffs = new ArrayList<String>();
         int iter = 1;
 
-        //XXX Ugly hack, there should ba an API call for this function
+        // XXX Ugly hack, there should ba an API call for this function
         while (true) {
             try {
                 diffs.add(executeGet(String.format("/r/%d/diff/%d/raw/", reviewRequestId, iter)));
