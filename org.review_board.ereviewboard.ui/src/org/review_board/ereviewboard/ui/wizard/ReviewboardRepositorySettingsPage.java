@@ -42,17 +42,25 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.util.StatusHandler;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
+import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.wizards.AbstractRepositorySettingsPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
+import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
+import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 
 /**
  * @author Markus Knittig
@@ -109,10 +117,23 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
 
     @Override
     protected Validator getValidator(final TaskRepository repository) {
+        final String username = getUserName();
+        final String password = getPassword();
+
         return new Validator() {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException {
                 ReviewboardRepositorySettingsPage.this.checkedUrl = repository.getRepositoryUrl();
+
+                ReviewboardRepositoryConnector connector = (ReviewboardRepositoryConnector) TasksUi
+                        .getRepositoryManager().getRepositoryConnector(
+                        ReviewboardCorePlugin.REPOSITORY_KIND);
+
+                ReviewboardClient client = connector.getClientManager().getClient(repository);
+                if (!client.validCredentials(username, password)) {
+                    throw new CoreException(new Status(Status.ERROR, ReviewboardUiPlugin.PLUGIN_ID,
+                            "Username or password wrong!"));
+                }
             }
         };
     }
