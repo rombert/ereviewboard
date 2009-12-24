@@ -80,4 +80,6 @@ public interface ReviewboardClient {
     void performQuery(TaskRepository repository, IRepositoryQuery query,
             TaskDataCollector collector, IProgressMonitor monitor) throws CoreException;
 
+    boolean validCredentials(String username, String password);
+
 }

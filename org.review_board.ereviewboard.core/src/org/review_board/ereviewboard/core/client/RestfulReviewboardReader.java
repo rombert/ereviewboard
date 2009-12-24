@@ -67,7 +67,7 @@ public class RestfulReviewboardReader {
     public String getErrorMessage(String source) throws ReviewboardException {
         try {
             JSONObject jsonStat = new JSONObject(source);
-            if (jsonStat.getString("err").equals("fail")) {
+            if (jsonStat.getString("stat").equals("fail")) {
                 JSONObject jsonError = jsonStat.getJSONObject("err");
                 return jsonError.getString("msg") + " (Errorcode: " +
                         jsonError.getString("code") + ")!";

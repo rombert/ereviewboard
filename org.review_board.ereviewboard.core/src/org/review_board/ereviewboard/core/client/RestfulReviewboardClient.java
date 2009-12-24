@@ -52,7 +52,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -131,13 +130,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return taskData;
     }
 
-    public void login() /* throws ReviewboardException */{
+    public void login(String username, String password) {
         PostMethod loginRequest = new PostMethod(location.getUrl() + "/api/json/accounts/login/");
 
-        AuthenticationCredentials credentials = location
-                .getCredentials(AuthenticationType.REPOSITORY);
-        loginRequest.setParameter("username", credentials.getUserName());
-        loginRequest.setParameter("password", credentials.getPassword());
+        loginRequest.setParameter("username", username);
+        loginRequest.setParameter("password", password);
 
         try {
             if (httpClient.executeMethod(loginRequest) == 200) {
@@ -161,7 +158,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     private String getCookie() {
         if (cookie.equals("")) {
-            login();
+            AuthenticationCredentials credentials =
+                location.getCredentials(AuthenticationType.REPOSITORY);
+            login(credentials.getUserName(), credentials.getPassword());
         }
         return cookie;
     }
@@ -418,6 +417,15 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         }
 
         return diffs;
+    }
+
+    public boolean validCredentials(String username, String password) {
+        try {
+            login(username, password);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }
