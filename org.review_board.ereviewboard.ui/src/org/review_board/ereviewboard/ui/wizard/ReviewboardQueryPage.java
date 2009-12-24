@@ -42,7 +42,6 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -51,7 +50,6 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.wizards.AbstractRepositoryQueryPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -102,8 +100,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private String changeNum = "";
 
-    private RowLayout defaultRowLayout;
-
     private ComboViewer groupCombo;
     private ComboViewer fromUserCombo;
     private ComboViewer toUserCombo;
@@ -118,10 +114,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
                 .getRepositoryManager().getRepositoryConnector(
                         ReviewboardCorePlugin.REPOSITORY_KIND);
         client = connector.getClientManager().getClient(getTaskRepository());
-
-        defaultRowLayout = new RowLayout();
-        defaultRowLayout.center = true;
-        defaultRowLayout.wrap = false;
 
         setTitle(TITLE);
         setDescription(DESCRIPTION);
@@ -237,27 +229,18 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     public void createControl(Composite parent) {
         Composite control = new Composite(parent, SWT.NONE);
         GridLayoutFactory.fillDefaults().numColumns(4).applyTo(control);
-        GridDataFactory.fillDefaults().applyTo(control);
 
         createTitleGroup(control);
 
         Composite parentRadioComposite = new Composite(control, SWT.NONE);
-        GridLayoutFactory.fillDefaults().numColumns(4).applyTo(parentRadioComposite);
+        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(parentRadioComposite);
         GridDataFactory.fillDefaults().span(4, 1).applyTo(parentRadioComposite);
 
         Composite radioComposite = new Composite(parentRadioComposite, SWT.NONE);
-        GridDataFactory.fillDefaults().grab(true, true).applyTo(radioComposite);
+        GridDataFactory.fillDefaults().span(2, 1).applyTo(radioComposite);
         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(radioComposite);
 
-        Button all = createRadioButton(radioComposite, "All");
-        all.setSelection(true);
-        all.addListener(SWT.Selection, new Listener() {
-            public void handleEvent(Event event) {
-                reviewRequestQuery = new AllReviewRequestQuery(status);
-                getContainer().updateButtons();
-            }
-        });
-        createRadioComposite(radioComposite);
+        createAllButton(radioComposite);
 
         Composite groupComposite = createRadioCompositeWithCombo(radioComposite, "With group");
         groupCombo = createGroupCombo(groupComposite);
@@ -270,7 +253,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
         Composite repositoryComposite = createRadioCompositeWithCombo(radioComposite, "From repository");
         repositoryCombo = createRepositoryCombo(repositoryComposite);
-        Label changeNumLabel = new Label(repositoryComposite, SWT.NONE);
+        Label changeNumLabel = new Label(repositoryComposite, SWT.FILL);
         changeNumLabel.setText("with change number:");
         Text changeNumText = new Text(repositoryComposite, SWT.BORDER);
         changeNumText.addListener(SWT.Modify, new Listener() {
@@ -282,9 +265,8 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
             }
         });
 
-        Composite statusComposite = new Composite(control, SWT.NONE);
-        RowLayoutFactory.createFrom(defaultRowLayout).applyTo(statusComposite);
-
+        Composite statusComposite =  new Composite(parentRadioComposite, SWT.NONE);
+        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(statusComposite);
         Label statusLabel = new Label(statusComposite, SWT.NONE);
         statusLabel.setText("With Status");
         ComboViewer statusCombo = createCombo(statusComposite);
@@ -304,9 +286,23 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         setControl(control);
     }
 
+    private void createAllButton(Composite radioComposite) {
+        Button button = createRadioButton(radioComposite, "All");
+        button.setSelection(true);
+        final Composite allComposite = createRadioComposite(radioComposite);
+        allComposite.setEnabled(false);
+        new Label(allComposite, SWT.NONE);
+        button.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event event) {
+                reviewRequestQuery = new AllReviewRequestQuery(status);
+                getContainer().updateButtons();
+            }
+        });
+    }
+
     private Composite createRadioComposite(Composite parent) {
         final Composite composite = new Composite(parent, SWT.NONE);
-        RowLayoutFactory.createFrom(defaultRowLayout).applyTo(composite);
+        GridLayoutFactory.fillDefaults().numColumns(3).applyTo(composite);
 
         return composite;
     }
@@ -390,10 +386,8 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         combo.getCombo().addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
                 int selectedIndex =  ((Combo) event.widget).getSelectionIndex();
-                // 11/03/09 sag .. completely ignore an empty combo or unselected repo
-                if(((Combo) event.widget).getItemCount()>0&&
-                    selectedIndex > -1 ){
-                                                            
+                if (((Combo) event.widget).getItemCount() > 0 && selectedIndex > -1 ){
+
                     Repository repository = client.getClientData().getRepositories().get(selectedIndex);
 
                     int changeNumInt = 0;
@@ -406,7 +400,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
                     reviewRequestQuery = new RepositoryReviewRequestQuery(status, repository.getId(),
                             changeNumInt);
                     getContainer().updateButtons();
-                    
                 }
             }
         });
