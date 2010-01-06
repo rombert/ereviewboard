@@ -75,6 +75,7 @@ import org.review_board.ereviewboard.core.model.StatusReviewRequestQuery;
 import org.review_board.ereviewboard.core.model.ToUserReviewRequestQuery;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 import org.review_board.ereviewboard.ui.ReviewboardUiUtil;
+import org.review_board.ereviewboard.ui.util.UiUtils;
 
 /**
  * @author Markus Knittig
@@ -287,7 +288,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     }
 
     private void createAllButton(Composite radioComposite) {
-        Button button = createRadioButton(radioComposite, "All");
+        Button button = UiUtils.createRadioButton(radioComposite, "All");
         button.setSelection(true);
         final Composite allComposite = createRadioComposite(radioComposite);
         allComposite.setEnabled(false);
@@ -308,7 +309,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     }
 
     private Composite createRadioCompositeWithCombo(final Composite parent, String text) {
-        Button button = createRadioButton(parent, text);
+        Button button = UiUtils.createRadioButton(parent, text);
         final Composite composite = createRadioComposite(parent);
         composite.setEnabled(false);
 
@@ -405,12 +406,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         });
 
         return combo;
-    }
-
-    private Button createRadioButton(Composite parent, String text) {
-        Button radioButton = new Button(parent, SWT.RADIO);
-        radioButton.setText(text);
-        return radioButton;
     }
 
     private void createTitleGroup(Composite control) {

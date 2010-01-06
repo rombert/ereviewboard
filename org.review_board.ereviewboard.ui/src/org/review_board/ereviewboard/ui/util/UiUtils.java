@@ -35,54 +35,22 @@
  *     Markus Knittig - adapted Trac, Redmine & Atlassian implementations for
  *                      Review Board
  *******************************************************************************/
-package org.review_board.ereviewboard.ui.dialog;
+package org.review_board.ereviewboard.ui.util;
 
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Shell;
-import org.review_board.ereviewboard.ui.util.UiUtils;
 
 /**
  * @author Markus Knittig
  *
  */
-public class CloseReviewRequestDialog extends Dialog {
+public class UiUtils {
 
-    public CloseReviewRequestDialog(Shell parentShell) {
-        super(parentShell);
-    }
-
-    @Override
-    protected Control createDialogArea(Composite parent) {
-        Composite composite = (Composite) super.createDialogArea(parent);
-
-        UiUtils.createRadioButton(composite, "Submitted");
-        UiUtils.createRadioButton(composite, "Discarded");
-        UiUtils.createRadioButton(composite, "Delete Permanently");
-
-        return composite;
-    }
-
-    @Override
-    protected void createButtonsForButtonBar(Composite parent) {
-        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
-        createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
-    }
-
-    @Override
-    protected Point getInitialSize() {
-        return new Point(300, 200);
-    }
-
-    @Override
-    protected void configureShell(Shell newShell) {
-        super.configureShell(newShell);
-        newShell.setText("Close review request");
+    public static Button createRadioButton(Composite parent, String text) {
+        Button radioButton = new Button(parent, SWT.RADIO);
+        radioButton.setText(text);
+        return radioButton;
     }
 
 }
