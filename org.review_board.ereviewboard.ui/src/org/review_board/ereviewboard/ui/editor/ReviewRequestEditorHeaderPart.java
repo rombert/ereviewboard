@@ -56,13 +56,10 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 public class ReviewRequestEditorHeaderPart extends AbstractFormPagePart {
 
     private TaskEditor editor;
-
     private Composite parentComposite;
-
     private FormToolkit toolkit;
 
     private Text summaryText;
-
     private Label lblUpdatedWeek;
 
     public ReviewRequestEditorHeaderPart(TaskEditor editor) {

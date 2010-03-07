@@ -67,7 +67,7 @@ public class NewReviewboardReviewRequestWizard extends NewTaskWizard implements 
 
     @Override
     public void createPageControls(Composite pageContainer) {
-            super.createPageControls(pageContainer);
+        super.createPageControls(pageContainer);
     }
 
     @Override

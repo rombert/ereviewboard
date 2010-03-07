@@ -87,8 +87,8 @@ public class ReviewRequestEditorPage extends TaskFormPage {
         this.editor = editor;
         parts = new ArrayList<AbstractFormPagePart>();
 
-        ReviewboardRepositoryConnector connector = ReviewboardCorePlugin.getDefault()
-                .getConnector();
+        ReviewboardRepositoryConnector connector =
+            ReviewboardCorePlugin.getDefault().getConnector();
         client = connector.getClientManager().getClient(getTaskRepository());
     }
 
