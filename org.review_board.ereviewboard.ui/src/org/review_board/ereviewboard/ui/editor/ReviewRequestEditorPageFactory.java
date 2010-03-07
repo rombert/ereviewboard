@@ -51,7 +51,7 @@ import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
  */
 public class ReviewRequestEditorPageFactory extends AbstractTaskEditorPageFactory {
 
-    private static final String TITLE = "Reviewboard";
+    private static final String TITLE = "Review Request";
 
     @Override
     public boolean canCreatePageFor(TaskEditorInput input) {
