@@ -65,6 +65,11 @@ public class ReviewRequestEditorPageFactory extends AbstractTaskEditorPageFactor
     }
 
     @Override
+    public int getPriority() {
+        return PRIORITY_TASK;
+    }
+
+    @Override
     public Image getPageImage() {
         return null;
     }
