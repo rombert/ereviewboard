@@ -147,19 +147,18 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         loginRequest.setParameter("username", username);
         loginRequest.setParameter("password", password);
 
-        if (StringUtils.isNotBlank(executeMethod(loginRequest, monitor))) {
-            if (reviewboardReader.isStatOK(getResponseBodyAsString(loginRequest, monitor))) {
+        String response = executeMethod(loginRequest, monitor);
+        if (StringUtils.isNotBlank(response)) {
+            if (reviewboardReader.isStatOK(response)) {
                 cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
             } else {
                 //TODO Use a custom exception for error handling
-                throw new RuntimeException(reviewboardReader.getErrorMessage(
-                        getResponseBodyAsString(loginRequest, monitor)));
+                throw new RuntimeException(reviewboardReader.getErrorMessage(response));
             }
         } else {
             //TODO Use a custom exception for error handling
             throw new RuntimeException("Review Board site is not up!");
         }
-
     }
 
     private String getResponseBodyAsString(HttpMethodBase request, IProgressMonitor monitor) {
