@@ -37,7 +37,10 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -148,13 +151,20 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
     }
 
     private void updateReviewRequest() {
-        try {
-            ReviewRequest reviewRequest = getInput();
-            client.updateReviewRequest(reviewRequest, new NullProgressMonitor());
-            setInput(reviewRequest);
-        } catch (ReviewboardException ex) {
-            throw new RuntimeException(ex);
-        }
+        new Job("Update Review Request") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    ReviewRequest reviewRequest = getInput();
+                    client.updateReviewRequest(reviewRequest, monitor);
+                    setInput(reviewRequest);
+                } catch (ReviewboardException e) {
+                    throw new RuntimeException(e);
+                }
+
+                return Status.OK_STATUS;
+            }
+        }.schedule();
     }
 
     private Text createMultiTextAttribute(String name) {
