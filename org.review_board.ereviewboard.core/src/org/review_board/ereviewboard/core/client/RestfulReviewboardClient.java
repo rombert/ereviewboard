@@ -394,7 +394,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         List<String> diffs = new ArrayList<String>();
         int iter = 1;
 
-        // XXX Ugly hack, there should ba an API call for this function
+        // XXX Ugly hack, there should be an API call for this function
         while (true) {
             try {
                 diffs.add(executeGet(String.format("/r/%d/diff/%d/raw/", reviewRequestId, iter), monitor));
