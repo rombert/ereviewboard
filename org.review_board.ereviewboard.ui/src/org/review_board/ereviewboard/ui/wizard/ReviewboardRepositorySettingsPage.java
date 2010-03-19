@@ -124,7 +124,7 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
                         ReviewboardCorePlugin.REPOSITORY_KIND);
 
                 ReviewboardClient client = connector.getClientManager().getClient(repository);
-                if (!client.validCredentials(username, password)) {
+                if (!client.validCredentials(username, password, monitor)) {
                     throw new CoreException(new Status(Status.ERROR, ReviewboardUiPlugin.PLUGIN_ID,
                             "Username or password wrong!"));
                 }

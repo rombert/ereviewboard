@@ -37,6 +37,7 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.wizard;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.wizards.NewTaskWizard;
 import org.eclipse.swt.widgets.Composite;
@@ -73,7 +74,7 @@ public class NewReviewboardReviewRequestWizard extends NewTaskWizard implements 
     @Override
     public boolean performFinish() {
         try {
-            client.newReviewRequest(newReviewRequestWizardPage.getReviewRequest());
+            client.newReviewRequest(newReviewRequestWizardPage.getReviewRequest(), new NullProgressMonitor());
         } catch (ReviewboardException e) {
             throw new RuntimeException(e);
         }

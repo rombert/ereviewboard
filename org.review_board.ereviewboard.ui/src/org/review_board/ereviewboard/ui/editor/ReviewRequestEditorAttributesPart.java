@@ -37,6 +37,7 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -149,11 +150,10 @@ public class ReviewRequestEditorAttributesPart extends AbstractFormPagePart {
     private void updateReviewRequest() {
         try {
             ReviewRequest reviewRequest = getInput();
-            client.updateReviewRequest(reviewRequest);
+            client.updateReviewRequest(reviewRequest, new NullProgressMonitor());
             setInput(reviewRequest);
         } catch (ReviewboardException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 

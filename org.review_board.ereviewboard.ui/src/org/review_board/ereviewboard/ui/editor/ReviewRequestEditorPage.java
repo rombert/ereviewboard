@@ -160,7 +160,7 @@ public class ReviewRequestEditorPage extends TaskFormPage {
             protected IStatus run(IProgressMonitor monitor) {
                 monitor.subTask("Retrieving review request");
                 try {
-                    reviewRequest = client.getReviewRequest(Integer.valueOf(getTask().getTaskId()));
+                    reviewRequest = client.getReviewRequest(Integer.valueOf(getTask().getTaskId()).intValue(), monitor);
                 } catch (Exception e) {
                     return new Status(IStatus.ERROR, ReviewboardUiPlugin.PLUGIN_ID, e.getMessage());
                 }

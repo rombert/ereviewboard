@@ -46,12 +46,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -59,13 +62,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.AuthenticationCredentials;
 import org.eclipse.mylyn.commons.net.AuthenticationType;
+import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.commons.net.WebUtil;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
-import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
@@ -123,6 +126,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return clientData;
     }
 
+
     public void refreshRepositorySettings(TaskRepository repository) {
         // Nothing to do yet
     }
@@ -137,51 +141,47 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return taskData;
     }
 
-    public void login(String username, String password) {
+    public void login(String username, String password, IProgressMonitor monitor) throws ReviewboardException {
         PostMethod loginRequest = new PostMethod(location.getUrl() + "/api/json/accounts/login/");
 
         loginRequest.setParameter("username", username);
         loginRequest.setParameter("password", password);
 
-        try {
-            if (httpClient.executeMethod(loginRequest) == 200) {
-                if (reviewboardReader.isStatOK(loginRequest.getResponseBodyAsString())) {
-                    cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
-                } else {
-                  //TODO Use a custom exception for error handling
-                    throw new RuntimeException(reviewboardReader.getErrorMessage(
-                            loginRequest.getResponseBodyAsString()));
-                }
+        if (StringUtils.isNotBlank(executeMethod(loginRequest, monitor))) {
+            if (reviewboardReader.isStatOK(getResponseBodyAsString(loginRequest, monitor))) {
+                cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
             } else {
                 //TODO Use a custom exception for error handling
-                throw new RuntimeException("Review Board site is not up!");
+                throw new RuntimeException(reviewboardReader.getErrorMessage(
+                        getResponseBodyAsString(loginRequest, monitor)));
             }
-        } catch (Exception e) {
+        } else {
+            //TODO Use a custom exception for error handling
+            throw new RuntimeException("Review Board site is not up!");
+        }
+
+    }
+
+    private String getResponseBodyAsString(HttpMethodBase request, IProgressMonitor monitor) {
+
+        monitor = Policy.monitorFor(monitor);
+        monitor.beginTask("Get request body for" + request.getName() + " request", IProgressMonitor.UNKNOWN);
+        try {
+            return IOUtils.toString(WebUtil.getResponseBodyAsStream(request, monitor));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            loginRequest.releaseConnection();
+            monitor.done();
         }
     }
 
-    private String getCookie() {
+    private String getCookie(IProgressMonitor monitor) throws ReviewboardException {
         if (cookie.equals("")) {
             AuthenticationCredentials credentials =
                 location.getCredentials(AuthenticationType.REPOSITORY);
-            login(credentials.getUserName(), credentials.getPassword());
+            login(credentials.getUserName(), credentials.getPassword(), monitor);
         }
         return cookie;
-    }
-
-    private GetMethod createGetMethod(String url) {
-        GetMethod getMethod = new GetMethod(stripSlash(location.getUrl()) + url);
-        getMethod.getParams().setParameter("Set-Cookie", getCookie());
-        return getMethod;
-    }
-
-    private PostMethod createPostMethod(String url) {
-        PostMethod postMethod = new PostMethod(stripSlash(location.getUrl()) + url);
-        postMethod.getParams().setParameter("Set-Cookie", getCookie());
-        return postMethod;
     }
 
     private String stripSlash(String url) {
@@ -191,85 +191,66 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return url;
     }
 
-    private String executeGet(String url) {
-        GetMethod get = createGetMethod(url);
+    private String executeGet(String url, IProgressMonitor monitor) throws ReviewboardException {
+        GetMethod getRequest = new GetMethod(stripSlash(location.getUrl()) + url);
+        getRequest.getParams().setParameter("Set-Cookie", getCookie(monitor));
 
-        try {
-            httpClient.executeMethod(get);
-            return get.getResponseBodyAsString();
-        } catch (IOException e) {
-            new RuntimeException(e);
-        } finally {
-            get.releaseConnection();
-        }
-
-        return "";
+        return executeMethod(getRequest, monitor);
     }
 
-    private String executePost(String url, JSONObject body) {
-        return executePost(url, body, new HashMap<String, String>());
+    private String executePost(String url, IProgressMonitor monitor)  throws ReviewboardException {
+        return executePost(url, new HashMap<String, String>(), monitor);
     }
 
-    private String executePost(String url) {
-        return executePost(url, new HashMap<String, String>());
-    }
-
-    private String executePost(String url, Map<String, String> parameters) {
-        PostMethod post = createPostMethod(url);
+    private String executePost(String url, Map<String, String> parameters,
+            IProgressMonitor monitor)  throws ReviewboardException {
+        PostMethod postRequest = new PostMethod(stripSlash(location.getUrl()) + url);
+        postRequest.getParams().setParameter("Set-Cookie", getCookie(monitor));
 
         for (String key : parameters.keySet()) {
-            post.setParameter(key, parameters.get(key));
+            postRequest.setParameter(key, parameters.get(key));
         }
 
+        return executeMethod(postRequest, monitor);
+    }
+
+    private String executeMethod(HttpMethodBase request, IProgressMonitor monitor) {
+        HostConfiguration hostConfiguration = WebUtil.createHostConfiguration(httpClient, location, monitor);
+
+        monitor = Policy.monitorFor(monitor);
         try {
-            httpClient.executeMethod(post);
-            return post.getResponseBodyAsString();
-        } catch (IOException e) {
+            monitor.beginTask(request.getName() + " request on " + request.getURI(), IProgressMonitor.UNKNOWN);
+
+            WebUtil.execute(httpClient, hostConfiguration, request, monitor);
+            return getResponseBodyAsString(request, monitor);
+        } catch (Exception e) {
             new RuntimeException(e);
         } finally {
-            post.releaseConnection();
+            request.releaseConnection();
+            monitor.done();
         }
 
         return "";
     }
 
-    private String executePost(String url, JSONObject body, Map<String, String> parameters) {
-        PostMethod post = createPostMethod(url);
-
-        for (String key : parameters.keySet()) {
-            post.setParameter(key, parameters.get(key));
-        }
-
-        try {
-            post.setRequestEntity(new StringRequestEntity(body.toString(), "application/json",
-                    characterEncoding));
-            httpClient.executeMethod(post);
-            return post.getResponseBodyAsString();
-        } catch (IOException e) {
-            new RuntimeException(e);
-        }
-
-        return "";
+    public List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
+        return reviewboardReader.readRepositories(executeGet("/api/json/repositories/", monitor));
     }
 
-    public List<Repository> getRepositories() throws ReviewboardException {
-        return reviewboardReader.readRepositories(executeGet("/api/json/repositories/"));
+    public List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
+        return reviewboardReader.readUsers(executeGet("/api/json/users/", monitor));
     }
 
-    public List<User> getUsers() throws ReviewboardException {
-        return reviewboardReader.readUsers(executeGet("/api/json/users/"));
+    public List<ReviewGroup> getReviewGroups(IProgressMonitor monitor) throws ReviewboardException {
+        return reviewboardReader.readGroups(executeGet("/api/json/groups/", monitor));
     }
 
-    public List<ReviewGroup> getReviewGroups() throws ReviewboardException {
-        return reviewboardReader.readGroups(executeGet("/api/json/groups/"));
-    }
-
-    public List<ReviewRequest> getReviewRequests(String query) throws ReviewboardException {
+    public List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor) throws ReviewboardException {
         return reviewboardReader.readReviewRequests(
-                executeGet("/api/json/reviewrequests/" + query));
+                executeGet("/api/json/reviewrequests/" + query, monitor));
     }
 
-    public ReviewRequest newReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException {
+    public ReviewRequest newReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor) throws ReviewboardException {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("repository_id", String.valueOf(reviewRequest.getRepository().getId()));
         if (reviewRequest.getChangeNumber() != null) {
@@ -277,7 +258,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         }
 
         ReviewRequest newReviewRequest = reviewboardReader.readReviewRequest(executePost(
-                "/api/json/reviewrequests/new/", parameters));
+                "/api/json/reviewrequests/new/", parameters, monitor));
         reviewRequest.setId(newReviewRequest.getId());
         reviewRequest.setTimeAdded(newReviewRequest.getTimeAdded());
         reviewRequest.setLastUpdated(newReviewRequest.getLastUpdated());
@@ -292,14 +273,14 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return reviewRequest;
     }
 
-    public ReviewRequest getReviewRequest(int reviewRequestId) throws ReviewboardException {
+    public ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         return reviewboardReader.readReviewRequest(executeGet("/api/json/reviewrequests/"
-                + reviewRequestId + "/"));
+                + reviewRequestId + "/", monitor));
     }
 
-    public List<Review> getReviews(int reviewRequestId) throws ReviewboardException {
+    public List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         List<Review> result = reviewboardReader.readReviews(
-                executeGet("/api/json/reviewrequests/" + reviewRequestId + "/reviews/"));
+                executeGet("/api/json/reviewrequests/" + reviewRequestId + "/reviews/", monitor));
 
         for (Review review : result) {
             sortCommentsByLine(review);
@@ -316,7 +297,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         });
     }
 
-    public void updateReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException {
+    public void updateReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor) throws ReviewboardException {
         Map<String, String> parameters = new HashMap<String, String>();
 
         parameters.put("status", reviewRequest.getStatus().toString());
@@ -330,9 +311,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         parameters.put("target_people", ReviewboardUtil.joinList(reviewRequest.getTargetPeople()));
 
         executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/set/",
-                parameters);
-        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/save/");
-        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/publish/");
+                parameters, monitor);
+        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/save/", monitor);
+        executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/publish/", monitor);
     }
 
     public boolean hasRepositoryData() {
@@ -346,15 +327,15 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
         try {
             monitor.subTask("Retrieving Reviewboard groups");
-            clientData.setGroups(getReviewGroups());
+            clientData.setGroups(getReviewGroups(monitor));
             monitorWorked(monitor);
 
             monitor.subTask("Retrieving Reviewboard users");
-            clientData.setUsers(getUsers());
+            clientData.setUsers(getUsers(monitor));
             monitorWorked(monitor);
 
             monitor.subTask("Retrieving Reviewboard repositories");
-            clientData.setRepositories(getRepositories());
+            clientData.setRepositories(getRepositories(monitor));
             monitorWorked(monitor);
 
             clientData.lastupdate = new Date().getTime();
@@ -374,7 +355,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public void performQuery(TaskRepository repository, IRepositoryQuery query,
             TaskDataCollector collector, IProgressMonitor monitor) throws CoreException {
         try {
-            List<ReviewRequest> reviewRequests = getReviewRequests(query.getUrl());
+            List<ReviewRequest> reviewRequests = getReviewRequests(query.getUrl(), monitor);
             for (ReviewRequest reviewRequest : reviewRequests) {
                 TaskData taskData = getTaskDataForReviewRequest(repository, reviewRequest);
                 collector.accept(taskData);
@@ -409,14 +390,14 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return taskData;
     }
 
-    public List<String> getRawDiffs(int reviewRequestId) throws ReviewboardException {
+    public List<String> getRawDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         List<String> diffs = new ArrayList<String>();
         int iter = 1;
 
         // XXX Ugly hack, there should ba an API call for this function
         while (true) {
             try {
-                diffs.add(executeGet(String.format("/r/%d/diff/%d/raw/", reviewRequestId, iter)));
+                diffs.add(executeGet(String.format("/r/%d/diff/%d/raw/", reviewRequestId, iter), monitor));
                 iter++;
             } catch (Exception e) {
                 break;
@@ -426,9 +407,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return diffs;
     }
 
-    public boolean validCredentials(String username, String password) {
+    public boolean validCredentials(String username, String password, IProgressMonitor monitor) {
         try {
-            login(username, password);
+            login(username, password, monitor);
             return true;
         } catch (Exception e) {
             return false;

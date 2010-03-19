@@ -59,17 +59,17 @@ public interface ReviewboardClient {
 
     void refreshRepositorySettings(TaskRepository repository);
 
-    List<ReviewRequest> getReviewRequests(String query) throws ReviewboardException;
+    List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor) throws ReviewboardException;
 
-    ReviewRequest newReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException;
+    ReviewRequest newReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor) throws ReviewboardException;
 
-    ReviewRequest getReviewRequest(int reviewRequestId) throws ReviewboardException;
+    ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
-    List<String> getRawDiffs(int reviewRequestId) throws ReviewboardException;
+    List<String> getRawDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
-    List<Review> getReviews(int reviewRequestId) throws ReviewboardException;
+    List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
-    void updateReviewRequest(ReviewRequest reviewRequest) throws ReviewboardException;
+    void updateReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor) throws ReviewboardException;
 
     void updateRepositoryData(boolean force, IProgressMonitor monitor);
 
@@ -80,6 +80,6 @@ public interface ReviewboardClient {
     void performQuery(TaskRepository repository, IRepositoryQuery query,
             TaskDataCollector collector, IProgressMonitor monitor) throws CoreException;
 
-    boolean validCredentials(String username, String password);
+    boolean validCredentials(String username, String password, IProgressMonitor monitor);
 
 }
