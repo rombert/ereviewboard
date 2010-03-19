@@ -49,6 +49,7 @@ import java.util.Map;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -147,31 +148,27 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         loginRequest.setParameter("username", username);
         loginRequest.setParameter("password", password);
 
-        String response = executeMethod(loginRequest, monitor);
-        if (StringUtils.isNotBlank(response)) {
-            if (reviewboardReader.isStatOK(response)) {
-                cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
+        monitor = Policy.monitorFor(monitor);
+        try {
+            monitor.beginTask("Executing request", IProgressMonitor.UNKNOWN);
+
+            if (executeRequest(loginRequest, monitor) == HttpStatus.SC_OK) {
+                String response = getResponseBodyAsString(loginRequest, monitor);
+                if (reviewboardReader.isStatOK(response)) {
+                    cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
+                } else {
+                    //TODO Use a custom exception for error handling
+                    throw new RuntimeException(reviewboardReader.getErrorMessage(response));
+                }
             } else {
                 //TODO Use a custom exception for error handling
-                throw new RuntimeException(reviewboardReader.getErrorMessage(response));
+                throw new RuntimeException("Review Board site is not up!");
             }
-        } else {
-            //TODO Use a custom exception for error handling
-            throw new RuntimeException("Review Board site is not up!");
-        }
-    }
-
-    private String getResponseBodyAsString(HttpMethodBase request, IProgressMonitor monitor) {
-
-        monitor = Policy.monitorFor(monitor);
-        monitor.beginTask("Get request body for" + request.getName() + " request", IProgressMonitor.UNKNOWN);
-        try {
-            return IOUtils.toString(WebUtil.getResponseBodyAsStream(request, monitor));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         } finally {
+            loginRequest.releaseConnection();
             monitor.done();
         }
+
     }
 
     private String getCookie(IProgressMonitor monitor) throws ReviewboardException {
@@ -214,22 +211,33 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     private String executeMethod(HttpMethodBase request, IProgressMonitor monitor) {
-        HostConfiguration hostConfiguration = WebUtil.createHostConfiguration(httpClient, location, monitor);
-
         monitor = Policy.monitorFor(monitor);
         try {
-            monitor.beginTask(request.getName() + " request on " + request.getURI(), IProgressMonitor.UNKNOWN);
+            monitor.beginTask("Executing request", IProgressMonitor.UNKNOWN);
 
-            WebUtil.execute(httpClient, hostConfiguration, request, monitor);
+            executeRequest(request, monitor);
             return getResponseBodyAsString(request, monitor);
-        } catch (Exception e) {
-            new RuntimeException(e);
         } finally {
             request.releaseConnection();
             monitor.done();
         }
+    }
 
-        return "";
+    private int executeRequest(HttpMethodBase request, IProgressMonitor monitor) {
+        HostConfiguration hostConfiguration = WebUtil.createHostConfiguration(httpClient, location, monitor);
+        try {
+            return WebUtil.execute(httpClient, hostConfiguration, request, monitor);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getResponseBodyAsString(HttpMethodBase request, IProgressMonitor monitor) {
+        try {
+            return IOUtils.toString(WebUtil.getResponseBodyAsStream(request, monitor));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
