@@ -59,6 +59,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.AuthenticationCredentials;
 import org.eclipse.mylyn.commons.net.AuthenticationType;
+import org.eclipse.mylyn.commons.net.WebUtil;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
@@ -96,20 +97,26 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     public RestfulReviewboardClient(AbstractWebLocation location, ReviewboardClientData clientData,
             TaskRepository repository) {
+        this.location = location;
+        this.clientData = clientData;
+
+        reviewboardReader = new RestfulReviewboardReader();
+        characterEncoding = repository.getCharacterEncoding();
+
+        httpClient = createAndInitHttpClient(repository);
+
+        refreshRepositorySettings(repository);
+    }
+
+    private HttpClient createAndInitHttpClient(TaskRepository repository) {
         if (Boolean.valueOf(repository.getProperty("selfSignedSSL"))) {
             Protocol.registerProtocol("https",
                     new Protocol("https", new EasySSLProtocolSocketFactory(), 443));
         }
-
-        this.location = location;
-        this.clientData = clientData;
-        this.httpClient = new HttpClient();
-        this.reviewboardReader = new RestfulReviewboardReader();
-        this.characterEncoding = repository.getCharacterEncoding();
-
-        this.httpClient.getParams().setContentCharset(characterEncoding);
-
-        refreshRepositorySettings(repository);
+        HttpClient httpClient = new HttpClient();
+        WebUtil.configureHttpClient(httpClient, "Mylyn");
+        httpClient.getParams().setContentCharset(characterEncoding);
+        return httpClient;
     }
 
     public ReviewboardClientData getClientData() {
