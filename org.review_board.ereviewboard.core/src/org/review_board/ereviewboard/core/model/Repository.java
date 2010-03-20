@@ -41,8 +41,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * @author Markus Knittig
+ * Domain class for repositories.
  *
+ * @author Markus Knittig
  */
 public class Repository implements Marshallable {
 

@@ -67,8 +67,9 @@ import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
- * @author Markus Knittig
+ * RESTful implementation of {@link ReviewboardClient}.
  *
+ * @author Markus Knittig
  */
 public class RestfulReviewboardClient implements ReviewboardClient {
 

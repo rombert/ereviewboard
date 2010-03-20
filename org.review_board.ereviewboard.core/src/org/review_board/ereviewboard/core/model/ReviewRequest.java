@@ -47,8 +47,9 @@ import org.json.JSONObject;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
- * @author Markus Knittig
+ * Domain class for review requests.
  *
+ * @author Markus Knittig
  */
 public class ReviewRequest implements Marshallable {
 

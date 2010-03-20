@@ -38,8 +38,9 @@
 package org.review_board.ereviewboard.core.model;
 
 /**
- * @author Markus Knittig
+ * Enum for the Review Board status.
  *
+ * @author Markus Knittig
  */
 public enum ReviewRequestStatus {
 

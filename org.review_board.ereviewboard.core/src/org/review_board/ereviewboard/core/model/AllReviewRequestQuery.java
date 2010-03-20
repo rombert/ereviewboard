@@ -38,8 +38,9 @@
 package org.review_board.ereviewboard.core.model;
 
 /**
- * @author Markus Knittig
+ * Represents a query which gets all review requests based on there state.
  *
+ * @author Markus Knittig
  */
 public class AllReviewRequestQuery extends StatusReviewRequestQuery {
 

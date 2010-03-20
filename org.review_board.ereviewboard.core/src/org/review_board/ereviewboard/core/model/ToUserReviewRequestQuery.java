@@ -38,8 +38,10 @@
 package org.review_board.ereviewboard.core.model;
 
 /**
- * @author Markus Knittig
+ * Represents a query which gets review requests with a specific user as reviewer
+ * by there status.
  *
+ * @author Markus Knittig
  */
 public class ToUserReviewRequestQuery extends StatusReviewRequestQuery {
 

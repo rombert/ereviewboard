@@ -48,8 +48,9 @@ import org.review_board.ereviewboard.core.util.CollectionUtil;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
- * @author Markus Knittig
+ * Container for persistent Review Board client data.
  *
+ * @author Markus Knittig
  */
 public class ReviewboardClientData implements Serializable {
 

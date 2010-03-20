@@ -41,8 +41,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * @author Markus Knittig
+ * Domain class for users.
  *
+ * @author Markus Knittig
  */
 public class User implements Marshallable {
 

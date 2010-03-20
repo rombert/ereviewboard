@@ -40,8 +40,9 @@ package org.review_board.ereviewboard.core.model;
 import java.io.Serializable;
 
 /**
- * @author Markus Knittig
+ * Interface for review request queries.
  *
+ * @author Markus Knittig
  */
 public interface ReviewRequestQuery extends Serializable {
 

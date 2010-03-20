@@ -44,8 +44,9 @@ import org.json.JSONObject;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
- * @author Markus Knittig
+ * Domain class for comments.
  *
+ * @author Markus Knittig
  */
 public class Comment implements Marshallable {
 

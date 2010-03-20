@@ -50,8 +50,9 @@ import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
- * @author Markus Knittig
+ * Class for converting Review Board API call responses (JSON format) to Java objects.
  *
+ * @author Markus Knittig
  */
 public class RestfulReviewboardReader {
 

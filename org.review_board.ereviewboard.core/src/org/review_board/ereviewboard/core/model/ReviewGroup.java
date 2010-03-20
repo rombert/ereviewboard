@@ -41,8 +41,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * @author Markus Knittig
+ * Domain class for review groups.
  *
+ * @author Markus Knittig
  */
 public class ReviewGroup implements Marshallable {
 

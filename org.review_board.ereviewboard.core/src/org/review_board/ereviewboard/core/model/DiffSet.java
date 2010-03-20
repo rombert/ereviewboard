@@ -45,7 +45,6 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
  * @author Markus Knittig
- *
  */
 public class DiffSet implements Marshallable {
 

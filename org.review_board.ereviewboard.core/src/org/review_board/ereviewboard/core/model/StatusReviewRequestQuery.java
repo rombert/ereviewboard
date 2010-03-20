@@ -38,8 +38,9 @@
 package org.review_board.ereviewboard.core.model;
 
 /**
- * @author Markus Knittig
+ * Abstract class for queries getting review requests by status.
  *
+ * @author Markus Knittig
  */
 public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
 

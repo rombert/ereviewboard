@@ -50,8 +50,9 @@ import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 
 /**
- * @author Markus Knittig
+ * Interface for Review Board operations.
  *
+ * @author Markus Knittig
  */
 public interface ReviewboardClient {
 
