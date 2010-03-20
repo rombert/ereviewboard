@@ -70,6 +70,11 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
 
     private String checkedUrl = null;
 
+    private boolean authenticated;
+
+    private String username = "";
+    private String password = "";
+
     public ReviewboardRepositorySettingsPage(TaskRepository taskRepository) {
         super(TITLE, DESCRIPTION, taskRepository);
 
@@ -89,7 +94,10 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
     @Override
     public boolean isPageComplete() {
         return super.isPageComplete() && checkedUrl != null
-                && checkedUrl.equals(getRepositoryUrl());
+                && checkedUrl.equals(getRepositoryUrl())
+                && username.equals(getUserName())
+                && password.equals(getPassword())
+                && authenticated;
     }
 
     @Override
@@ -111,12 +119,14 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
 
     @Override
     protected Validator getValidator(final TaskRepository repository) {
-        final String username = getUserName();
-        final String password = getPassword();
+        username = getUserName();
+        password = getPassword();
 
         return new Validator() {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException {
+                authenticated = false;
+
                 ReviewboardRepositorySettingsPage.this.checkedUrl = repository.getRepositoryUrl();
 
                 ReviewboardRepositoryConnector connector = (ReviewboardRepositoryConnector) TasksUi
@@ -128,6 +138,8 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
                     throw new CoreException(new Status(Status.ERROR, ReviewboardUiPlugin.PLUGIN_ID,
                             "Username or password wrong!"));
                 }
+
+                authenticated = true;
             }
         };
     }
