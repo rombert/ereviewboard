@@ -38,7 +38,7 @@
 package org.review_board.ereviewboard.core.model;
 
 /**
- * Represents a query which gets all review requests based on there state.
+ * Represents a query which gets all review requests by there status.
  *
  * @author Markus Knittig
  */
