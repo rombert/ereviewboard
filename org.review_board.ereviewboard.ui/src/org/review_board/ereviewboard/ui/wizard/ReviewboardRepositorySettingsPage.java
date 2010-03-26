@@ -83,6 +83,7 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
         setNeedsEncoding(false);
         setNeedsTimeZone(false);
         setNeedsValidation(true);
+        setNeedsHttpAuth(true);
     }
 
     @Override
