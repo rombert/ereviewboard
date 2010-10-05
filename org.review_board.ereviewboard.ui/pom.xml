@@ -10,5 +10,6 @@
   <groupId>org.review_board.ereviewboard</groupId>
   <artifactId>org.review_board.ereviewboard.ui</artifactId>
   <version>0.1.0-SNAPSHOT</version>
+  <name>eReviewBoard : UI Plugin</name>
   <packaging>eclipse-plugin</packaging>
 </project>
