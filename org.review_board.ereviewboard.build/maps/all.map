@@ -1,3 +1,0 @@
-feature@org.review_board.ereviewboard=COPY,/home/www/web1/html/integrity/builds/mknittig-ereviewboard-master,org.review_board.ereviewboard
-plugin@org.review_board.ereviewboard.core=COPY,/home/www/web1/html/integrity/builds/mknittig-ereviewboard-master,org.review_board.ereviewboard.core
-plugin@org.review_board.ereviewboard.ui=COPY,/home/www/web1/html/integrity/builds/mknittig-ereviewboard-master,org.review_board.ereviewboard.ui
