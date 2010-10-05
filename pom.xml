@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.review_board.ereviewboard</groupId>
+  <artifactId>ereviewboard</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>org.review_board.ereviewboard</module>
+    <module>org.review_board.ereviewboard.core</module>
+    <module>org.review_board.ereviewboard.tests</module>
+    <module>org.review_board.ereviewboard.tests.feature</module>
+    <module>org.review_board.ereviewboard.ui</module>
+  </modules>
+
+  <repositories>
+    <repository>
+      <id>eclipse</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/releases/ganymede/</url>
+    </repository>
+    <repository>
+      <id>orbit</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20100519200754/repository/</url>
+    </repository>
+    <repository>
+      <id>mylyn</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/tools/mylyn/update-archive/3.4.0/v20100608-0100/e3.4/</url>
+    </repository>
+  </repositories>
+ 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>0.9.0</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>0.9.0</version>
+        <configuration>
+          <resolver>p2</resolver>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
