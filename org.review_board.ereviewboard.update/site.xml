@@ -1,0 +1,7 @@
+<site>
+  <description>EReviewBoard Update Site</description>
+  <feature url="features/org.review_board.ereviewboard_0.1.0.qualifier.jar" id="org.review_board.ereviewboard" version="0.1.0.qualifier">
+    <category name="eReviewBoard"/>
+  </feature>
+  <category-def name="eReviewBoard" label="EReviewBoard"></category-def>
+</site>

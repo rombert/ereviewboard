@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.review_board.ereviewboard</groupId>
   <artifactId>ereviewboard</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>org.review_board.ereviewboard</module>
@@ -12,6 +12,7 @@
     <module>org.review_board.ereviewboard.tests</module>
     <module>org.review_board.ereviewboard.tests.feature</module>
     <module>org.review_board.ereviewboard.ui</module>
+    <module>org.review_board.ereviewboard.update</module>
   </modules>
 
   <repositories>
