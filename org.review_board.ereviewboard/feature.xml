@@ -2,7 +2,7 @@
 <feature
       id="org.review_board.ereviewboard"
       label="eReviewboard"
-      version="0.1"
+      version="0.1.0.qualifier"
       provider-name="Markus Knittig">
 
    <description url="http://www.example.com/description">
