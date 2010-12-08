@@ -62,6 +62,7 @@ import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
 import org.eclipse.mylyn.tasks.core.sync.ISynchronizationSession;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -69,7 +70,7 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  *
  */
 public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector {
-
+    
     private static final String CLIENT_LABEL = "Reviewboard (supports 1.0 and later)";
 
     private final static Pattern REVIEW_REQUEST_ID_FROM_TASK_URL = Pattern
@@ -121,8 +122,12 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     @Override
     public TaskData getTaskData(TaskRepository taskRepository, String taskId,
             IProgressMonitor monitor) throws CoreException {
-        ReviewboardClient client = getClientManager().getClient(taskRepository);
-        return client.getTaskData(taskRepository, taskId, monitor);
+        try {
+            ReviewboardClient client = getClientManager().getClient(taskRepository);
+            return client.getTaskData(taskRepository, taskId, monitor);
+        } catch (ReviewboardException e) {
+            throw new CoreException(new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed getting task data for task with id " + taskId , e));
+        }
     }
 
     @Override
@@ -143,6 +148,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
     @Override
     public boolean hasTaskChanged(TaskRepository taskRepository, ITask task, TaskData taskData) {
+        
         TaskMapper scheme = new TaskMapper(taskData);
         Date repositoryDate = scheme.getModificationDate();
         Date localeDate = task.getModificationDate();
@@ -177,14 +183,11 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
     @Override
     public void updateTaskFromTaskData(TaskRepository taskRepository, ITask task, TaskData taskData) {
-        TaskMapper scheme = new TaskMapper(taskData);
+        
+        TaskMapper scheme = new ReviewboardTaskMapper(taskData);
         scheme.applyTo(task);
+        
         task.setCompletionDate(scheme.getCompletionDate());
-    }
-
-    @Override
-    public boolean canSynchronizeTask(TaskRepository taskRepository, ITask task) {
-        return false;
     }
 
     public synchronized ReviewboardClientManager getClientManager() {
@@ -215,8 +218,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         return new AbstractTaskDataHandler() {
             @Override
             public TaskAttributeMapper getAttributeMapper(TaskRepository taskRepository) {
-                return new TaskAttributeMapper(taskRepository) {
-                };
+                return new ReviewboardAttributeMapper(taskRepository);
             }
 
             @Override

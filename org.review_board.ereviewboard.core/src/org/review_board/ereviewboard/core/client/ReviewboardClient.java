@@ -76,7 +76,7 @@ public interface ReviewboardClient {
 
     boolean hasRepositoryData();
 
-    TaskData getTaskData(TaskRepository taskRepository, String taskId, IProgressMonitor monitor);
+    TaskData getTaskData(TaskRepository taskRepository, String taskId, IProgressMonitor monitor) throws ReviewboardException;
 
     void performQuery(TaskRepository repository, IRepositoryQuery query,
             TaskDataCollector collector, IProgressMonitor monitor) throws CoreException;

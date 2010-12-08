@@ -37,9 +37,13 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core;
 
+import java.util.Date;
+
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
+import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
+import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 
 /**
  * Utility class for mapping between TaskData and Task
@@ -60,5 +64,23 @@ public class ReviewboardTaskMapper extends TaskMapper {
 	public void setTaskKey(String key) {
         setValue(TaskAttribute.TASK_KEY, key);
     }
+	
+	@Override
+	public Date getCompletionDate() {
+	    
+	    TaskAttribute statusAttribute = getTaskData().getRoot().getAttribute(Attribute.STATUS.toString());
+	    
+	    // task is mapped using the 'task.common' attributes, therefore we delegate to the super implementation
+	    if ( statusAttribute == null )
+            return super.getCompletionDate();
+	       
+	    if ( ReviewRequestStatus.PENDING.toString().equalsIgnoreCase(statusAttribute.getValue()))
+	        return null;
+	    
+	    TaskAttribute completionValue = getTaskData().getRoot().getAttribute(Attribute.LAST_UPDATED.toString());
+	    
+	    // getTaskData().getAttributeMapper() is just an AbstractTaskMapper
+	    return ReviewboardAttributeMapper.parseDateValue(completionValue.getValue());
+	}
 
 }

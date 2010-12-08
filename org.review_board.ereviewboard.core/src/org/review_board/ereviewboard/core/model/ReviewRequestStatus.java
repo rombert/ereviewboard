@@ -49,7 +49,7 @@ public enum ReviewRequestStatus {
     public static ReviewRequestStatus parseStatus(String status) {
         ReviewRequestStatus result;
 
-        switch (status.charAt(0)) {
+        switch (Character.toUpperCase(status.charAt(0))) {
         case 'P':
             result = ReviewRequestStatus.PENDING;
             break;
