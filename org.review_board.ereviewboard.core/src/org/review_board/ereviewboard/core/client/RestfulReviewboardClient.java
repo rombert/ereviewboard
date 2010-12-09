@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -129,8 +131,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.CHANGENUM);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.STATUS);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.PUBLIC);
-            mapJsonAttribute(jsonResult, taskData,
-                    ReviewboardAttributeMapper.Attribute.TESTING_DONE);
+            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.BUGS_CLOSED);
+            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.TESTING_DONE);
 
             // hidden attributes
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.SUMMARY);
@@ -168,12 +170,34 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         int separatorIndex = jsonAttributeName.indexOf('.');
 
         if (separatorIndex == -1)
-            return from.getString(jsonAttributeName);
+            return splitIntegerListIfApplicable(from.getString(jsonAttributeName));
 
         String[] paths = jsonAttributeName.split("\\.");
         Assert.isTrue(paths.length == 2, "Expected paths length of 2, got " + paths.length + " .");
 
-        return from.getJSONObject(paths[0]).getString(paths[1]);
+        return splitIntegerListIfApplicable(from.getJSONObject(paths[0]).getString(paths[1]));
+    }
+    
+    private String splitIntegerListIfApplicable(String value) {
+  
+        StringBuilder splitList = new StringBuilder();
+        
+        if (value.startsWith("[") && value.endsWith("]")) {
+
+            Pattern pattern = Pattern.compile("\"(\\d+)\"+");
+
+            Matcher matcher = pattern.matcher(value.substring(1, value.length() - 1));
+
+            while (matcher.find())
+                splitList.append((matcher.group(1))).append(',');
+            
+            splitList.deleteCharAt(splitList.length() - 1);
+
+            if ( splitList.length() > 0 )
+                return splitList.toString();
+        }
+        
+        return value;
     }
 
     private void loadReviewsAndDiffsAsComment(TaskData taskData, IProgressMonitor monitor)
