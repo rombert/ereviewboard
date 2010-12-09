@@ -18,7 +18,7 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
     public enum Attribute {
 
         ID("id", "Id", TaskAttribute.TYPE_INTEGER, true),
-        REPOSITORY("repository.name", "Repository", TaskAttribute.TYPE_SHORT_TEXT, false),
+        REPOSITORY("repository.name", "Repository", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
         SUBMITTER("submitter.fullname", "Submitter", TaskAttribute.TYPE_PERSON, true),
         SUMMARY("summary", "Summary", TaskAttribute.TYPE_SHORT_RICH_TEXT, true),
         DESCRIPTION("description", "Description", TaskAttribute.TYPE_LONG_RICH_TEXT, true),
