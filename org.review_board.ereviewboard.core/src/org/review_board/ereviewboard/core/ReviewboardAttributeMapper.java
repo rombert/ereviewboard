@@ -86,6 +86,11 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         try {
             return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(value);
         } catch (ParseException e) {
+            try {
+                return new Date(Long.valueOf(value));
+            } catch ( NumberFormatException nfe) {
+                // ignore, pass-through
+            }
             return null;
         }
     }
