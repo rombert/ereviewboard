@@ -38,6 +38,7 @@
 package org.review_board.ereviewboard.core.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +58,7 @@ import org.eclipse.mylyn.commons.net.AuthenticationType;
 import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.commons.net.WebUtil;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.util.IOUtil;
 
 /**
  * HTTP Client for calling the Review Board API. Handles {@link HttpClient} setup,
@@ -182,10 +184,15 @@ public class ReviewboardHttpClient {
     }
 
     private String getResponseBodyAsString(HttpMethodBase request, IProgressMonitor monitor) {
+        
+        InputStream stream = null;
         try {
-            return IOUtils.toString(WebUtil.getResponseBodyAsStream(request, monitor));
+            stream = WebUtil.getResponseBodyAsStream(request, monitor);
+            return IOUtils.toString(stream);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+           IOUtil.closeSilently(stream); 
         }
     }
 
