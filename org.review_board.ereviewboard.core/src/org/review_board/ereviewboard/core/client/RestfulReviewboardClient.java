@@ -170,31 +170,31 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         int separatorIndex = jsonAttributeName.indexOf('.');
 
         if (separatorIndex == -1)
-            return splitIntegerListIfApplicable(from.getString(jsonAttributeName));
+            return splitWordListIfApplicable(from.getString(jsonAttributeName));
 
         String[] paths = jsonAttributeName.split("\\.");
         Assert.isTrue(paths.length == 2, "Expected paths length of 2, got " + paths.length + " .");
 
-        return splitIntegerListIfApplicable(from.getJSONObject(paths[0]).getString(paths[1]));
+        return splitWordListIfApplicable(from.getJSONObject(paths[0]).getString(paths[1]));
     }
     
-    private String splitIntegerListIfApplicable(String value) {
+    private String splitWordListIfApplicable(String value) {
   
         StringBuilder splitList = new StringBuilder();
         
         if (value.startsWith("[") && value.endsWith("]")) {
 
-            Pattern pattern = Pattern.compile("\"(\\d+)\"+");
+            Pattern pattern = Pattern.compile("\"(\\w+)\"+");
 
             Matcher matcher = pattern.matcher(value.substring(1, value.length() - 1));
 
             while (matcher.find())
                 splitList.append((matcher.group(1))).append(',');
             
-            splitList.deleteCharAt(splitList.length() - 1);
-
-            if ( splitList.length() > 0 )
+            if ( splitList.length() > 0 ) {
+                splitList.deleteCharAt(splitList.length() - 1);
                 return splitList.toString();
+            }
         }
         
         return value;
