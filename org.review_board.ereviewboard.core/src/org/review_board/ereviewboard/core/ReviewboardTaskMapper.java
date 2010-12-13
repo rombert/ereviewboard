@@ -74,7 +74,7 @@ public class ReviewboardTaskMapper extends TaskMapper {
 	    if ( statusAttribute == null )
             return super.getCompletionDate();
 	       
-	    if ( ReviewRequestStatus.PENDING.toString().equalsIgnoreCase(statusAttribute.getValue()))
+	    if ( ReviewRequestStatus.PENDING.name().equalsIgnoreCase(statusAttribute.getValue()))
 	        return null;
 	    
 	    TaskAttribute completionValue = getTaskData().getRoot().getAttribute(Attribute.LAST_UPDATED.toString());

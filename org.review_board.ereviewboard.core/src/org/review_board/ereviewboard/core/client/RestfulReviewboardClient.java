@@ -406,7 +406,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         String description = reviewRequest.getDescription();
         ReviewRequestStatus status = reviewRequest.getStatus();
 
-        TaskData taskData = new TaskData(new TaskAttributeMapper(taskRepository),
+        TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository),
                 ReviewboardCorePlugin.REPOSITORY_KIND, location.getUrl(), id);
         taskData.setPartial(true);
 
