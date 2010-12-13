@@ -149,8 +149,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     @Override
     public boolean hasTaskChanged(TaskRepository taskRepository, ITask task, TaskData taskData) {
         
-        TaskMapper scheme = new TaskMapper(taskData);
-        Date repositoryDate = scheme.getModificationDate();
+        Date repositoryDate = getTaskMapping(taskData).getModificationDate();
         Date localeDate = task.getModificationDate();
 
         if (localeDate != null) {
@@ -237,5 +236,11 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             }
         };
 
+    }
+    
+    @Override
+    public ITaskMapping getTaskMapping(TaskData taskData) {
+        
+        return new ReviewboardTaskMapper(taskData);
     }
 }
