@@ -37,8 +37,10 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Comment;
@@ -109,6 +111,24 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
+    
+    public List<Integer> readReviewRequestIds(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject jsonReviewRequests = new JSONObject(source);
+            JSONArray reviewRequests = jsonReviewRequests.getJSONArray("review_requests");
+            
+            List<Integer> ids = new ArrayList<Integer>(reviewRequests.length());
+            
+            for ( int i = 0 ; i < reviewRequests.length(); i++ )
+                ids.add(reviewRequests.getJSONObject(i).getInt("id"));
+            
+            return ids;
+        } catch (Exception e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+    
 
     public List<Repository> readRepositories(String source) throws ReviewboardException {
         try {
@@ -159,5 +179,7 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
+
+   
 
 }

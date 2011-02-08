@@ -1,5 +1,6 @@
 package org.review_board.ereviewboard.core;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,8 +19,8 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
     public enum Attribute {
 
         ID("id", "Id", TaskAttribute.TYPE_INTEGER, true),
-        REPOSITORY("repository.name", "Repository", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
-        SUBMITTER("submitter.fullname", "Submitter", TaskAttribute.TYPE_PERSON, true),
+        REPOSITORY("repository.title", "Repository", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
+        SUBMITTER("submitter.title", "Submitter", TaskAttribute.TYPE_PERSON, true),
         SUMMARY("summary", "Summary", TaskAttribute.TYPE_SHORT_RICH_TEXT, true),
         DESCRIPTION("description", "Description", TaskAttribute.TYPE_LONG_RICH_TEXT, true),
         TESTING_DONE("testing_done", "Testing done", TaskAttribute.TYPE_LONG_RICH_TEXT, false),
@@ -77,6 +78,15 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         taskAttributeToMantisAttributes.put(TaskAttribute.USER_REPORTER, Attribute.SUBMITTER);
     }
 
+    public static DateFormat newDateFormat() {
+
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    }
+    
+    public static DateFormat newIso86011DateFormat() {
+        
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); 
+    }
     
     public static Date parseDateValue(String value) {
         
@@ -84,7 +94,7 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
             return null;
 
         try {
-            return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(value);
+            return newDateFormat().parse(value);
         } catch (ParseException e) {
             try {
                 return new Date(Long.valueOf(value));
@@ -94,6 +104,7 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
             return null;
         }
     }
+
     public ReviewboardAttributeMapper(TaskRepository taskRepository) {
         super(taskRepository);
     }

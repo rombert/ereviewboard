@@ -37,6 +37,7 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -82,5 +83,7 @@ public interface ReviewboardClient {
             TaskDataCollector collector, IProgressMonitor monitor) throws CoreException;
 
     boolean validCredentials(String username, String password, IProgressMonitor monitor);
+
+    List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException;
 
 }

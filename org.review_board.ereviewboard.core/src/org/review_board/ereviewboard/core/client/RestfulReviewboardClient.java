@@ -37,6 +37,8 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -60,16 +62,15 @@ import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
-import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskCommentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
+import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Comment;
@@ -121,12 +122,12 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             IProgressMonitor monitor) throws ReviewboardException {
 
         try {
-            TaskData taskData = new TaskData(new TaskAttributeMapper(taskRepository),
+            TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository),
                     ReviewboardCorePlugin.REPOSITORY_KIND, location.getUrl(), taskId);
             JSONObject jsonResult = new JSONObject(httpClient.executeGet(
-                    "/api/json/reviewrequests/" + Integer.parseInt(taskId) + "/", monitor)).getJSONObject("review_request");
+                    "/api/review-requests/" + Integer.parseInt(taskId) + "/", monitor)).getJSONObject("review_request");
 
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.REPOSITORY);
+            mapJsonAttribute(jsonResult.getJSONObject("links"), taskData, ReviewboardAttributeMapper.Attribute.REPOSITORY);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.BRANCH);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.CHANGENUM);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.STATUS);
@@ -138,11 +139,20 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.SUMMARY);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.ID);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.DESCRIPTION);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.SUBMITTER);
+            mapJsonAttribute(jsonResult.getJSONObject("links"), taskData, ReviewboardAttributeMapper.Attribute.SUBMITTER);
             mapJsonAttribute(jsonResult, taskData,
                     ReviewboardAttributeMapper.Attribute.LAST_UPDATED);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.TIME_ADDED);
-
+            
+            ReviewRequestStatus status =  ReviewRequestStatus.parseStatus( jsonResult.getString(ReviewboardAttributeMapper.Attribute.STATUS.getJsonAttributeName()));
+            if ( status != ReviewRequestStatus.PENDING ) {
+                TaskAttribute completion = taskData.getRoot().createMappedAttribute(TaskAttribute.DATE_COMPLETION);
+                completion.getMetaData().setReadOnly(true);
+                completion.getMetaData().setKind(null);
+                completion.getMetaData().setType(TaskAttribute.TYPE_DATETIME);
+                completion.setValue(extractPossiblyNestedJsonValue(jsonResult, ReviewboardAttributeMapper.Attribute.LAST_UPDATED));
+            }
+            
             loadReviewsAndDiffsAsComment(taskData, monitor);
 
             return taskData;
@@ -174,7 +184,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
         String[] paths = jsonAttributeName.split("\\.");
         Assert.isTrue(paths.length == 2, "Expected paths length of 2, got " + paths.length + " .");
-
+        
         return splitWordListIfApplicable(from.getJSONObject(paths[0]).getString(paths[1]));
     }
     
@@ -269,8 +279,16 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     public List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor)
             throws ReviewboardException {
+        // TODO - should this be /api/review-requests/ ? 
         return reviewboardReader.readReviewRequests(
                 httpClient.executeGet("/api/json/reviewrequests/" + query, monitor));
+    }
+    
+
+    private List<Integer> getReviewRequestIds(String query, IProgressMonitor monitor)
+            throws ReviewboardException {
+        return reviewboardReader.readReviewRequestIds(
+                httpClient.executeGet("/api/review-requests/" + query, monitor));
     }
 
     public ReviewRequest newReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor)
@@ -413,13 +431,14 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         ReviewboardTaskMapper mapper = new ReviewboardTaskMapper(taskData, true);
         mapper.setTaskKey(id);
         mapper.setCreationDate(creationDate);
-        mapper.setModificationDate(dateModified);
+        // intentionally left out
+//        mapper.setModificationDate(dateModified);
         mapper.setSummary(summary);
         mapper.setOwner(owner);
         mapper.setDescription(description);
         mapper.setTaskUrl(ReviewboardUtil.getReviewRequestUrl(taskRepository.getUrl(), id));
         mapper.setStatus(status.name().toLowerCase());
-        if ( status == ReviewRequestStatus.DISCARDED || status == ReviewRequestStatus.SUBMITTED )
+        if ( status != ReviewRequestStatus.PENDING )
             mapper.setCompletionDate(dateModified);
         
         return taskData;
@@ -451,6 +470,21 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         } catch (Exception e) {
             return false;
         }
+    }
+    
+    public List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException {
+        
+        try {
+            // TODO: extract into a ReviewRequestQuery
+            Assert.isNotNull(timestamp);
+            
+            String query = "?last-updated-from=" + URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8");
+            return getReviewRequestIds( query, monitor);
+            
+        } catch (UnsupportedEncodingException e) {
+            throw new ReviewboardException("Failed encoding the query url", e);
+        }
+        
     }
 
     private static class Comment2 {

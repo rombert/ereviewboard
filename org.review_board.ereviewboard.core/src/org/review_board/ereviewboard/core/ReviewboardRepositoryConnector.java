@@ -38,6 +38,7 @@
 package org.review_board.ereviewboard.core;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -126,7 +127,9 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             ReviewboardClient client = getClientManager().getClient(taskRepository);
             return client.getTaskData(taskRepository, taskId, monitor);
         } catch (ReviewboardException e) {
-            throw new CoreException(new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed getting task data for task with id " + taskId , e));
+            Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed getting task data for task with id " + taskId , e);
+            ReviewboardCorePlugin.getDefault().getLog().log(status);
+            throw new CoreException(status);
         }
     }
 
@@ -150,13 +153,50 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     public boolean hasTaskChanged(TaskRepository taskRepository, ITask task, TaskData taskData) {
         
         Date repositoryDate = getTaskMapping(taskData).getModificationDate();
-        Date localeDate = task.getModificationDate();
+        Date localDate = task.getModificationDate();
+        
+        if ( repositoryDate == null )
+            return false;
 
-        if (localeDate != null) {
-            return !localeDate.equals(repositoryDate);
+        return !repositoryDate.equals(localDate);
+    }
+    
+    @Override
+    public void preSynchronization(ISynchronizationSession event, IProgressMonitor monitor)
+            throws CoreException {
+        try {
+            // No Tasks, don't contact the repository
+            if (event.getTasks().isEmpty())
+                return;
+
+            TaskRepository repository = event.getTaskRepository();
+
+            // no previous sync, all are stale
+            if (repository.getSynchronizationTimeStamp() == null || repository.getSynchronizationTimeStamp().length() == 0) {
+                for (ITask task : event.getTasks())
+                    event.markStale(task);
+                return;
+            }
+            
+            Date lastSyncTimestamp = new Date(Long.parseLong(repository.getSynchronizationTimeStamp()));
+            
+            ReviewboardClient client = getClientManager().getClient(repository);
+            
+            List<Integer> changedReviewIds = client.getReviewsIdsChangedSince(lastSyncTimestamp, monitor);
+            
+            if ( changedReviewIds.isEmpty() )
+                return;
+            
+            for ( ITask task : event.getTasks() )
+                if ( changedReviewIds.contains(Integer.valueOf(task.getTaskId())) )
+                    event.markStale(task);
+            
+            
+        } catch (ReviewboardException e) {
+            Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed retrieving changed review ids", e);
+            ReviewboardCorePlugin.getDefault().getLog().log(status);
+            throw new CoreException(status);
         }
-
-        return true;
     }
 
     @Override
@@ -172,6 +212,36 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         }
 
         return Status.OK_STATUS;
+    }
+    
+    @Override
+    public void postSynchronization(ISynchronizationSession event, IProgressMonitor monitor) throws CoreException {
+
+        try {
+            monitor.beginTask("", 1);
+            event.getTaskRepository().setSynchronizationTimeStamp(String.valueOf(getSynchronizationTimestamp(event).getTime()));
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private Date getSynchronizationTimestamp(ISynchronizationSession event) {
+
+        Date mostRecent = new Date(0);
+        Date mostRecentTimeStamp = null;
+        if (event.getTaskRepository().getSynchronizationTimeStamp() == null) {
+            mostRecentTimeStamp = mostRecent;
+        } else {
+            mostRecentTimeStamp = new Date(Long.parseLong(event.getTaskRepository() .getSynchronizationTimeStamp()));
+        }
+        for (ITask task : event.getChangedTasks()) {
+            Date taskModifiedDate = task.getModificationDate();
+            if (taskModifiedDate != null && taskModifiedDate.after(mostRecent)) {
+                mostRecent = taskModifiedDate;
+                mostRecentTimeStamp = task.getModificationDate();
+            }
+        }
+        return mostRecentTimeStamp;
     }
 
     @Override

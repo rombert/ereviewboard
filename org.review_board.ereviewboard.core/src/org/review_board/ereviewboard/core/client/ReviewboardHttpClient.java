@@ -141,6 +141,7 @@ public class ReviewboardHttpClient {
     public String executeGet(String url, IProgressMonitor monitor) throws ReviewboardException {
         GetMethod getRequest = new GetMethod(stripSlash(location.getUrl()) + url);
         getRequest.getParams().setParameter("Set-Cookie", getCookie(monitor));
+        getRequest.getParams().setParameter("Accept", "application/json");
 
         return executeMethod(getRequest, monitor);
     }
