@@ -275,6 +275,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         if ( diffs.isEmpty() )
             return;
+        
+        int mostRecentRevision = diffs.size();
 
         for (Diff diff : diffs) {
             TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + diff.getRevision());
@@ -285,6 +287,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapper.setCreationDate(diff.getTimestamp());
             mapper.setAttachmentId(Integer.toString(diff.getId()));
             mapper.setPatch(Boolean.TRUE);
+            mapper.setDeprecated(diff.getRevision() != mostRecentRevision);
             mapper.applyTo(attribute);
             
             attribute.createAttribute(ReviewboardAttachmentHandler.ATTACHMENT_ATTRIBUTE_REVISION).setValue(String.valueOf(diff.getRevision()));
