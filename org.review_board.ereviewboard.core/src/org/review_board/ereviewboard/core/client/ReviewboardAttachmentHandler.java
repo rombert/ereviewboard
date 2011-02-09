@@ -15,12 +15,16 @@ import java.io.InputStream;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.tasks.core.ITask;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentHandler;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentSource;
-import org.eclipse.mylyn.tasks.core.data.TaskAttachmentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
+import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
+import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 
 /**
  * 
@@ -28,6 +32,16 @@ import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
  *
  */
 public class ReviewboardAttachmentHandler extends AbstractTaskAttachmentHandler {
+
+    public static final String ATTACHMENT_ATTRIBUTE_REVISION = "REVISION";
+    
+    private final ReviewboardRepositoryConnector reviewboardRepositoryConnector;
+    
+
+    public ReviewboardAttachmentHandler(ReviewboardRepositoryConnector reviewboardRepositoryConnector) {
+        this.reviewboardRepositoryConnector = reviewboardRepositoryConnector;
+        
+    }
 
     @Override
     public boolean canGetContent(TaskRepository repository, ITask task) {
@@ -42,7 +56,19 @@ public class ReviewboardAttachmentHandler extends AbstractTaskAttachmentHandler 
     @Override
     public InputStream getContent(TaskRepository repository, ITask task,
             TaskAttribute attachmentAttribute, IProgressMonitor monitor) throws CoreException {
-        return new ByteArrayInputStream(new byte[0]);
+        
+        try {
+            ReviewboardClient client = reviewboardRepositoryConnector.getClientManager().getClient(repository);
+            
+            int reviewId = Integer.parseInt(task.getTaskId());
+            int revisionId = Integer.parseInt(attachmentAttribute.getAttribute(ATTACHMENT_ATTRIBUTE_REVISION).getValue());
+
+            byte[] rawDiff = client.getRawDiff(reviewId, revisionId, monitor);
+            
+            return new ByteArrayInputStream(rawDiff);
+        } catch (ReviewboardException e) {
+            throw new CoreException(new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed retrieving diff", e));
+        }
     }
 
     @Override

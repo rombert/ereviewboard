@@ -276,16 +276,18 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         if ( diffs.isEmpty() )
             return;
 
-        for (Diff attachment : diffs) {
-            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + attachment.getRevision());
-            TaskAttachmentMapper taskAttachment = TaskAttachmentMapper.createFrom(attribute);
-            taskAttachment.setFileName(attachment.getName());
-            taskAttachment.setDescription(attachment.getName());
-            taskAttachment.setAuthor(taskRepository.createPerson(taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
-            taskAttachment.setCreationDate(attachment.getTimestamp());
-            taskAttachment.setAttachmentId(Integer.toString(attachment.getId()));
-            taskAttachment.setPatch(Boolean.TRUE);
-            taskAttachment.applyTo(attribute);
+        for (Diff diff : diffs) {
+            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + diff.getRevision());
+            TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
+            mapper.setFileName(diff.getName());
+            mapper.setDescription(diff.getName());
+            mapper.setAuthor(taskRepository.createPerson(taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
+            mapper.setCreationDate(diff.getTimestamp());
+            mapper.setAttachmentId(Integer.toString(diff.getId()));
+            mapper.setPatch(Boolean.TRUE);
+            mapper.applyTo(attribute);
+            
+            attribute.createAttribute(ReviewboardAttachmentHandler.ATTACHMENT_ATTRIBUTE_REVISION).setValue(String.valueOf(diff.getRevision()));
         }
         
     }
@@ -491,6 +493,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         }
 
         return diffs;
+    }
+    
+    public byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException {
+        
+        return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/","text/x-patch", monitor);
     }
 
     public boolean validCredentials(String username, String password, IProgressMonitor monitor) {

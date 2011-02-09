@@ -145,6 +145,15 @@ public class ReviewboardHttpClient {
 
         return executeMethod(getRequest, monitor);
     }
+    
+    public byte[] executeGetForBytes(String url, String acceptHeaderValue, IProgressMonitor monitor) throws ReviewboardException {
+        
+        GetMethod getRequest = new GetMethod(stripSlash(location.getUrl()) + url);
+        getRequest.getParams().setParameter("Set-Cookie", getCookie(monitor));
+        getRequest.addRequestHeader("Accept", acceptHeaderValue);
+        
+        return executeMethodForBytes(getRequest, monitor);
+    }
 
     public String executePost(String url, IProgressMonitor monitor)  throws ReviewboardException {
         return executePost(url, new HashMap<String, String>(), monitor);
@@ -174,6 +183,19 @@ public class ReviewboardHttpClient {
             monitor.done();
         }
     }
+    
+    private byte[] executeMethodForBytes(HttpMethodBase request, IProgressMonitor monitor) {
+        monitor = Policy.monitorFor(monitor);
+        try {
+            monitor.beginTask("Executing request", IProgressMonitor.UNKNOWN);
+
+            executeRequest(request, monitor);
+            return getResponseBodyAsByteArray(request, monitor);
+        } finally {
+            request.releaseConnection();
+            monitor.done();
+        }
+    }
 
     private int executeRequest(HttpMethodBase request, IProgressMonitor monitor) {
         HostConfiguration hostConfiguration = WebUtil.createHostConfiguration(httpClient, location, monitor);
@@ -190,6 +212,19 @@ public class ReviewboardHttpClient {
         try {
             stream = WebUtil.getResponseBodyAsStream(request, monitor);
             return IOUtils.toString(stream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+           IOUtil.closeSilently(stream); 
+        }
+    }
+    
+    private byte[] getResponseBodyAsByteArray(HttpMethodBase request, IProgressMonitor monitor) {
+        
+        InputStream stream = null;
+        try {
+            stream = WebUtil.getResponseBodyAsStream(request, monitor);
+            return IOUtils.toByteArray(stream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

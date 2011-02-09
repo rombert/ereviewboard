@@ -85,5 +85,7 @@ public interface ReviewboardClient {
     boolean validCredentials(String username, String password, IProgressMonitor monitor);
 
     List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException;
+    
+    byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException;
 
 }

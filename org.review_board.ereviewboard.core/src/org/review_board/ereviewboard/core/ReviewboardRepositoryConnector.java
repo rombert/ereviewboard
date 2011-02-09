@@ -125,7 +125,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     @Override
     public AbstractTaskAttachmentHandler getTaskAttachmentHandler() {
      
-        return new ReviewboardAttachmentHandler();
+        return new ReviewboardAttachmentHandler(this);
     }
     
     @Override
