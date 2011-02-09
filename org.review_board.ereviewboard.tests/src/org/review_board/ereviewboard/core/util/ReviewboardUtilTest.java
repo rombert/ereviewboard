@@ -60,6 +60,21 @@ public class ReviewboardUtilTest extends TestCase {
         List<String> expected = Arrays.asList("foo", "bar");
         assertEquals(expected, ReviewboardUtil.splitString("foo , bar"));
     }
+    
+    public void unmaskNullWithNull() {
+        
+        assertEquals("", ReviewboardUtil.unmaskNull(null));
+    }
+    
+    public void unmaskNullWithTextNull() {
+
+        assertEquals("", ReviewboardUtil.unmaskNull("null"));
+    }
+    
+    public void unmaskNullWithNotNull() {
+
+        assertEquals("thisText", ReviewboardUtil.unmaskNull("thisText"));
+    }
 
     private static class CustomClass implements Serializable {
         private String string;

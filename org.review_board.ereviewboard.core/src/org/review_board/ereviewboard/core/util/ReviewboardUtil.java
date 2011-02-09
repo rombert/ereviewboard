@@ -181,4 +181,11 @@ public final class ReviewboardUtil {
         return result;
     }
 
+    public static String unmaskNull(String value) {
+        
+        if ( value == null || value.equals("null"))
+            return "";
+        
+        return value;
+    }
 }

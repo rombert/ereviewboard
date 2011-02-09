@@ -180,7 +180,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         int separatorIndex = jsonAttributeName.indexOf('.');
 
         if (separatorIndex == -1)
-            return splitWordListIfApplicable(from.getString(jsonAttributeName));
+            return splitWordListIfApplicable(ReviewboardUtil.unmaskNull(from.getString(jsonAttributeName)));
 
         String[] paths = jsonAttributeName.split("\\.");
         Assert.isTrue(paths.length == 2, "Expected paths length of 2, got " + paths.length + " .");
