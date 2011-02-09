@@ -55,6 +55,7 @@ import org.eclipse.mylyn.tasks.core.ITaskMapping;
 import org.eclipse.mylyn.tasks.core.RepositoryResponse;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.TaskRepositoryLocationFactory;
+import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentHandler;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskDataHandler;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
@@ -62,6 +63,7 @@ import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
 import org.eclipse.mylyn.tasks.core.sync.ISynchronizationSession;
+import org.review_board.ereviewboard.core.client.ReviewboardAttachmentHandler;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
@@ -120,6 +122,12 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         }
     }
 
+    @Override
+    public AbstractTaskAttachmentHandler getTaskAttachmentHandler() {
+     
+        return new ReviewboardAttachmentHandler();
+    }
+    
     @Override
     public TaskData getTaskData(TaskRepository taskRepository, String taskId,
             IProgressMonitor monitor) throws CoreException {

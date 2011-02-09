@@ -38,12 +38,15 @@
 package org.review_board.ereviewboard.core.client;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Comment;
+import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
@@ -180,6 +183,28 @@ public class RestfulReviewboardReader {
         }
     }
 
-   
+    
+    public List<Diff> readDiffs(String source) throws ReviewboardException {
 
+        try {
+            JSONObject json = new JSONObject(source);
+            JSONArray jsonDiffs = json.getJSONArray("diffs");
+            
+            List<Diff> diffList = new ArrayList<Diff>();
+            for (int i = 0; i < jsonDiffs.length(); i++) {
+
+                JSONObject jsonDiff = jsonDiffs.getJSONObject(i);
+                int revision = jsonDiff.getInt("revision");
+                int id = jsonDiff.getInt("id");
+                Date timestamp = ReviewboardUtil.marshallDate(jsonDiff.getString("timestamp"));
+                
+                diffList.add(new Diff(id, timestamp, revision));
+            }
+            
+            return diffList;
+            
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
 }

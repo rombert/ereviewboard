@@ -58,9 +58,11 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.Policy;
+import org.eclipse.mylyn.internal.tasks.core.RepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
+import org.eclipse.mylyn.tasks.core.data.TaskAttachmentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskCommentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
@@ -74,6 +76,7 @@ import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Comment;
+import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
@@ -153,7 +156,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 completion.setValue(extractPossiblyNestedJsonValue(jsonResult, ReviewboardAttributeMapper.Attribute.LAST_UPDATED));
             }
             
+            // TODO: these should be joined to make sure we only use one call
             loadReviewsAndDiffsAsComment(taskData, monitor);
+            loadDiffsAsAttachments(taskData, taskRepository, monitor);
 
             return taskData;
         } catch (JSONException e) {
@@ -263,6 +268,27 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         for ( Map.Entry<Date, Comment2>  entry : sortedComments.entrySet() )
             entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
     }
+    
+    private void loadDiffsAsAttachments(TaskData taskData, TaskRepository taskRepository, IProgressMonitor monitor) throws ReviewboardException {
+        
+        List<Diff> diffs = loadDiffs(Integer.parseInt(taskData.getTaskId()), monitor);
+        
+        if ( diffs.isEmpty() )
+            return;
+
+        for (Diff attachment : diffs) {
+            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + attachment.getRevision());
+            TaskAttachmentMapper taskAttachment = TaskAttachmentMapper.createFrom(attribute);
+            taskAttachment.setFileName(attachment.getName());
+            taskAttachment.setDescription(attachment.getName());
+            taskAttachment.setAuthor(taskRepository.createPerson(taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
+            taskAttachment.setCreationDate(attachment.getTimestamp());
+            taskAttachment.setAttachmentId(Integer.toString(attachment.getId()));
+            taskAttachment.setPatch(Boolean.TRUE);
+            taskAttachment.applyTo(attribute);
+        }
+        
+    }
 
     public List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
         return reviewboardReader.readRepositories(httpClient.executeGet("/api/json/repositories/",
@@ -284,6 +310,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 httpClient.executeGet("/api/json/reviewrequests/" + query, monitor));
     }
     
+    private List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+        
+        return reviewboardReader.readDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs", monitor));
+    }
 
     private List<Integer> getReviewRequestIds(String query, IProgressMonitor monitor)
             throws ReviewboardException {
