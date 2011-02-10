@@ -34,6 +34,8 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 public class ReviewboardAttachmentHandler extends AbstractTaskAttachmentHandler {
 
     public static final String ATTACHMENT_ATTRIBUTE_REVISION = "REVISION";
+
+    public static final Long ATTACHMENT_SIZE_UNKNOWN = Long.valueOf(-1);
     
     private final ReviewboardRepositoryConnector reviewboardRepositoryConnector;
     

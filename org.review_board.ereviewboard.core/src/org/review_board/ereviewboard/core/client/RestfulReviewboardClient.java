@@ -309,6 +309,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapper.setAttachmentId(Integer.toString(diff.getId()));
             mapper.setPatch(Boolean.TRUE);
             mapper.setDeprecated(diff.getRevision() != mostRecentRevision);
+            mapper.setLength(ReviewboardAttachmentHandler.ATTACHMENT_SIZE_UNKNOWN);
             mapper.applyTo(attribute);
             
             attribute.createAttribute(ReviewboardAttachmentHandler.ATTACHMENT_ATTRIBUTE_REVISION).setValue(String.valueOf(diff.getRevision()));
