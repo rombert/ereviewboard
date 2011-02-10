@@ -264,6 +264,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         TaskMapper scheme = new ReviewboardTaskMapper(taskData);
         scheme.applyTo(task);
         
+        task.setUrl(getTaskUrl(taskRepository.getUrl(), task.getTaskId()));
         task.setCompletionDate(scheme.getCompletionDate());
     }
 
