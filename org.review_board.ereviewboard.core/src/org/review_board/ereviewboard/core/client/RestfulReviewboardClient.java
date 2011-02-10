@@ -130,6 +130,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             JSONObject jsonResult = new JSONObject(httpClient.executeGet(
                     "/api/review-requests/" + Integer.parseInt(taskId) + "/", monitor)).getJSONObject("review_request");
 
+            // people attributes
+            mapPeopleGroup(taskData, jsonResult, Attribute.TARGET_PEOPLE);
+            mapPeopleGroup(taskData, jsonResult, Attribute.TARGET_GROUPS);
+            
             mapJsonAttribute(jsonResult.getJSONObject("links"), taskData, ReviewboardAttributeMapper.Attribute.REPOSITORY);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.BRANCH);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.CHANGENUM);
@@ -138,13 +142,13 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.BUGS_CLOSED);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.TESTING_DONE);
 
+            
             // hidden attributes
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.SUMMARY);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.ID);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.DESCRIPTION);
             mapJsonAttribute(jsonResult.getJSONObject("links"), taskData, ReviewboardAttributeMapper.Attribute.SUBMITTER);
-            mapJsonAttribute(jsonResult, taskData,
-                    ReviewboardAttributeMapper.Attribute.LAST_UPDATED);
+            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.LAST_UPDATED);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.TIME_ADDED);
             
             ReviewRequestStatus status =  ReviewRequestStatus.parseStatus( jsonResult.getString(ReviewboardAttributeMapper.Attribute.STATUS.getJsonAttributeName()));
@@ -164,6 +168,23 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         } catch (JSONException e) {
             throw new ReviewboardException("Error marshalling object to JSON", e);
         }
+    }
+
+    public void mapPeopleGroup(TaskData taskData, JSONObject jsonResult, Attribute targetAttribute) throws JSONException {
+        
+        JSONArray jsonArray = jsonResult.getJSONArray(targetAttribute.getJsonAttributeName());
+        
+        List<String> reviewPersons = new ArrayList<String>();
+        for ( int i = 0 ; i < jsonArray.length(); i++ ) {
+            
+            JSONObject object = jsonArray.getJSONObject(i);
+            reviewPersons.add(object.getString("title"));
+        }
+        
+        TaskAttribute taskAttribute = taskData.getRoot().createAttribute(targetAttribute.toString());
+        taskAttribute.setValues(reviewPersons);
+        
+        taskAttribute.getMetaData().setReadOnly(true).setLabel(targetAttribute.getDisplayName()).setType(targetAttribute.getAttributeType()).setKind(TaskAttribute.KIND_DEFAULT);
     }
 
     private void mapJsonAttribute(JSONObject from, TaskData to, Attribute attribute)

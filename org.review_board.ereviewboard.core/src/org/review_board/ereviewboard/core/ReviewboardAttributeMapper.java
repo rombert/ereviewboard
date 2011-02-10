@@ -29,6 +29,8 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         PUBLIC("public", "Public", TaskAttribute.TYPE_BOOLEAN, false),
         BRANCH("branch", "Branch", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
         CHANGENUM("changenum", "Change number", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
+        TARGET_PEOPLE("target_people", "Reviewers", TaskAttribute.TYPE_PERSON, false),
+        TARGET_GROUPS("target_groups", "Reviewer groups", TaskAttribute.TYPE_PERSON, false),
         LAST_UPDATED("last_updated", "Last updated", TaskAttribute.TYPE_DATETIME, true),
         TIME_ADDED("time_added", "Time added", TaskAttribute.TYPE_DATETIME, true);
 
