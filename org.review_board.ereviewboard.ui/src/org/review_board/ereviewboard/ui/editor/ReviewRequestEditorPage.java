@@ -37,8 +37,12 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
+import java.util.Set;
+
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPage;
+import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
 import org.eclipse.mylyn.tasks.ui.editors.TaskEditor;
+import org.eclipse.mylyn.tasks.ui.editors.TaskEditorPartDescriptor;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 
 /**
@@ -52,5 +56,30 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
         
         setNeedsPrivateSection(true);
         setNeedsSubmit(false);
+    }
+    
+    @Override
+    protected Set<TaskEditorPartDescriptor> createPartDescriptors() {
+        Set<TaskEditorPartDescriptor> descriptors = super.createPartDescriptors();
+        
+        // we provide our own people part
+        for (TaskEditorPartDescriptor taskEditorPartDescriptor : descriptors) {
+            if (taskEditorPartDescriptor.getId().equals(ID_PART_PEOPLE)) {
+                descriptors.remove(taskEditorPartDescriptor);
+                break;
+            }
+        }
+        
+        // people part
+        descriptors.add(new TaskEditorPartDescriptor(ID_PART_PEOPLE) {
+            @Override
+            public AbstractTaskEditorPart createPart() {
+                return new ReviewboardPeoplePart();
+            }
+        }.setPath(PATH_PEOPLE));
+
+        return descriptors;
+        
+        
     }
 }

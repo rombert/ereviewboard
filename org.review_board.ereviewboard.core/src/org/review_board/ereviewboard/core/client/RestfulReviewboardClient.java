@@ -184,7 +184,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         TaskAttribute taskAttribute = taskData.getRoot().createAttribute(targetAttribute.toString());
         taskAttribute.setValues(reviewPersons);
         
-        taskAttribute.getMetaData().setReadOnly(true).setLabel(targetAttribute.getDisplayName()).setType(targetAttribute.getAttributeType()).setKind(TaskAttribute.KIND_DEFAULT);
+        taskAttribute.getMetaData().setReadOnly(true).setLabel(targetAttribute.getDisplayName()).setType(targetAttribute.getAttributeType()).setKind(TaskAttribute.KIND_PEOPLE);
     }
 
     private void mapJsonAttribute(JSONObject from, TaskData to, Attribute attribute)
