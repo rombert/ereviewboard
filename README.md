@@ -12,9 +12,9 @@ There is no support for sending data back to the ReviewBoard server.
 Roadmap
 -------
 
-The development plans are reflected in the [issue tracker](issues).
+The development plans are reflected in the [issue tracker](ereviewboard/issues).
 
 Dowloads
 --------
 
-Archived update sites are periodically posted in the [downloads section](archives/master).
+Archived update sites are periodically posted in the [downloads section](ereviewboard/archives/master).
