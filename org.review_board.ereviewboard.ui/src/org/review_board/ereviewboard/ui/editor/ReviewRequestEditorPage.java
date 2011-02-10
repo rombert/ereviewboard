@@ -34,15 +34,19 @@
  * Contributors:
  *     Markus Knittig - adapted Trac, Redmine & Atlassian implementations for
  *                      Review Board
+ *     Robert Munteanu - added people part and rich text support for testing 
+ *                       done                 
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPage;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
 import org.eclipse.mylyn.tasks.ui.editors.TaskEditor;
 import org.eclipse.mylyn.tasks.ui.editors.TaskEditorPartDescriptor;
+import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 
 /**
@@ -50,6 +54,8 @@ import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
  * 
  */
 public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
+
+    private static final String ID_REVIEWBOARD_PART_TESTING_DONE = ReviewRequestEditorPage.class.getName() +".parts.testing_done";
 
     public ReviewRequestEditorPage(TaskEditor editor, String title) {
         super(editor, ReviewboardCorePlugin.REPOSITORY_KIND);
@@ -70,6 +76,15 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
             }
         }
         
+        // testing done
+        descriptors = insertPart(descriptors,
+                new TaskEditorPartDescriptor(ID_REVIEWBOARD_PART_TESTING_DONE) {
+            @Override
+            public AbstractTaskEditorPart createPart() {
+                return new RichTextPart(ReviewboardAttributeMapper.Attribute.TESTING_DONE, true);
+            }
+        }.setPath(PATH_COMMENTS), ID_PART_DESCRIPTION);
+        
         // people part
         descriptors.add(new TaskEditorPartDescriptor(ID_PART_PEOPLE) {
             @Override
@@ -79,7 +94,18 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
         }.setPath(PATH_PEOPLE));
 
         return descriptors;
-        
-        
     }
+    
+    protected Set<TaskEditorPartDescriptor> insertPart(Set<TaskEditorPartDescriptor> originalDescriptors, TaskEditorPartDescriptor newDescriptor, String insertAfterId ) {
+        
+        Set<TaskEditorPartDescriptor> newDescriptors = new LinkedHashSet<TaskEditorPartDescriptor>();
+        for (TaskEditorPartDescriptor taskEditorPartDescriptor : originalDescriptors) {
+            newDescriptors.add(taskEditorPartDescriptor);
+            if (taskEditorPartDescriptor.getId().equals(insertAfterId)) {
+                newDescriptors.add(newDescriptor);
+            }
+        }
+        
+        return newDescriptors;
+    }    
 }

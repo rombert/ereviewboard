@@ -23,7 +23,7 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         SUBMITTER("submitter.title", "Submitter", TaskAttribute.TYPE_PERSON, true),
         SUMMARY("summary", "Summary", TaskAttribute.TYPE_SHORT_RICH_TEXT, true),
         DESCRIPTION("description", "Description", TaskAttribute.TYPE_LONG_RICH_TEXT, true),
-        TESTING_DONE("testing_done", "Testing done", TaskAttribute.TYPE_LONG_RICH_TEXT, false),
+        TESTING_DONE("testing_done", "Testing done", TaskAttribute.TYPE_LONG_RICH_TEXT, true),
         STATUS("status", "Status", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
         BUGS_CLOSED("bugs_closed", "Bugs closed", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
         PUBLIC("public", "Public", TaskAttribute.TYPE_BOOLEAN, false),
