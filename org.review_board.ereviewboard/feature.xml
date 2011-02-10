@@ -2,7 +2,7 @@
 <feature
       id="org.review_board.ereviewboard"
       label="Mylyn Connector: ReviewBoard"
-      version="0.1.0.qualifier"
+      version="0.7.0.qualifier"
       provider-name="Markus Knittig"
       plugin="org.review_board.ereviewboard.core">
 
