@@ -118,20 +118,6 @@ Inc. in the United States, other countries, or both.
    </requires>
 
    <plugin
-         id="org.apache.commons.codec"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.httpclient"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.review_board.ereviewboard.core"
          download-size="0"
          install-size="0"
