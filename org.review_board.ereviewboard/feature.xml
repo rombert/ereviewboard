@@ -116,7 +116,13 @@ Inc. in the United States, other countries, or both.
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.forms"/>
    </requires>
-
+   
+   <plugin id="org.apache.commons.io"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
    <plugin
          id="org.review_board.ereviewboard.core"
          download-size="0"
