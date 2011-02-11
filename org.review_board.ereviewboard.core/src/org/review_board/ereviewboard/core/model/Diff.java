@@ -22,6 +22,8 @@ import java.util.Date;
  */
 public class Diff {
     
+    public static final String DIFF_REVISION_PREFIX = "Diff revision ";
+    
     private final int id;
     private final Date timestamp;
     private int revision;
@@ -45,7 +47,7 @@ public class Diff {
     }
     
     public String getName() {
-        return "Diff revision " + revision;
+        return DIFF_REVISION_PREFIX + revision;
     }
 
 }

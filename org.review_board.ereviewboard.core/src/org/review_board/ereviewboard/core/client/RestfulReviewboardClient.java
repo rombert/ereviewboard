@@ -260,7 +260,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             Comment2 comment = new Comment2();
             comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
                     taskData.getRoot().getAttribute(Attribute.SUBMITTER.toString()).getValue()));
-            comment.setText("Diff # " + jsonComment.getString("revision"));
+            comment.setText(Diff.DIFF_REVISION_PREFIX + jsonComment.getString("revision"));
 
             sortedComments.put(
                     ReviewboardAttributeMapper.parseDateValue(jsonComment.getString("timestamp")),
