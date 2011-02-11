@@ -51,7 +51,8 @@ public class ReviewboardUiPlugin extends Plugin {
 
     public static final String PLUGIN_ID = "org.review_board.ereviewboard.ui";
 
-    @Override
+    private static volatile ReviewboardUiPlugin DEFAULT;
+
     public void start(BundleContext context) throws Exception {
         super.start(context);
         ReviewboardCorePlugin corePlugin = ReviewboardCorePlugin.getDefault();
@@ -60,6 +61,19 @@ public class ReviewboardUiPlugin extends Plugin {
         corePlugin.getConnector().setTaskRepositoryLocationFactory(
                 new TaskRepositoryLocationUiFactory());
         TasksUi.getRepositoryManager().addListener(corePlugin.getConnector().getClientManager());
+        
+        DEFAULT = this;
+    }
+    
+    @Override
+    public void stop(BundleContext context) throws Exception {
+
+        DEFAULT = null;
+    }
+    
+    public static ReviewboardUiPlugin getDefault() {
+        
+        return DEFAULT;
     }
 
 }

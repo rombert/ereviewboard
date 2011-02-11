@@ -45,6 +45,7 @@ import org.eclipse.mylyn.tasks.ui.editors.TaskEditorInput;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.forms.editor.IFormPage;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
+import org.review_board.ereviewboard.ui.util.ReviewboardImages;
 
 /**
  * @author Markus Knittig
@@ -72,7 +73,8 @@ public class ReviewRequestEditorPageFactory extends AbstractTaskEditorPageFactor
 
     @Override
     public Image getPageImage() {
-        return null;
+        
+        return ReviewboardImages.ICON_REVIEWBOARD.createImage();
     }
 
     @Override
