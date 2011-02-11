@@ -74,7 +74,7 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  */
 public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector {
     
-    private static final String CLIENT_LABEL = "Reviewboard (supports 1.0 and later)";
+    private static final String CLIENT_LABEL = "Reviewboard (supports 1.5 and later)";
 
     private final static Pattern REVIEW_REQUEST_ID_FROM_TASK_URL = Pattern
             .compile(ReviewboardConstants.REVIEW_REQUEST_URL + "(\\d+)");
