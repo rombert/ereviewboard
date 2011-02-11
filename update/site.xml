@@ -1,0 +1,7 @@
+<site associateSitesURL="http://rombert.github.com/ereviewboard/update/associate-sites.xml">
+  <description>eReviewBoard Update Site</description>
+  <feature url="features/org.review_board.ereviewboard_0.7.1.201102111752.jar" id="org.review_board.ereviewboard" version="0.7.1.201102111752">
+    <category name="eReviewBoard"/>
+  </feature>
+  <category-def name="eReviewBoard" label="eReviewBoard"></category-def>
+</site>
