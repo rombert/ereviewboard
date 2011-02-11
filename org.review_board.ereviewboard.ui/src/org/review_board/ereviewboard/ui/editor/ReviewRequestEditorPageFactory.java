@@ -37,6 +37,7 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
+import org.eclipse.mylyn.tasks.ui.ITasksUiConstants;
 import org.eclipse.mylyn.tasks.ui.TasksUiUtil;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPageFactory;
 import org.eclipse.mylyn.tasks.ui.editors.TaskEditor;
@@ -84,4 +85,9 @@ public class ReviewRequestEditorPageFactory extends AbstractTaskEditorPageFactor
         return new ReviewRequestEditorPage(parentEditor, TITLE);
     }
 
+    @Override
+    public String[] getConflictingIds(TaskEditorInput input) {
+        
+        return new String[] { ITasksUiConstants.ID_PAGE_PLANNING };
+    }
 }
