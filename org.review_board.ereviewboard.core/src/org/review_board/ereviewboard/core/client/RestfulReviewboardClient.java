@@ -223,8 +223,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
     
     private String splitWordListIfApplicable(String value) {
-  
-        StringBuilder splitList = new StringBuilder();
+
+        List<String> values = new ArrayList<String>();
         
         if (value.startsWith("[") && value.endsWith("]")) {
 
@@ -233,15 +233,12 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             Matcher matcher = pattern.matcher(value.substring(1, value.length() - 1));
 
             while (matcher.find())
-                splitList.append((matcher.group(1))).append(',');
-            
-            if ( splitList.length() > 0 ) {
-                splitList.deleteCharAt(splitList.length() - 1);
-                return splitList.toString();
-            }
+                values.add((matcher.group(1)));
+        } else {
+            values.add(value);
         }
         
-        return value;
+        return ReviewboardUtil.joinList(values);
     }
 
     private void loadReviewsAndDiffsAsComment(TaskData taskData, IProgressMonitor monitor)
