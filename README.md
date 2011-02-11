@@ -7,7 +7,8 @@ Status
 ------
 
 The connector maps all of the current attributes and allows for patches to be downloaded.
-There is no support for sending data back to the ReviewBoard server.
+There is no support for sending data back to the ReviewBoard server. Please see
+[the project wiki](ereviewboard/wiki) for more details.
 
 Roadmap
 -------
@@ -18,4 +19,4 @@ Dowloads
 --------
 
 Archived update sites are periodically posted in the [downloads section](ereviewboard/archives/master). 
-A p2 update site is available at http://rombert.github.com/ereviewboard/update/.
+A p2 update site is available at [http://rombert.github.com/ereviewboard/update/](http://rombert.github.com/ereviewboard/update/).
