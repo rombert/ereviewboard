@@ -272,6 +272,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         Policy.advance(monitor, 1);
 
         JSONArray reviewsArray = reviews.getJSONArray("reviews");
+        
+        int shipItCount = 0;
 
         for (int i = 0; i < reviewsArray.length(); i++) {
 
@@ -280,13 +282,34 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             int totalResults = new JSONObject(httpClient.executeGet("/api/review-requests/" + taskData.getTaskId()+"/reviews/" + reviewId +"/diff-comments", monitor)).getInt("total_results");
 
             StringBuilder text = new StringBuilder();
-            text.append("Review ( ship it =  " + jsonReview.getBoolean("ship_it") + " )");
-            if ( jsonReview.getString("body_top").length() != 0  )
-                text.append("\n\n").append(jsonReview.getString("body_top"));
-            if ( totalResults != 0 )
-                text.append("\n\n").append(totalResults).append(" inline comments.");
-            if ( jsonReview.getString("body_bottom").length() != 0  )
-                text.append("\n\n").append(jsonReview.getString("body_bottom"));
+            boolean shipit = jsonReview.getBoolean("ship_it");
+            boolean appendWhiteSpace = false;
+            if ( shipit ) {
+                text.append("Ship it!");
+                shipItCount++;
+                appendWhiteSpace = true;
+            }
+            if ( jsonReview.getString("body_top").length() != 0  ) {
+                if ( appendWhiteSpace )
+                    text.append("\n\n");
+                
+                text.append(jsonReview.getString("body_top"));
+                appendWhiteSpace = true;
+            }
+            if ( totalResults != 0 ) {
+                if ( appendWhiteSpace )
+                    text.append("\n\n");
+                
+                text.append(totalResults).append(" inline comments.");
+                
+                appendWhiteSpace = true;
+            }
+            if ( jsonReview.getString("body_bottom").length() != 0  ) {
+                if ( appendWhiteSpace )
+                    text.append("\n\n");
+
+                text.append(jsonReview.getString("body_bottom"));
+            }
             
             Comment2 comment = new Comment2();
             comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
@@ -298,6 +321,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                     comment);
 
         }
+        
+        TaskAttribute shipItAttribute = taskData.getRoot().createAttribute(Attribute.SHIP_IT.toString());
+        shipItAttribute.setValue(String.valueOf(shipItCount));
+        shipItAttribute.getMetaData().setLabel(Attribute.SHIP_IT.getDisplayName()).setType(Attribute.SHIP_IT.getAttributeType());
+        shipItAttribute.getMetaData().setReadOnly(true).setKind(Attribute.SHIP_IT.isHidden() ? null : TaskAttribute.KIND_DEFAULT);
 
         int commentIndex = 1;
         
