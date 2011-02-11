@@ -262,8 +262,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                     comment);
         }
 
-        JSONObject reviews = new JSONObject(httpClient.executeGet("/api/json/reviewrequests/"
-                + taskData.getTaskId() + "/reviews", monitor));
+        JSONObject reviews = new JSONObject(httpClient.executeGet("/api/review-requests/" + taskData.getTaskId() + "/reviews", monitor));
 
         Policy.advance(monitor, 1);
 
@@ -273,10 +272,17 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
             JSONObject jsonReview = reviewsArray.getJSONObject(i);
 
+            StringBuilder text = new StringBuilder();
+            text.append("Review ( ship it =  " + jsonReview.getBoolean("ship_it") + " )");
+            if ( jsonReview.getString("body_top").length() != 0  )
+                text.append("\n\n").append(jsonReview.getString("body_top"));
+            if ( jsonReview.getString("body_bottom").length() != 0  )
+                text.append("\n\n").append(jsonReview.getString("body_bottom"));
+            
             Comment2 comment = new Comment2();
             comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
-                    jsonReview.getJSONObject("user").getString("fullname")));
-            comment.setText("Review ( ship it =  " + jsonReview.getString("ship_it") + " ).");
+                    jsonReview.getJSONObject("links").getJSONObject("user").getString("title")));
+            comment.setText(text.toString());
 
             sortedComments.put(
                     ReviewboardAttributeMapper.parseDateValue(jsonReview.getString("timestamp")),
