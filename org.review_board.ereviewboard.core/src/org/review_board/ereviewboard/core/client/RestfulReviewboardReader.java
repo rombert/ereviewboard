@@ -51,6 +51,7 @@ import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
@@ -202,6 +203,31 @@ public class RestfulReviewboardReader {
             }
             
             return diffList;
+            
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
+   
+    public List<Screenshot> readScreenshots(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject json = new JSONObject(source);
+            JSONArray jsonScreenshots = json.getJSONArray("screenshots");
+            
+            List<Screenshot> screenshotList = new ArrayList<Screenshot>();
+            for (int i = 0; i < jsonScreenshots.length(); i++) {
+
+                JSONObject jsonScreenshot = jsonScreenshots.getJSONObject(i);
+                int id = jsonScreenshot.getInt("id");
+                String caption = jsonScreenshot.getString("caption");
+                String url = jsonScreenshot.getString("url");
+                
+                screenshotList.add(new Screenshot(id, caption, url));
+            }
+            
+            return screenshotList;
             
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);

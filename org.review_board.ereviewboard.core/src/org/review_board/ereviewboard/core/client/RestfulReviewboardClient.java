@@ -38,6 +38,8 @@
 package org.review_board.ereviewboard.core.client;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -82,6 +84,7 @@ import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
+import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
@@ -129,7 +132,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         try {
             
             TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository),
-                    ReviewboardCorePlugin.REPOSITORY_KIND, location.getUrl(), taskId);
+                    ReviewboardCorePlugin.REPOSITORY_KIND, taskRepository.getUrl(), taskId);
             JSONObject jsonResult = new JSONObject(httpClient.executeGet(
                     "/api/review-requests/" + Integer.parseInt(taskId) + "/", monitor)).getJSONObject("review_request");
 
@@ -165,7 +168,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             
             // TODO: these should be joined to make sure we only use one call
             loadReviewsAndDiffsAsComment(taskData, monitor);
-            loadDiffsAsAttachments(taskData, taskRepository, monitor);
+            loadDiffsAndScreenshotsAsAttachments(taskData, taskRepository, monitor);
 
             return taskData;
         } catch (JSONException e) {
@@ -333,11 +336,12 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
     }
     
-    private void loadDiffsAsAttachments(TaskData taskData, TaskRepository taskRepository, IProgressMonitor monitor) throws ReviewboardException {
+    private void loadDiffsAndScreenshotsAsAttachments(TaskData taskData, TaskRepository taskRepository, IProgressMonitor monitor) throws ReviewboardException {
         
         List<Diff> diffs = loadDiffs(Integer.parseInt(taskData.getTaskId()), monitor);
+        List<Screenshot> screenshots = loadScreenshots(Integer.parseInt(taskData.getTaskId()), monitor);
         
-        if ( diffs.isEmpty() )
+        if ( diffs.isEmpty() && screenshots.isEmpty() )
             return;
         
         int mostRecentRevision = diffs.size();
@@ -358,6 +362,32 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             attribute.createAttribute(ReviewboardAttachmentHandler.ATTACHMENT_ATTRIBUTE_REVISION).setValue(String.valueOf(diff.getRevision()));
         }
         
+        int attachmentIndex = mostRecentRevision;
+        
+        for ( Screenshot screenshot : screenshots ) {
+  
+            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + ++ attachmentIndex);
+            TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
+            mapper.setFileName(screenshot.getFileName());
+            mapper.setDescription(screenshot.getCaption());
+            mapper.setAttachmentId(Integer.toString(screenshot.getId()));
+            mapper.setLength(ReviewboardAttachmentHandler.ATTACHMENT_SIZE_UNKNOWN);
+            mapper.setContentType(screenshot.getContentType());
+            mapper.setUrl(stripPathFromLocation() + screenshot.getUrl());
+            mapper.applyTo(attribute);
+        }
+        
+    }
+
+    public String stripPathFromLocation() throws ReviewboardException {
+        
+        try {
+            URI uri = new URI(location.getUrl());
+            uri.getPath();
+            return location.getUrl().substring(0, location.getUrl().length() - uri.getPath().length());
+        } catch (URISyntaxException e) {
+            throw new ReviewboardException("Unable to retrive host from the location", e);
+        }
     }
 
     public List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
@@ -385,6 +415,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return reviewboardReader.readDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs", monitor));
     }
 
+    private List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+        
+        return reviewboardReader.readScreenshots(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/screenshots", monitor));
+    }
+    
     private List<Integer> getReviewRequestIds(String query, IProgressMonitor monitor)
             throws ReviewboardException {
         return reviewboardReader.readReviewRequestIds(
@@ -566,6 +601,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException {
         
         return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/","text/x-patch", monitor);
+    }
+    
+    public byte[] getScreenshot(String url, IProgressMonitor monitor) throws ReviewboardException {
+        return httpClient.executeGetForBytes("/" + url, "image/*", monitor);
     }
 
     public boolean validCredentials(String username, String password, IProgressMonitor monitor) {

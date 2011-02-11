@@ -21,6 +21,7 @@ import org.eclipse.mylyn.tasks.core.ITask;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentHandler;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentSource;
+import org.eclipse.mylyn.tasks.core.data.TaskAttachmentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
@@ -61,13 +62,26 @@ public class ReviewboardAttachmentHandler extends AbstractTaskAttachmentHandler 
         
         try {
             ReviewboardClient client = reviewboardRepositoryConnector.getClientManager().getClient(repository);
-            
-            int reviewId = Integer.parseInt(task.getTaskId());
-            int revisionId = Integer.parseInt(attachmentAttribute.getAttribute(ATTACHMENT_ATTRIBUTE_REVISION).getValue());
 
-            byte[] rawDiff = client.getRawDiff(reviewId, revisionId, monitor);
+            TaskAttribute revision = attachmentAttribute.getAttribute(ATTACHMENT_ATTRIBUTE_REVISION);
+            if ( revision != null ) {
             
-            return new ByteArrayInputStream(rawDiff);
+                int reviewId = Integer.parseInt(task.getTaskId());
+                int revisionId = Integer.parseInt(revision.getValue());
+    
+                byte[] rawDiff = client.getRawDiff(reviewId, revisionId, monitor);
+                
+                return new ByteArrayInputStream(rawDiff);
+            } else {
+                
+                String url = TaskAttachmentMapper.createFrom(attachmentAttribute).getUrl();
+                
+                url = url.substring(repository.getUrl().length() + 1);
+                
+                byte[] screenshot = client.getScreenshot(url, monitor);
+                
+                return new ByteArrayInputStream(screenshot);
+            }
         } catch (ReviewboardException e) {
             throw new CoreException(new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed retrieving diff", e));
         }
