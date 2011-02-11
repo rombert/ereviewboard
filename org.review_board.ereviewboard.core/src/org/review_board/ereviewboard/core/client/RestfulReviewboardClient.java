@@ -39,6 +39,7 @@ package org.review_board.ereviewboard.core.client;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,7 +59,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.Policy;
-import org.eclipse.mylyn.internal.tasks.core.RepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
@@ -91,7 +91,7 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  * @author Markus Knittig
  */
 public class RestfulReviewboardClient implements ReviewboardClient {
-
+    
     private final AbstractWebLocation location;
 
     private final RestfulReviewboardReader reviewboardReader;
@@ -124,7 +124,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public TaskData getTaskData(TaskRepository taskRepository, final String taskId,
             IProgressMonitor monitor) throws ReviewboardException {
 
+        long start = System.currentTimeMillis();
+
         try {
+            
             TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository),
                     ReviewboardCorePlugin.REPOSITORY_KIND, location.getUrl(), taskId);
             JSONObject jsonResult = new JSONObject(httpClient.executeGet(
@@ -167,6 +170,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             return taskData;
         } catch (JSONException e) {
             throw new ReviewboardException("Error marshalling object to JSON", e);
+        } finally {
+            
+            double elapsed= ( System.currentTimeMillis() - start) / 1000.0;
+            
+            System.out.println("Review request with id  " + taskId + " synchronized in " + NumberFormat.getNumberInstance().format(elapsed) + " seconds.");
         }
     }
 
@@ -271,11 +279,15 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         for (int i = 0; i < reviewsArray.length(); i++) {
 
             JSONObject jsonReview = reviewsArray.getJSONObject(i);
+            int reviewId = jsonReview.getInt("id");
+            int totalResults = new JSONObject(httpClient.executeGet("/api/review-requests/" + taskData.getTaskId()+"/reviews/" + reviewId +"/diff-comments", monitor)).getInt("total_results");
 
             StringBuilder text = new StringBuilder();
             text.append("Review ( ship it =  " + jsonReview.getBoolean("ship_it") + " )");
             if ( jsonReview.getString("body_top").length() != 0  )
                 text.append("\n\n").append(jsonReview.getString("body_top"));
+            if ( totalResults != 0 )
+                text.append("\n\n").append(totalResults).append(" inline comments.");
             if ( jsonReview.getString("body_bottom").length() != 0  )
                 text.append("\n\n").append(jsonReview.getString("body_bottom"));
             
