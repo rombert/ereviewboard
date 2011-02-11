@@ -39,6 +39,7 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -66,18 +67,17 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
     
     @Override
     protected Set<TaskEditorPartDescriptor> createPartDescriptors() {
-        Set<TaskEditorPartDescriptor> descriptors = super.createPartDescriptors();
+        Set<TaskEditorPartDescriptor> partDescriptors = super.createPartDescriptors();
         
-        // we provide our own people part
-        for (TaskEditorPartDescriptor taskEditorPartDescriptor : descriptors) {
-            if (taskEditorPartDescriptor.getId().equals(ID_PART_PEOPLE)) {
-                descriptors.remove(taskEditorPartDescriptor);
-                break;
-            }
+        // we provide our own people part and we submit no data
+        for ( Iterator<TaskEditorPartDescriptor> partDescriptorIterator = partDescriptors.iterator(); partDescriptorIterator.hasNext(); ) {
+            TaskEditorPartDescriptor partDescriptor = partDescriptorIterator.next();
+            if ( partDescriptor.getId().equals(ID_PART_PEOPLE) || partDescriptor.getId().equals(ID_PART_ACTIONS) )
+                partDescriptorIterator.remove();
         }
         
         // testing done
-        descriptors = insertPart(descriptors,
+        partDescriptors = insertPart(partDescriptors,
                 new TaskEditorPartDescriptor(ID_REVIEWBOARD_PART_TESTING_DONE) {
             @Override
             public AbstractTaskEditorPart createPart() {
@@ -86,14 +86,14 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
         }.setPath(PATH_COMMENTS), ID_PART_DESCRIPTION);
         
         // people part
-        descriptors.add(new TaskEditorPartDescriptor(ID_PART_PEOPLE) {
+        partDescriptors.add(new TaskEditorPartDescriptor(ID_PART_PEOPLE) {
             @Override
             public AbstractTaskEditorPart createPart() {
                 return new ReviewboardPeoplePart();
             }
         }.setPath(PATH_PEOPLE));
 
-        return descriptors;
+        return partDescriptors;
     }
     
     protected Set<TaskEditorPartDescriptor> insertPart(Set<TaskEditorPartDescriptor> originalDescriptors, TaskEditorPartDescriptor newDescriptor, String insertAfterId ) {
