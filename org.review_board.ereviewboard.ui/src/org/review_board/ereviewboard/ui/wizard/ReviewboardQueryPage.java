@@ -37,7 +37,11 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.wizard;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jface.fieldassist.AutoCompleteField;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
@@ -55,7 +59,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -83,22 +86,25 @@ import org.review_board.ereviewboard.ui.util.UiUtils;
  *
  */
 public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
+    
+    private enum Selection {
+        
+        ALL, GROUP, FROM_USER, TO_USER, REPOSITORY;
+    }
 
     private static final String TITLE = "Enter query parameters";
 
     private static final String DESCRIPTION = "Select options to create a query";
 
     private static final String TITLE_QUERY_TITLE = "Query title";
-
+    
+    private final UpdateButtonsListener updateButtonsListener = new UpdateButtonsListener();
+    
     private ReviewboardClient client;
 
     private IRepositoryQuery query;
 
     private Text titleText;
-
-    private ReviewRequestQuery reviewRequestQuery;
-
-    private ReviewRequestStatus status;
 
     private String changeNum = "";
 
@@ -112,6 +118,20 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private List<String> fromUsers;
     private List<String> toUsers;
+
+    private ComboViewer statusCombo;
+
+    private Text changeNumText;
+
+    private Map<Integer, String> repositories;
+
+    private List<Repository> repositoryList;
+    
+    private Map<Button, SelectionRunnable> radioButtons = new HashMap<Button, SelectionRunnable>();
+
+    private Selection selection = Selection.ALL;
+
+    private ReviewRequestQuery reviewRequestQuery;
 
     public ReviewboardQueryPage(TaskRepository taskRepository, IRepositoryQuery query) {
         super(TITLE, taskRepository, query);
@@ -140,13 +160,19 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
         groupCombo.setInput(ReviewboardUtil.toStringList(clientData.getGroups()));
         repositoryCombo.setInput(ReviewboardUtil.toStringList(clientData.getRepositories()));
-        ReviewboardUiUtil.selectDefaultComboItem(groupCombo);
-        ReviewboardUiUtil.selectDefaultComboItem(repositoryCombo);
 
         fromUsers = ReviewboardUtil.toStringList(clientData.getUsers());
         toUsers = ReviewboardUtil.toStringList(clientData.getUsers());
         fromUserAutoCompleteField.setProposals(fromUsers.toArray(new String[fromUsers.size()]));
         toUserComboAutoCompleteField.setProposals(toUsers.toArray(new String[toUsers.size()]));
+        
+        repositories = new HashMap<Integer, String>();
+        repositoryList = clientData.getRepositories();
+        for ( Repository repository : clientData.getRepositories() )
+            repositories.put(repository.getId(), repository.getName());
+
+        ReviewboardUiUtil.selectDefaultComboItem(groupCombo);
+        ReviewboardUiUtil.selectDefaultComboItem(repositoryCombo);
     }
     
     private IRunnableContext getRunnableContext() {
@@ -164,11 +190,47 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     private void restoreQuery(IRepositoryQuery query) {
         titleText.setText(query.getSummary());
         changeNum = query.getAttribute("changeNum");
-        reviewRequestQuery = StatusReviewRequestQuery.fromQueryString(query.getUrl());
+        ReviewRequestQuery reviewRequestQuery = StatusReviewRequestQuery.fromQueryString(query.getUrl());
+        selection = Selection.ALL;
+        
+        if (reviewRequestQuery instanceof StatusReviewRequestQuery) {
+            
+            ReviewRequestStatus status = ((StatusReviewRequestQuery) reviewRequestQuery).getStatus();
+            ReviewboardUiUtil.selectComboItemByValue(statusCombo, status.getDisplayname());
+            
+            if (reviewRequestQuery instanceof GroupReviewRequestQuery) {
+                GroupReviewRequestQuery specificQuery = (GroupReviewRequestQuery) reviewRequestQuery;
+                ReviewboardUiUtil.selectComboItemByValue(groupCombo, specificQuery.getGroupname());
+                selection = Selection.GROUP;
+            } else if ( reviewRequestQuery instanceof FromUserReviewRequestQuery) {
+                FromUserReviewRequestQuery specificQuery = (FromUserReviewRequestQuery) reviewRequestQuery;
+                fromUserText.setText(specificQuery.getUsername());
+                selection = Selection.FROM_USER;
+            } else if ( reviewRequestQuery instanceof ToUserReviewRequestQuery) {
+                ToUserReviewRequestQuery specificQuery = (ToUserReviewRequestQuery) reviewRequestQuery;
+                toUserText.setText(specificQuery.getUsername());
+                selection = Selection.TO_USER;
+            } else if ( reviewRequestQuery instanceof RepositoryReviewRequestQuery ) {
+                RepositoryReviewRequestQuery specificQuery = (RepositoryReviewRequestQuery) reviewRequestQuery;
+                changeNumText.setText(String.valueOf(specificQuery.getChangeNum()));
+                ReviewboardUiUtil.selectComboItemByValue(repositoryCombo, repositories.get(specificQuery.getRepositoryId()));
+                selection = Selection.REPOSITORY;
+            }
+        }
+        
+        // toggle buttons
+        for ( Iterator<Map.Entry<Button, SelectionRunnable>> iterator = radioButtons.entrySet().iterator(); iterator.hasNext(); ) {
+            Entry<Button, SelectionRunnable> entry = iterator.next();
+            boolean needsSelection = ( entry.getValue().getSelection() == selection );
+            entry.getKey().setSelection(needsSelection);
+            if ( needsSelection )
+                entry.getValue().run();
+        }
     }
 
     @Override
     public void applyTo(IRepositoryQuery query) {
+        
         query.setSummary(getQueryTitle());
         query.setUrl(reviewRequestQuery.getQuery());
         query.setAttribute("changeNum", changeNum);
@@ -195,18 +257,59 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private boolean validate() {
         boolean valid = true;
-        if (reviewRequestQuery instanceof RepositoryReviewRequestQuery) {
-            RepositoryReviewRequestQuery repositoryQuery = (RepositoryReviewRequestQuery) reviewRequestQuery;
-            valid = repositoryQuery.isValid();
+        
+        ReviewRequestQuery query;
+        ReviewRequestStatus status = getSelectedStatus();
+        
+        System.out.println("Status is " + status  + " .");
+        
+        switch ( selection ) {
+        
+        case ALL:
+            query = new AllReviewRequestQuery(status);
+            break;
+        
+        case GROUP:
+            query = new GroupReviewRequestQuery(status, groupCombo.getCombo().getText());
+            break;
+            
+        case REPOSITORY:
+            String text =  changeNumText.getText();
+            try {
+                int changeNumInt = Integer.parseInt(text);
+                if ( changeNumInt<= 0 )
+                    return false;
+                
+                int repositoryIndex = repositoryCombo.getCombo().getSelectionIndex();
+                int repositoryId = repositoryList.get(repositoryIndex).getId();
+                
+                query = new RepositoryReviewRequestQuery(status, repositoryId, changeNumInt);
+            } catch ( NumberFormatException e ) {
+                return false;
+            }
+            
+            break;
+            
+        case TO_USER:
+            if ( !toUsers.contains(toUserText.getText()) )
+                return false;
+            
+            query = new ToUserReviewRequestQuery(status, toUserText.getText());
+            break;
+            
+        case FROM_USER:
+            if ( ! fromUsers.contains(fromUserText.getText() ) )
+                return false;
+
+            query = new FromUserReviewRequestQuery(status, fromUserText.getText());
+            break;
+            
+            default: 
+                return false;
         }
 
-        if (reviewRequestQuery instanceof ToUserReviewRequestQuery) {
-            valid = toUsers.contains(toUserText.getText());
-        }
-
-        if (reviewRequestQuery instanceof FromUserReviewRequestQuery) {
-            valid = fromUsers.contains(fromUserText.getText());
-        }
+        // assign at the end to benefit from 'definite assignment' compiler analysis
+        reviewRequestQuery = query;
 
         return (titleText != null && titleText.getText().length() > 0) && valid;
     }
@@ -228,20 +331,20 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
         createAllButton(radioComposite);
 
-        Composite groupComposite = createRadioCompositeWithCombo(radioComposite, "With group");
+        Composite groupComposite = createRadioCompositeWithCombo(radioComposite, "With group", Selection.GROUP);
         groupCombo = createGroupCombo(groupComposite);
 
-        Composite fromUserComposite = createRadioCompositeWithCombo(radioComposite, "From the user");
+        Composite fromUserComposite = createRadioCompositeWithCombo(radioComposite, "From the user", Selection.FROM_USER);
         createFromUserText(fromUserComposite);
 
-        Composite toUserComposite = createRadioCompositeWithCombo(radioComposite, "To the user");
+        Composite toUserComposite = createRadioCompositeWithCombo(radioComposite, "To the user", Selection.TO_USER);
         createToUserText(toUserComposite);
 
-        Composite repositoryComposite = createRadioCompositeWithCombo(radioComposite, "From repository");
+        Composite repositoryComposite = createRadioCompositeWithCombo(radioComposite, "From repository", Selection.REPOSITORY);
         repositoryCombo = createRepositoryCombo(repositoryComposite);
         Label changeNumLabel = new Label(repositoryComposite, SWT.FILL);
         changeNumLabel.setText("with change number:");
-        Text changeNumText = new Text(repositoryComposite, SWT.BORDER);
+        changeNumText = new Text(repositoryComposite, SWT.BORDER);
         changeNumText.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
                 changeNum = ((Text) event.widget).getText();
@@ -255,19 +358,13 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(statusComposite);
         Label statusLabel = new Label(statusComposite, SWT.NONE);
         statusLabel.setText("With Status");
-        ComboViewer statusCombo = createCombo(statusComposite);
-        for (ReviewRequestStatus status : ReviewRequestStatus.values()) {
-            statusCombo.add(status.getDisplayname());
-        }
+        statusCombo = createCombo(statusComposite);
+        for (ReviewRequestStatus status : ReviewRequestStatus.values())
+            if ( status != ReviewRequestStatus.NONE )
+                statusCombo.add(status.getDisplayname());
+        
         statusCombo.getCombo().select(0);
-        statusCombo.getCombo().addListener(SWT.Modify, new Listener() {
-            public void handleEvent(Event event) {
-                if (reviewRequestQuery != null) {
-                    reviewRequestQuery.setStatus(ReviewRequestStatus.valueOf(((Combo) event.widget)
-                            .getText().toUpperCase()));
-                }
-            }
-        });
+        statusCombo.getCombo().addListener(SWT.Modify, updateButtonsListener);
 
         setControl(control);
         
@@ -282,23 +379,30 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         
         updateRepositoryData(false);
         
-        if (query != null) {
+        if (query != null)
             restoreQuery(query);
-        } else {
-            reviewRequestQuery = new AllReviewRequestQuery(ReviewRequestStatus.PENDING);
-        }
+    }
+    
+    private ReviewRequestStatus getSelectedStatus() {
+        
+        return ReviewRequestStatus.valueOf(statusCombo.getCombo().getText().toUpperCase());
     }
 
     private void createAllButton(Composite radioComposite) {
         Button button = UiUtils.createRadioButton(radioComposite, "All");
+        final SelectionRunnable toggleRunnable = new SelectionRunnable(Selection.ALL) {
+          public void run0() {
+              getContainer().updateButtons();
+          }
+        };
+        radioButtons.put(button, toggleRunnable);
         button.setSelection(true);
         final Composite allComposite = createRadioComposite(radioComposite);
         allComposite.setEnabled(false);
         new Label(allComposite, SWT.NONE);
         button.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
-                reviewRequestQuery = new AllReviewRequestQuery(status);
-                getContainer().updateButtons();
+                toggleRunnable.run();
             }
         });
     }
@@ -310,15 +414,22 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         return composite;
     }
 
-    private Composite createRadioCompositeWithCombo(final Composite parent, String text) {
-        Button button = UiUtils.createRadioButton(parent, text);
+    private Composite createRadioCompositeWithCombo(final Composite parent, String text, final Selection selection) {
+        final Button button = UiUtils.createRadioButton(parent, text);
         final Composite composite = createRadioComposite(parent);
         composite.setEnabled(false);
+        final SelectionRunnable toggleRunnable = new SelectionRunnable(selection) {
+            protected void run0() {
+                composite.setEnabled(button.getSelection());
+                getContainer().updateButtons();
+            }  
+          };
+        radioButtons.put(button, toggleRunnable);
+
 
         button.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
-                composite.setEnabled(!composite.getEnabled());
-                composite.notifyListeners(SWT.Modify, event);
+                toggleRunnable.run();
             }
         });
 
@@ -343,13 +454,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     private ComboViewer createGroupCombo(Composite parent) {
         ComboViewer combo = createCombo(parent);
 
-        combo.getCombo().addListener(SWT.Modify, new Listener() {
-            public void handleEvent(Event event) {
-                reviewRequestQuery = new GroupReviewRequestQuery(status, ((Combo) event.widget)
-                        .getText());
-                getContainer().updateButtons();
-            }
-        });
+        combo.getCombo().addListener(SWT.Modify, updateButtonsListener);
 
         return combo;
     }
@@ -362,15 +467,11 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
                 fromUserText.notifyListeners(SWT.Modify, event);
             }
         });
-        fromUserText.addListener(SWT.Modify, new Listener() {
-            public void handleEvent(Event event) {
-                reviewRequestQuery = new FromUserReviewRequestQuery(status, ((Text) event.widget).getText());
-                getContainer().updateButtons();
-            }
-        });
+        fromUserText.addListener(SWT.Modify, updateButtonsListener);
     }
 
     private void createToUserText(Composite toUserComposite) {
+    
         toUserText = new Text(toUserComposite, SWT.BORDER);
         toUserComboAutoCompleteField = new AutoCompleteField(toUserText, new TextContentAdapter(), new String[] {});
         toUserComposite.addListener(SWT.Modify, new Listener() {
@@ -378,56 +479,58 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
                 toUserText.notifyListeners(SWT.Modify, event);
             }
         });
-        toUserComposite.addListener(SWT.Modify, new Listener() {
-            public void handleEvent(Event event) {
-                reviewRequestQuery = new ToUserReviewRequestQuery(status, ((Text) event.widget).getText());
-                getContainer().updateButtons();
-            }
-        });
+        toUserComposite.addListener(SWT.Modify, updateButtonsListener);
     }
 
     private ComboViewer createRepositoryCombo(Composite parent) {
+
         ComboViewer combo = createCombo(parent);
 
-        combo.getCombo().addListener(SWT.Modify, new Listener() {
-            public void handleEvent(Event event) {
-                int selectedIndex =  ((Combo) event.widget).getSelectionIndex();
-                if (((Combo) event.widget).getItemCount() > 0 && selectedIndex > -1 ){
-
-                    Repository repository = client.getClientData().getRepositories().get(selectedIndex);
-
-                    int changeNumInt = 0;
-                    try {
-                        changeNumInt = Integer.valueOf(changeNum);
-                    } catch (NumberFormatException e) {
-                        // ignore
-                    }
-
-                    reviewRequestQuery = new RepositoryReviewRequestQuery(status, repository.getId(),
-                            changeNumInt);
-                    getContainer().updateButtons();
-                }
-            }
-        });
-
+        combo.getCombo().addListener(SWT.Modify, updateButtonsListener);
+        
         return combo;
     }
 
     private void createTitleGroup(Composite control) {
-        if (inSearchContainer()) {
+        
+        if (inSearchContainer())
             return;
-        }
 
         Label titleLabel = new Label(control, SWT.NONE);
         titleLabel.setText(TITLE_QUERY_TITLE);
 
         titleText = new Text(control, SWT.BORDER);
         GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(titleText);
-        titleText.addListener(SWT.Modify, new Listener() {
-            public void handleEvent(Event event) {
-                getContainer().updateButtons();
-            }
-        });
+        titleText.addListener(SWT.Modify, updateButtonsListener);
     }
 
+    private abstract class SelectionRunnable implements Runnable {
+
+        private final Selection selection;
+        
+        
+        public SelectionRunnable(Selection selection) {
+            this.selection = selection;
+        }
+
+        public Selection getSelection() {
+            
+            return selection;
+        }
+
+        public void run() {
+            
+            ReviewboardQueryPage.this.selection = selection;
+            run0();
+        }
+        
+        protected abstract void run0();
+        
+    }
+    
+    private final class UpdateButtonsListener implements Listener {
+        public void handleEvent(Event event) {
+            getContainer().updateButtons();
+        }
+    }
 }

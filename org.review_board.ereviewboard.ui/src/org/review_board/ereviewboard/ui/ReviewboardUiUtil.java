@@ -61,6 +61,16 @@ public final class ReviewboardUiUtil {
             comboViewer.getCombo().select(0);
         }
     }
+    
+    public static void selectComboItemByValue(ComboViewer comboViewer, String value) {
+
+        for (int i = 0; i < comboViewer.getCombo().getItemCount(); i++) {
+            if (comboViewer.getCombo().getItem(i).equals(value)) {
+                comboViewer.getCombo().select(i);
+                break;
+            }
+        }
+    }
 
     /**
      * Refreshes the repository data using the specified <tt>runnableContext</tt>
