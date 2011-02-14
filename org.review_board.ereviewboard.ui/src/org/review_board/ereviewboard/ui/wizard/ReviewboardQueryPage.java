@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.fieldassist.AutoCompleteField;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -366,8 +367,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         statusCombo.getCombo().select(0);
         statusCombo.getCombo().addListener(SWT.Modify, updateButtonsListener);
 
-        setControl(control);
-        
         Button button = new Button(control, SWT.NONE);
         GridDataFactory.swtDefaults().span(4, 1).applyTo(button);
         button.setText("Refresh repository configuration");
@@ -376,6 +375,10 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
                 updateRepositoryData(true);
             }
         });
+        
+        setControl(control);
+        
+        Dialog.applyDialogFont(control);
         
         updateRepositoryData(false);
         
