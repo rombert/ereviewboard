@@ -37,16 +37,13 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.wizard;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.fieldassist.AutoCompleteField;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableContext;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
@@ -55,6 +52,8 @@ import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.wizards.AbstractRepositoryQueryPage;
 import org.eclipse.mylyn.tasks.ui.wizards.ITaskSearchPageContainer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -63,8 +62,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.progress.IProgressService;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
@@ -291,6 +288,15 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         });
 
         setControl(control);
+        
+        Button button = new Button(control, SWT.NONE);
+        GridDataFactory.swtDefaults().span(4, 1).applyTo(button);
+        button.setText("Refresh repository configuration");
+        button.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                updateRepositoryData(true);
+            }
+        });
     }
 
     private void createAllButton(Composite radioComposite) {
