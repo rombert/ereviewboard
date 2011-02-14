@@ -52,6 +52,11 @@ public class GroupReviewRequestQuery extends StatusReviewRequestQuery {
         this.groupname = groupname;
     }
 
+    public String getGroupname() {
+        
+        return groupname;
+    }
+    
     @Override
     public String getQuery() {
         return String.format("to/group/%s%s", groupname, super.getQuery());

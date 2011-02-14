@@ -78,24 +78,76 @@ public class ReviewRequestQueryTest extends TestCase {
     }
 
     public void testQueryStringToGroupReviewRequestQuery() {
-        query = StatusReviewRequestQuery.fromQueryString("/to/group/test?status=discarded");
+        query = StatusReviewRequestQuery.fromQueryString("to/group/test?status=discarded");
         assertTrue(query instanceof GroupReviewRequestQuery);
     }
 
     public void testQueryStringToFromUserReviewRequestQuery() {
-        query = StatusReviewRequestQuery.fromQueryString("/from/user/test?status=discarded");
+        query = StatusReviewRequestQuery.fromQueryString("from/user/test?status=discarded");
         assertTrue(query instanceof FromUserReviewRequestQuery);
     }
 
     public void testQueryStringToToUserReviewRequestQuery() {
-        query = StatusReviewRequestQuery.fromQueryString("/to/user/test?status=discarded");
+        query = StatusReviewRequestQuery.fromQueryString("to/user/test?status=discarded");
         assertTrue(query instanceof ToUserReviewRequestQuery);
     }
 
     public void testQueryStringToRepositoryReviewRequestQuery() {
         query = StatusReviewRequestQuery
-                .fromQueryString("/repository/1/changenum/2?status=submitted");
+                .fromQueryString("repository/1/changenum/2?status=submitted");
         assertTrue(query instanceof RepositoryReviewRequestQuery);
     }
-
+    
+    public void testGroupReviewRequestRoundTrip() {
+        
+        GroupReviewRequestQuery query = new GroupReviewRequestQuery(ReviewRequestStatus.PENDING, "group");
+        ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
+        
+        assertTrue(restoredQuery instanceof GroupReviewRequestQuery);
+        
+        GroupReviewRequestQuery groupQuery = (GroupReviewRequestQuery) restoredQuery;
+        assertEquals("group", groupQuery.getGroupname());
+    }
+    
+    public void testFromUserReviewRequestRoundTrip() {
+        
+        FromUserReviewRequestQuery query = new FromUserReviewRequestQuery(ReviewRequestStatus.PENDING, "username");
+        ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
+        
+        assertTrue(restoredQuery instanceof FromUserReviewRequestQuery);
+        
+        FromUserReviewRequestQuery fromUserQuery = ( FromUserReviewRequestQuery ) query;
+        assertEquals("username", fromUserQuery.getUsername());
+    }
+    
+    public void testAllReviewRequestRoundTrip() {
+        
+        AllReviewRequestQuery query = new AllReviewRequestQuery(ReviewRequestStatus.PENDING);
+        ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
+        
+        assertTrue(restoredQuery instanceof AllReviewRequestQuery);
+    }
+    
+    public void testRepositoryReviewRequestRoundTrip() {
+        
+        RepositoryReviewRequestQuery query = new RepositoryReviewRequestQuery(ReviewRequestStatus.PENDING, 5, 3);
+        ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
+        
+        assertTrue(restoredQuery instanceof RepositoryReviewRequestQuery);
+        
+        RepositoryReviewRequestQuery repositoryQuery = (RepositoryReviewRequestQuery) restoredQuery;
+        assertEquals(5, repositoryQuery.getRepositoryId());
+        assertEquals(3, repositoryQuery.getChangeNum());
+    }
+    
+    public void testToUserReviewRequestRoundTrip() {
+        
+        ToUserReviewRequestQuery query = new ToUserReviewRequestQuery(ReviewRequestStatus.PENDING, "username");
+        ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
+        
+        assertTrue(restoredQuery instanceof ToUserReviewRequestQuery);
+        
+        ToUserReviewRequestQuery toUserQuery = (ToUserReviewRequestQuery) restoredQuery;
+        assertEquals("username", toUserQuery.getUsername());
+    }    
 }

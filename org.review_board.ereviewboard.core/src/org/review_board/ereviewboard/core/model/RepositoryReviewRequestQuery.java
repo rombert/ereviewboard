@@ -58,6 +58,14 @@ public class RepositoryReviewRequestQuery extends StatusReviewRequestQuery {
     public String getQuery() {
         return String.format("repository/%s/changenum/%s%s", repositoryId, changeNum, super.getQuery());
     }
+    
+    public int getRepositoryId() {
+        return repositoryId;
+    }
+    
+    public int getChangeNum() {
+        return changeNum;
+    }
 
     public boolean isValid() {
         return (changeNum > 0);

@@ -52,6 +52,10 @@ public class FromUserReviewRequestQuery extends StatusReviewRequestQuery {
         this.username = username;
     }
 
+    public String getUsername() {
+        return username;
+    }
+    
     @Override
     public String getQuery() {
         return String.format("from/user/%s%s", username, super.getQuery());

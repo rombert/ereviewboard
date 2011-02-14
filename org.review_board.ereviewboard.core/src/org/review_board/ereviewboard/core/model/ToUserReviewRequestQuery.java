@@ -51,6 +51,10 @@ public class ToUserReviewRequestQuery extends StatusReviewRequestQuery {
         super(status);
         this.username = username;
     }
+    
+    public String getUsername() {
+        return username;
+    }
 
     @Override
     public String getQuery() {

@@ -44,6 +44,14 @@ package org.review_board.ereviewboard.core.model;
  */
 public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
 
+    private static final String QUERY_FRAGMENT_TO_USER = "to/user/";
+    
+    private static final String QUERY_FRAGMENT_FROM_USER = "from/user/";
+
+    private static final String QUERY_FRAGMENT_GROUP = "to/group/";
+
+    private static final String QUERY_FRAGMENT_REPOSITORY = "repository/";
+    
     private ReviewRequestStatus status;
 
     public StatusReviewRequestQuery(ReviewRequestStatus status) {
@@ -62,6 +70,10 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
     public void setStatus(ReviewRequestStatus status) {
         this.status = status;
     }
+    
+    public ReviewRequestStatus getStatus() {
+        return status;
+    }
 
     public static ReviewRequestQuery fromQueryString(String queryString) {
         ReviewRequestQuery result = null;
@@ -74,22 +86,31 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
             statusIndex = queryString.length();
         }
 
-        if (queryString.startsWith("/to/group/")) {
-            result = new GroupReviewRequestQuery(status, queryString.substring(11, statusIndex));
-        } else if (queryString.startsWith("/to/user/")) {
-            result = new ToUserReviewRequestQuery(status, queryString.substring(9, statusIndex));
-        } else if (queryString.startsWith("/from/user/")) {
-            result = new FromUserReviewRequestQuery(status, queryString.substring(11, statusIndex));
-        } else if (queryString.startsWith("/repository/")) {
+        if (queryString.startsWith(QUERY_FRAGMENT_GROUP)) {
+            result = new GroupReviewRequestQuery(status, removeTrailingSlashIfPresent(queryString.substring(QUERY_FRAGMENT_GROUP.length(), statusIndex)));
+        } else if (queryString.startsWith(QUERY_FRAGMENT_TO_USER)) {
+            result = new ToUserReviewRequestQuery(status, removeTrailingSlashIfPresent(queryString.substring(QUERY_FRAGMENT_TO_USER.length(), statusIndex)));
+        } else if (queryString.startsWith(QUERY_FRAGMENT_FROM_USER)) {
+            result = new FromUserReviewRequestQuery(status, removeTrailingSlashIfPresent(queryString.substring(QUERY_FRAGMENT_FROM_USER.length(), statusIndex)));
+        } else if (queryString.startsWith(QUERY_FRAGMENT_REPOSITORY)) {
             int changeNumIndex = queryString.indexOf("/changenum/");
-            result = new RepositoryReviewRequestQuery(status, Integer.parseInt(queryString
-                    .substring(12, changeNumIndex)), Integer.parseInt(queryString.substring(
-                    changeNumIndex + 11, statusIndex)));
+            int repositoryEndIndex = queryString.indexOf(QUERY_FRAGMENT_REPOSITORY) + + QUERY_FRAGMENT_REPOSITORY.length();
+            int repositoryId = Integer.parseInt(queryString .substring(repositoryEndIndex , changeNumIndex));
+            String changeIdString = queryString.substring( changeNumIndex + 11, statusIndex);
+            changeIdString = removeTrailingSlashIfPresent(changeIdString);
+            int changeId = Integer.parseInt(changeIdString);
+            result = new RepositoryReviewRequestQuery(status, repositoryId, changeId);
         } else {
             result = new AllReviewRequestQuery(status);
         }
 
         return result;
+    }
+
+    private static String removeTrailingSlashIfPresent(String value) {
+        if ( value.endsWith("/"))
+            value = value.substring(0, value.length() - 1);
+        return value;
     }
 
 }
