@@ -2,7 +2,7 @@
 <feature
       id="org.review_board.ereviewboard.tests.feature"
       label="eReviewboard Tests Feature"
-      version="0.7.1.qualifier"
+      version="0.7.2.qualifier"
       provider-name="Markus Knittig">
 
    <description url="http://www.example.com/description">

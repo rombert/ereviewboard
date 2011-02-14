@@ -5,11 +5,11 @@
   <parent>
     <artifactId>ereviewboard</artifactId>
     <groupId>org.review_board.ereviewboard</groupId>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.7.2-SNAPSHOT</version>
   </parent>
   <groupId>org.review_board.ereviewboard</groupId>
   <artifactId>org.review_board.ereviewboard.tests.feature</artifactId>
-  <version>0.7.1-SNAPSHOT</version>
+  <version>0.7.2-SNAPSHOT</version>
   <name>eReviewBoard : Test Feature</name>
   <packaging>eclipse-feature</packaging>
 </project>
