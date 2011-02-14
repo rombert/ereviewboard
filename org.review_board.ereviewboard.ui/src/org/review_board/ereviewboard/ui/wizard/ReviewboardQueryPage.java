@@ -171,9 +171,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         repositoryList = clientData.getRepositories();
         for ( Repository repository : clientData.getRepositories() )
             repositories.put(repository.getId(), repository.getName());
-
-        ReviewboardUiUtil.selectDefaultComboItem(groupCombo);
-        ReviewboardUiUtil.selectDefaultComboItem(repositoryCombo);
     }
     
     private IRunnableContext getRunnableContext() {
@@ -381,6 +378,9 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         Dialog.applyDialogFont(control);
         
         updateRepositoryData(false);
+        
+        ReviewboardUiUtil.selectDefaultComboItem(groupCombo);
+        ReviewboardUiUtil.selectDefaultComboItem(repositoryCombo);
         
         if (query != null)
             restoreQuery(query);
