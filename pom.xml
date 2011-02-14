@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.review_board.ereviewboard</groupId>
   <artifactId>ereviewboard</artifactId>
-  <version>0.7.2-SNAPSHOT</version>
+  <version>0.7.3-SNAPSHOT</version>
   <name>eReviewBoard</name>
   <packaging>pom</packaging>
   <modules>

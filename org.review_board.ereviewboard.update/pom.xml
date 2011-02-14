@@ -5,11 +5,11 @@
   <parent>
     <artifactId>ereviewboard</artifactId>
     <groupId>org.review_board.ereviewboard</groupId>
-    <version>0.7.2-SNAPSHOT</version>
+    <version>0.7.3-SNAPSHOT</version>
   </parent>
   <groupId>org.review_board.ereviewboard</groupId>
   <artifactId>org.review_board.ereviewboard.update</artifactId>
-  <version>0.7.2-SNAPSHOT</version>
+  <version>0.7.3-SNAPSHOT</version>
   <name>eReviewBoard : Update Site</name>
   <packaging>eclipse-update-site</packaging>
   
