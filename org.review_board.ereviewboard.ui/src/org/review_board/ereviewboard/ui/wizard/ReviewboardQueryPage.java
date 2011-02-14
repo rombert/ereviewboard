@@ -45,6 +45,7 @@ import org.eclipse.jface.fieldassist.AutoCompleteField;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
@@ -52,6 +53,7 @@ import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.wizards.AbstractRepositoryQueryPage;
+import org.eclipse.mylyn.tasks.ui.wizards.ITaskSearchPageContainer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -152,33 +154,9 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     }
 
     private void updateRepositoryData(final boolean force) {
-        if (force || !client.hasRepositoryData()) {
-            try {
-                IRunnableWithProgress runnable = new IRunnableWithProgress() {
-                    public void run(IProgressMonitor monitor) throws InvocationTargetException,
-                            InterruptedException {
-                        try {
-                            client.updateRepositoryData(force, monitor);
-                        } catch (Exception e) {
-                            throw new InvocationTargetException(e);
-                        }
-                    }
-                };
-
-                if (getContainer() != null) {
-                    getContainer().run(true, true, runnable);
-                } else if (getSearchContainer() != null) {
-                    getSearchContainer().getRunnableContext().run(true, true, runnable);
-                } else {
-                    IProgressService service = PlatformUI.getWorkbench().getProgressService();
-                    service.busyCursorWhile(runnable);
-                }
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                return;
-            }
-        }
+        
+        if (force || !client.hasRepositoryData())
+            ReviewboardUiUtil.refreshRepositoryData(client, force, getRunnableContext());
 
         ReviewboardClientData clientData = client.getClientData();
 
@@ -191,6 +169,18 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         toUsers = ReviewboardUtil.toStringList(clientData.getUsers());
         fromUserAutoCompleteField.setProposals(fromUsers.toArray(new String[fromUsers.size()]));
         toUserComboAutoCompleteField.setProposals(toUsers.toArray(new String[toUsers.size()]));
+    }
+    
+    private IRunnableContext getRunnableContext() {
+        
+        if ( getContainer() != null )
+            return getContainer();
+        
+        ITaskSearchPageContainer container = getSearchContainer();
+        if ( container != null )
+            return container.getRunnableContext();
+        
+        return null;
     }
 
     private void restoreQuery(IRepositoryQuery query) {

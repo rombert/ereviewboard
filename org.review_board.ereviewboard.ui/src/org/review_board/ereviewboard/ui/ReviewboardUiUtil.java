@@ -37,12 +37,18 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui;
 
+import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableContext;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.ui.PlatformUI;
+import org.review_board.ereviewboard.core.client.ReviewboardClient;
 
 /**
  * @author Markus Knittig
- *
+ * 
  */
 public final class ReviewboardUiUtil {
 
@@ -56,4 +62,33 @@ public final class ReviewboardUiUtil {
         }
     }
 
+    /**
+     * Refreshes the repository data using the specified <tt>runnableContext</tt>
+     * 
+     * <p>If the <tt>runnableConext</tt> is null, a platform service will be used to indicate
+     * that the runnable is executing.</p>
+     * 
+     * @param client the client, must not be <code>null</code>
+     * @param runnableContext the runnable context, possibly <code>null</code>
+     */
+    public static void refreshRepositoryData(final ReviewboardClient client, final boolean force,
+            IRunnableContext runnableContext) {
+        try {
+            IRunnableWithProgress runnable = new IRunnableWithProgress() {
+                public void run(IProgressMonitor monitor) throws InvocationTargetException,
+                        InterruptedException {
+                    client.updateRepositoryData(force, monitor);
+                }
+            };
+
+            if (runnableContext != null)
+                runnableContext.run(true, true, runnable);
+            else
+                PlatformUI.getWorkbench().getProgressService().busyCursorWhile(runnable);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            return;
+        }
+    }
 }
