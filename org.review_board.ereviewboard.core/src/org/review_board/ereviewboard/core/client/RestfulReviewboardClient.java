@@ -266,7 +266,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             comment.setText(Diff.DIFF_REVISION_PREFIX + jsonComment.getString("revision"));
 
             sortedComments.put(
-                    ReviewboardAttributeMapper.parseDateValue(jsonComment.getString("timestamp")),
+                    ReviewboardAttributeMapper.parseDateValueUTC(jsonComment.getString("timestamp")),
                     comment);
         }
 
@@ -320,7 +320,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             comment.setText(text.toString());
 
             sortedComments.put(
-                    ReviewboardAttributeMapper.parseDateValue(jsonReview.getString("timestamp")),
+                    ReviewboardAttributeMapper.parseDateValueUTC(jsonReview.getString("timestamp")),
                     comment);
 
         }
@@ -352,7 +352,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapper.setFileName(diff.getName());
             mapper.setDescription(diff.getName());
             mapper.setAuthor(taskRepository.createPerson(taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
-            mapper.setCreationDate(diff.getTimestamp());
+            mapper.setCreationDate(diff.getTimestamp()); // XXX: this value already seems to be in the local timezone
             mapper.setAttachmentId(Integer.toString(diff.getId()));
             mapper.setPatch(Boolean.TRUE);
             mapper.setDeprecated(diff.getRevision() != mostRecentRevision);
