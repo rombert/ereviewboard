@@ -57,7 +57,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -130,24 +129,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     public ReviewboardQueryPage(TaskRepository repository) {
         this(repository, null);
-    }
-
-    @Override
-    public void setVisible(boolean visible) {
-        super.setVisible(visible);
-        if (visible) {
-            updateRepositoryData(false);
-
-            Display.getDefault().asyncExec(new Runnable() {
-                public void run() {
-                    if (query != null) {
-                        restoreQuery(query);
-                    } else {
-                        reviewRequestQuery = new AllReviewRequestQuery(ReviewRequestStatus.PENDING);
-                    }
-                }
-            });
-        }
     }
 
     private void updateRepositoryData(final boolean force) {
@@ -231,6 +212,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     }
 
     public void createControl(Composite parent) {
+        
         Composite control = new Composite(parent, SWT.NONE);
         GridLayoutFactory.fillDefaults().numColumns(4).applyTo(control);
 
@@ -297,6 +279,14 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
                 updateRepositoryData(true);
             }
         });
+        
+        updateRepositoryData(false);
+        
+        if (query != null) {
+            restoreQuery(query);
+        } else {
+            reviewRequestQuery = new AllReviewRequestQuery(ReviewRequestStatus.PENDING);
+        }
     }
 
     private void createAllButton(Composite radioComposite) {
