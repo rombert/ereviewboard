@@ -42,7 +42,7 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.wizards.AbstractRepositorySettingsPage;
@@ -54,7 +54,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
-import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 
 /**
  * @author Markus Knittig
@@ -135,10 +134,11 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
                         ReviewboardCorePlugin.REPOSITORY_KIND);
 
                 ReviewboardClient client = connector.getClientManager().getClient(repository);
-                if (!client.validCredentials(username, password, monitor)) {
-                    throw new CoreException(new Status(Status.ERROR, ReviewboardUiPlugin.PLUGIN_ID,
-                            "Username or password wrong!"));
-                }
+                
+                IStatus status = client.validate(username, password, monitor);
+                
+                if (!status.isOK())
+                    throw new CoreException(status);
 
                 authenticated = true;
             }

@@ -57,6 +57,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
@@ -85,6 +86,7 @@ import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
+import org.review_board.ereviewboard.core.model.ServerInfo;
 import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
@@ -607,12 +609,33 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return httpClient.executeGetForBytes("/" + url, "image/*", monitor);
     }
 
-    public boolean validCredentials(String username, String password, IProgressMonitor monitor) {
+    public IStatus validate(String username, String password, IProgressMonitor monitor) {
+
         try {
+            
+            if ( !httpClient.apiEntryPointExist(monitor) )
+                return new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Repository not found. Please make sure that the path to the repository correct and the  server version is at least 1.5");
+            
+            Policy.advance(monitor, 1);
+            
             httpClient.login(username, password, monitor);
-            return true;
+            
+            Policy.advance(monitor, 1);
+            
+            ServerInfo serverInfo = reviewboardReader.readServerInfo(httpClient.executeGet("/api/info", monitor));
+            
+            Policy.advance(monitor, 1);
+            
+            if ( !serverInfo.isAtLeast(1, 5) )
+                return new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "The version " + serverInfo.getProductVersion() + " is not supported. Please use a repository version of 1.5 or newer.");
+            
+            return Status.OK_STATUS;
+        } catch ( ReviewboardException e ) {
+            return new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, e.getMessage(), e);
         } catch (Exception e) {
-            return false;
+            return new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Unexpected exception : " + e.getMessage(), e);
+        } finally {
+            monitor.done();
         }
     }
     

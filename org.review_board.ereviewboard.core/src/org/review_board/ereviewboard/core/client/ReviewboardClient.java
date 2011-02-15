@@ -42,6 +42,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
@@ -82,7 +83,7 @@ public interface ReviewboardClient {
     void performQuery(TaskRepository repository, IRepositoryQuery query,
             TaskDataCollector collector, IProgressMonitor monitor) throws CoreException;
 
-    boolean validCredentials(String username, String password, IProgressMonitor monitor);
+    IStatus validate(String username, String password, IProgressMonitor monitor);
 
     List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException;
     

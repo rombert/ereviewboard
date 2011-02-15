@@ -91,6 +91,14 @@ public class ReviewboardHttpClient {
         return httpClient;
     }
 
+    public boolean apiEntryPointExist(IProgressMonitor monitor) {
+        
+        GetMethod getMethod = new GetMethod(location.getUrl() + "/api/");
+        int result = executeRequest(getMethod, monitor);
+        
+        return result == HttpStatus.SC_OK;
+    }
+    
     public void login(String username, String password,
             IProgressMonitor monitor) throws ReviewboardException {
         //XXX RestfulReviewboardReader should not used here directly
@@ -101,20 +109,20 @@ public class ReviewboardHttpClient {
         loginRequest.setParameter("password", password);
 
         monitor = Policy.monitorFor(monitor);
+        
         try {
             monitor.beginTask("Executing request", IProgressMonitor.UNKNOWN);
 
-            if (executeRequest(loginRequest, monitor) == HttpStatus.SC_OK) {
+            int requestStatus = executeRequest(loginRequest, monitor);
+            
+            if (requestStatus == HttpStatus.SC_OK) {
                 String response = getResponseBodyAsString(loginRequest, monitor);
-                if (reviewboardReader.isStatOK(response)) {
+                if (reviewboardReader.isStatOK(response))
                     cookie = loginRequest.getResponseHeader("Set-Cookie").getValue();
-                } else {
-                    //TODO Use a custom exception for error handling
-                    throw new RuntimeException(reviewboardReader.getErrorMessage(response));
-                }
+                else
+                    throw new ReviewboardException(reviewboardReader.getErrorMessage(response));
             } else {
-                //TODO Use a custom exception for error handling
-                throw new RuntimeException("Review Board site is not up!");
+                throw new ReviewboardException("Request returned unacceptable status code " + requestStatus + " .");
             }
         } finally {
             loginRequest.releaseConnection();

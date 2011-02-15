@@ -52,6 +52,7 @@ import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.Screenshot;
+import org.review_board.ereviewboard.core.model.ServerInfo;
 import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
@@ -86,6 +87,42 @@ public class RestfulReviewboardReader {
         }
     }
 
+    
+    public ServerInfo readServerInfo(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject jsonServerInfo = checkedGetJSonRootObject(source).getJSONObject("info");
+            JSONObject jsonProduct = jsonServerInfo.getJSONObject("product");
+            
+            String name = jsonProduct.getString("name");
+            String version = jsonProduct.getString("version");
+            String packageVersion = jsonProduct.getString("package_version");
+            boolean isRelease = jsonProduct.getBoolean("is_release");
+            
+            return new ServerInfo(name, version, packageVersion, isRelease);
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+    
+    private JSONObject checkedGetJSonRootObject(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject object = new JSONObject(source);
+            
+            if (object.getString("stat").equals("fail")) {
+                JSONObject jsonError = object.getJSONObject("err");
+                throw new ReviewboardException(jsonError.getString("msg"));
+            }
+            
+            return object;
+
+        } catch (JSONException e) {
+            throw new ReviewboardException("The server has responded with an invalid JSon object : " + e.getMessage(), e);
+        }
+        
+    }
+    
     public List<User> readUsers(String source) throws ReviewboardException {
         try {
             JSONObject jsonUsers = new JSONObject(source);
@@ -233,4 +270,5 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
+
 }

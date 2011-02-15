@@ -39,12 +39,16 @@ package org.review_board.ereviewboard.core.exception;
 
 /**
  * @author Markus Knittig
- *
+ * 
  */
 public class ReviewboardException extends Exception {
 
     public ReviewboardException() {
-        super();
+
+    }
+
+    public ReviewboardException(String message) {
+        super(message);
     }
 
     public ReviewboardException(String message, Exception exception) {
