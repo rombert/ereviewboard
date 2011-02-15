@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
@@ -92,31 +91,7 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); 
     }
     
-    /**
-     * Parses a date value according to the expected ReviewBoard formats
-     * 
-     * <p>As this method applies TimeZone corrections, it should not be used for internal conversions.</p>
-     * @param value
-     * @return
-     */
-    private static Date parseDateValue(String value) {
-        
-        Date dateInUTC = parseDateValueUTC(value);
-
-        return convertToLocalTimeZone(dateInUTC);
-    }
-    
-    public static Date convertToLocalTimeZone(Date date) {
-        
-        if ( date == null )
-            return null;
-        
-        int offset = TimeZone.getDefault().getOffset(date.getTime());
-        
-        return new Date(date.getTime() + offset);
-    }
-
-    public static Date parseDateValueUTC(String value) {
+    public static Date parseDateValue(String value) {
         
         if (value == null)
             return null;
