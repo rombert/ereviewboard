@@ -37,6 +37,9 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,12 +48,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.review_board.ereviewboard.core.model.Comment;
-import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.model.Review;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.core.model.*;
 
 /**
  * @author Markus Knittig
@@ -79,20 +77,40 @@ public class RestfulReviewboardReaderTest extends TestCase {
     }
 
     public void testReadUsers() throws Exception {
+        
+        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/user-list/
         InputStream in = getClass().getResourceAsStream("/jsondata/users.json");
 
         List<User> users = testReader.readUsers(inputStreamToString(in));
 
-        assertEquals(2, users.size());
-        assertEquals("joe.doe@example.com", users.get(0).getEmail());
+        assertThat("users.size", users.size(), is(4));
+        
+        User user = users.get(0);
+        
+        assertThat("users[0].email", user.getEmail(), is("admin@example.com"));
+        assertThat("users[0].firstName", user.getFirstName(), is("Admin"));
+        assertThat("users[0].fullName", user.getFullName(), is("Admin User"));
+        assertThat("users[0].id", user.getId(), is(1));
+        assertThat("users[0].lastName", user.getLastName(), is("User"));
+        assertThat("users[0].userName", user.getUsername(), is("admin"));
+        assertThat("users[0].url", user.getUrl(), is("/users/admin/"));
     }
 
     public void testReadGroups() throws Exception {
+
+        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/review-group-list/
         InputStream in = getClass().getResourceAsStream("/jsondata/groups.json");
 
         List<ReviewGroup> groups = testReader.readGroups(inputStreamToString(in));
 
-        assertEquals(1, groups.size());
+        assertThat("groups.size", groups.size(), is(4));
+        
+        ReviewGroup firstGroup = groups.get(0);
+        assertThat("groups[0].displayName", firstGroup.getDisplayName(), is("Dev Group"));
+        assertThat("groups[0].id", firstGroup.getId(), is(1));
+        assertThat("groups[0].mailingList", firstGroup.getMailingList(), is("devgroup@example.com"));
+        assertThat("groups[0].name", firstGroup.getName(), is("devgroup"));
+        assertThat("groups[0].url", firstGroup.getUrl(), is("/groups/devgroup/"));
     }
 
     public void testReadRepositories() throws Exception {

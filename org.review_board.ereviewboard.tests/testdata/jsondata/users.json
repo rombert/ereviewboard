@@ -1,23 +1,88 @@
 {
-   "stat":"ok",
-   "users":[
-      {
-         "username":"admin",
-         "first_name":"Joe",
-         "last_name":"Doe",
-         "url":"/users/admin/",
-         "email":"joe.doe@example.com",
-         "fullname":"Joe Doe",
-         "id":1
-      },
-      {
-         "username":"max",
-         "first_name":"Max",
-         "last_name":"Mustermann",
-         "url":"/users/max/",
-         "email":"max.mustermann@example.com",
-         "fullname":"Max Mustermann",
-         "id":2
-      }
-   ]
+  "links": {
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/users\/", 
+      "method": "GET"
+    }
+  }, 
+  "stat": "ok", 
+  "total_results": 4, 
+  "users": [
+    {
+      "email": "admin@example.com", 
+      "first_name": "Admin", 
+      "fullname": "Admin User", 
+      "id": 1, 
+      "last_name": "User", 
+      "links": {
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET"
+        }, 
+        "watched": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/watched\/", 
+          "method": "GET"
+        }
+      }, 
+      "url": "\/users\/admin\/", 
+      "username": "admin"
+    }, 
+    {
+      "email": "doc@example.com", 
+      "first_name": "Doc", 
+      "fullname": "Doc Dwarf", 
+      "id": 2, 
+      "last_name": "Dwarf", 
+      "links": {
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/doc\/", 
+          "method": "GET"
+        }, 
+        "watched": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/doc\/watched\/", 
+          "method": "GET"
+        }
+      }, 
+      "url": "\/users\/doc\/", 
+      "username": "doc"
+    }, 
+    {
+      "email": "dopey@example.com", 
+      "first_name": "Dopey", 
+      "fullname": "Dopey Dwarf", 
+      "id": 3, 
+      "last_name": "Dwarf", 
+      "links": {
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/dopey\/", 
+          "method": "GET"
+        }, 
+        "watched": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/dopey\/watched\/", 
+          "method": "GET"
+        }
+      }, 
+      "url": "\/users\/dopey\/", 
+      "username": "dopey"
+    }, 
+    {
+      "email": "grumpy@example.com", 
+      "first_name": "Grumpy", 
+      "fullname": "Grumpy Dwarf", 
+      "id": 4, 
+      "last_name": "Dwarf", 
+      "links": {
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/grumpy\/", 
+          "method": "GET"
+        }, 
+        "watched": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/grumpy\/watched\/", 
+          "method": "GET"
+        }
+      }, 
+      "url": "\/users\/grumpy\/", 
+      "username": "grumpy"
+    }
+  ]
 }

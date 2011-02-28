@@ -1,13 +1,88 @@
 {
-   "stat":"ok",
-   "groups":[
-      {
-         "url":"/iphone/groups/Test/",
-         "display_name":"GSOC Test",
-         "id":1,
-         "mailing_list":"",
-         "name":"Test"
-      }
-   ]
+  "groups": [
+    {
+      "display_name": "Dev Group", 
+      "id": 1, 
+      "invite_only": false, 
+      "links": {
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/devgroup\/", 
+          "method": "GET"
+        }, 
+        "users": {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/devgroup\/users\/", 
+          "method": "GET"
+        }
+      }, 
+      "mailing_list": "devgroup@example.com", 
+      "name": "devgroup", 
+      "url": "\/groups\/devgroup\/", 
+      "visible": true
+    }, 
+    {
+      "display_name": "Empty Group", 
+      "id": 3, 
+      "invite_only": false, 
+      "links": {
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/emptygroup\/", 
+          "method": "GET"
+        }, 
+        "users": {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/emptygroup\/users\/", 
+          "method": "GET"
+        }
+      }, 
+      "mailing_list": "", 
+      "name": "emptygroup", 
+      "url": "\/groups\/emptygroup\/", 
+      "visible": true
+    }, 
+    {
+      "display_name": "New Group", 
+      "id": 2, 
+      "invite_only": false, 
+      "links": {
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/newgroup\/", 
+          "method": "GET"
+        }, 
+        "users": {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/newgroup\/users\/", 
+          "method": "GET"
+        }
+      }, 
+      "mailing_list": "newgroup@example.com", 
+      "name": "newgroup", 
+      "url": "\/groups\/newgroup\/", 
+      "visible": true
+    }, 
+    {
+      "display_name": "Private Group", 
+      "id": 4, 
+      "invite_only": false, 
+      "links": {
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/privgroup\/", 
+          "method": "GET"
+        }, 
+        "users": {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/privgroup\/users\/", 
+          "method": "GET"
+        }
+      }, 
+      "mailing_list": "", 
+      "name": "privgroup", 
+      "url": "\/groups\/privgroup\/", 
+      "visible": true
+    }
+  ], 
+  "links": {
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/groups\/", 
+      "method": "GET"
+    }
+  }, 
+  "stat": "ok", 
+  "total_results": 4
 }
-
