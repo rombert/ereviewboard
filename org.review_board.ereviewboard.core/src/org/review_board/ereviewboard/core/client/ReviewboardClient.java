@@ -74,7 +74,7 @@ public interface ReviewboardClient {
 
     void updateReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor) throws ReviewboardException;
 
-    void updateRepositoryData(boolean force, IProgressMonitor monitor);
+    void updateRepositoryData(boolean force, IProgressMonitor monitor) throws ReviewboardException;
 
     boolean hasRepositoryData();
 

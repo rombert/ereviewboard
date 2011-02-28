@@ -217,6 +217,8 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             client.performQuery(repository, query, collector, monitor);
         } catch (CoreException e) {
             return e.getStatus();
+        } catch ( ReviewboardException e) {
+            return new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Query failed : " + e.getMessage(), e);
         }
 
         return Status.OK_STATUS;

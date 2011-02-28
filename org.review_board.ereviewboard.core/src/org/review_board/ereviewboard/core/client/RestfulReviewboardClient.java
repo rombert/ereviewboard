@@ -393,8 +393,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
-        return reviewboardReader.readRepositories(httpClient.executeGet("/api/json/repositories/",
-                monitor));
+        return reviewboardReader.readRepositories(httpClient.executeGet("/api/repositories/", monitor));
     }
 
     public List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
@@ -506,35 +505,26 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return (clientData.lastupdate != 0);
     }
 
-    public void updateRepositoryData(boolean force, IProgressMonitor monitor) {
+    public void updateRepositoryData(boolean force, IProgressMonitor monitor) throws ReviewboardException {
         if (hasRepositoryData() && !force) {
             return;
         }
+        
+        monitor.beginTask("Refreshing repository data", 3);
 
         try {
-            monitor.subTask("Retrieving Reviewboard groups");
             clientData.setGroups(getReviewGroups(monitor));
-            monitorWorked(monitor);
+            Policy.advance(monitor, 1);
 
-            monitor.subTask("Retrieving Reviewboard users");
             clientData.setUsers(getUsers(monitor));
-            monitorWorked(monitor);
+            Policy.advance(monitor, 1);
 
-            monitor.subTask("Retrieving Reviewboard repositories");
             clientData.setRepositories(getRepositories(monitor));
-            monitorWorked(monitor);
+            Policy.advance(monitor, 1);
 
             clientData.lastupdate = new Date().getTime();
-        } catch (Exception e) {
-            // TODO: handle exception
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void monitorWorked(IProgressMonitor monitor) {
-        monitor.worked(1);
-        if (monitor.isCanceled()) {
-            throw new OperationCanceledException();
+        } finally  {
+            monitor.done();
         }
     }
 

@@ -45,6 +45,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.ui.PlatformUI;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 
 /**
  * @author Markus Knittig
@@ -87,7 +88,11 @@ public final class ReviewboardUiUtil {
             IRunnableWithProgress runnable = new IRunnableWithProgress() {
                 public void run(IProgressMonitor monitor) throws InvocationTargetException,
                         InterruptedException {
-                    client.updateRepositoryData(force, monitor);
+                    try {
+                        client.updateRepositoryData(force, monitor);
+                    } catch (ReviewboardException e) {
+                        throw new InvocationTargetException(e);
+                    }
                 }
             };
 
