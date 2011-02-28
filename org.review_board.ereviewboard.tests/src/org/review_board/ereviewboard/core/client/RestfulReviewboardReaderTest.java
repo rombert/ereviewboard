@@ -38,6 +38,8 @@
 package org.review_board.ereviewboard.core.client;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.io.BufferedReader;
@@ -46,47 +48,34 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.review_board.ereviewboard.core.model.*;
 
 /**
  * @author Markus Knittig
- *
+ * 
  */
-public class RestfulReviewboardReaderTest extends TestCase {
+public class RestfulReviewboardReaderTest {
 
-    private RestfulReviewboardReader testReader;
+    private RestfulReviewboardReader reader;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        testReader = new RestfulReviewboardReader();
+    @Before
+    public void setUp() {
+
+        reader = new RestfulReviewboardReader();
     }
 
-    private String inputStreamToString(InputStream in) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
-        StringBuilder stringBuilder = new StringBuilder();
-        String line = null;
+    @Test
+    public void readUsers() throws Exception {
 
-        while ((line = bufferedReader.readLine()) != null) {
-            stringBuilder.append(line + "\n");
-        }
-        bufferedReader.close();
-
-        return stringBuilder.toString();
-    }
-
-    public void testReadUsers() throws Exception {
-        
         // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/user-list/
-        InputStream in = getClass().getResourceAsStream("/jsondata/users.json");
-
-        List<User> users = testReader.readUsers(inputStreamToString(in));
+        List<User> users = reader.readUsers(readJsonTestResource("users.json"));
 
         assertThat("users.size", users.size(), is(4));
-        
+
         User user = users.get(0);
-        
+
         assertThat("users[0].email", user.getEmail(), is("admin@example.com"));
         assertThat("users[0].firstName", user.getFirstName(), is("Admin"));
         assertThat("users[0].fullName", user.getFullName(), is("Admin User"));
@@ -96,15 +85,33 @@ public class RestfulReviewboardReaderTest extends TestCase {
         assertThat("users[0].url", user.getUrl(), is("/users/admin/"));
     }
 
-    public void testReadGroups() throws Exception {
+    private String readJsonTestResource(String resourceName) throws IOException {
+
+        InputStream in = getClass().getResourceAsStream("/jsondata/" + resourceName);
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+        try {
+            StringBuilder stringBuilder = new StringBuilder();
+            String line = null;
+
+            while ((line = bufferedReader.readLine()) != null)
+                stringBuilder.append(line).append('\n');
+            bufferedReader.close();
+
+            return stringBuilder.toString();
+        } finally {
+            bufferedReader.close();
+        }
+    }
+
+    @Test
+    public void readGroups() throws Exception {
 
         // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/review-group-list/
-        InputStream in = getClass().getResourceAsStream("/jsondata/groups.json");
-
-        List<ReviewGroup> groups = testReader.readGroups(inputStreamToString(in));
+        List<ReviewGroup> groups = reader.readGroups(readJsonTestResource("groups.json"));
 
         assertThat("groups.size", groups.size(), is(4));
-        
+
         ReviewGroup firstGroup = groups.get(0);
         assertThat("groups[0].displayName", firstGroup.getDisplayName(), is("Dev Group"));
         assertThat("groups[0].id", firstGroup.getId(), is(1));
@@ -113,61 +120,61 @@ public class RestfulReviewboardReaderTest extends TestCase {
         assertThat("groups[0].url", firstGroup.getUrl(), is("/groups/devgroup/"));
     }
 
-    public void testReadRepositories() throws Exception {
-        
-        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/repository-list/
-        InputStream in = getClass().getResourceAsStream("/jsondata/repositories.json");
+    @Test
+    public void readRepositories() throws Exception {
 
-        List<Repository> repositories = testReader.readRepositories(inputStreamToString(in));
+        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/repository-list/
+        List<Repository> repositories = reader.readRepositories(readJsonTestResource("repositories.json"));
 
         assertThat("repositories.size", repositories.size(), is(2));
-        
+
         Repository repository = repositories.get(0);
         assertThat("repositories[0].id", repository.getId(), is(1));
         assertThat("repositories[0].name", repository.getName(), is("Review Board SVN"));
-        assertThat("repositories[0].path", repository.getPath(), is("http://reviewboard.googlecode.com/svn"));
+        assertThat("repositories[0].path", repository.getPath(),
+                is("http://reviewboard.googlecode.com/svn"));
         assertThat("repositories[0].tool", repository.getTool(), is("Subversion"));
     }
 
-    public void testReadReviewRequests() throws Exception {
-        InputStream in = getClass().getResourceAsStream("/jsondata/review_requests.json");
+    @Test
+    public void readReviewRequests() throws Exception {
 
-        List<ReviewRequest> reviewRequests = testReader.readReviewRequests(inputStreamToString(in));
+        List<ReviewRequest> reviewRequests = reader.readReviewRequests(readJsonTestResource("review_requests.json"));
 
         assertEquals(1, reviewRequests.size());
     }
 
-    public void testReadReviewRequest() throws Exception {
-        InputStream in = getClass().getResourceAsStream("/jsondata/review_request.json");
+    @Test
+    public void readReviewRequest() throws Exception {
 
-        ReviewRequest reviewRequest = testReader.readReviewRequest(inputStreamToString(in));
+        ReviewRequest reviewRequest = reader.readReviewRequest(readJsonTestResource("review_request.json"));
 
         assertNotNull(reviewRequest);
         assertEquals(2, reviewRequest.getTargetPeople().size());
     }
 
-    public void testReadReviews() throws Exception {
-        InputStream in = getClass().getResourceAsStream("/jsondata/reviews.json");
+    @Test
+    public void readReviews() throws Exception {
 
-        List<Review> reviews = testReader.readReviews(inputStreamToString(in));
+        List<Review> reviews = reader.readReviews(readJsonTestResource("reviews.json"));
 
         assertNotNull(reviews);
         assertEquals(1, reviews.get(0).getId());
     }
 
-    public void testReadReviewComments() throws Exception {
-        InputStream in = getClass().getResourceAsStream("/jsondata/review_comments.json");
+    @Test
+    public void readReviewComments() throws Exception {
 
-        List<Comment> comments = testReader.readComments(inputStreamToString(in));
+        List<Comment> comments = reader.readComments(readJsonTestResource("review_comments.json"));
 
         assertNotNull(comments);
         assertEquals(1, comments.get(0).getId());
     }
 
-    public void testReadReviewReplies() throws Exception {
-        InputStream in = getClass().getResourceAsStream("/jsondata/review_replies.json");
+    @Test
+    public void readReviewReplies() throws Exception {
 
-        List<Review> comments = testReader.readReplies(inputStreamToString(in));
+        List<Review> comments = reader.readReplies(readJsonTestResource("review_replies.json"));
 
         assertNotNull(comments);
         assertEquals(2, comments.get(0).getId());
