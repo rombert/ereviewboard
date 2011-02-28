@@ -396,11 +396,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
-        return reviewboardReader.readUsers(httpClient.executeGet("/api/json/users/", monitor));
+        return reviewboardReader.readUsers(httpClient.executeGet("/api/users/", monitor));
     }
 
     public List<ReviewGroup> getReviewGroups(IProgressMonitor monitor) throws ReviewboardException {
-        return reviewboardReader.readGroups(httpClient.executeGet("/api/json/groups/", monitor));
+        return reviewboardReader.readGroups(httpClient.executeGet("/api/groups/", monitor));
     }
 
     public List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor)
