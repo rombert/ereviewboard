@@ -1,11 +1,64 @@
 {
-   "stat":"ok",
-   "repositories":[
-      {
-         "path":"file:///home/joe/svn/test",
-         "tool":"Subversion",
-         "id":2,
-         "name":"Test"
-      }
-   ]
+  "links": {
+    "create": {
+      "href": "http:\/\/reviews.example.com\/api\/repositories\/", 
+      "method": "POST"
+    }, 
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/repositories\/", 
+      "method": "GET"
+    }
+  }, 
+  "repositories": [
+    {
+      "id": 1, 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "DELETE"
+        }, 
+        "info": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/info\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "PUT"
+        }
+      }, 
+      "name": "Review Board SVN", 
+      "path": "http:\/\/reviewboard.googlecode.com\/svn", 
+      "tool": "Subversion"
+    }, 
+    {
+      "id": 2, 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/2\/", 
+          "method": "DELETE"
+        }, 
+        "info": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/2\/info\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/2\/", 
+          "method": "GET"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/2\/", 
+          "method": "PUT"
+        }
+      }, 
+      "name": "Navi SVN", 
+      "path": "http:\/\/svn.navi.cx\/misc", 
+      "tool": "Subversion"
+    }
+  ], 
+  "stat": "ok", 
+  "total_results": 2
 }

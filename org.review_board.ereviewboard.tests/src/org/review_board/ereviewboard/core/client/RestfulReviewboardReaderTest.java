@@ -114,11 +114,19 @@ public class RestfulReviewboardReaderTest extends TestCase {
     }
 
     public void testReadRepositories() throws Exception {
+        
+        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/repository-list/
         InputStream in = getClass().getResourceAsStream("/jsondata/repositories.json");
 
-        List<Repository> reviewRequests = testReader.readRepositories(inputStreamToString(in));
+        List<Repository> repositories = testReader.readRepositories(inputStreamToString(in));
 
-        assertEquals(1, reviewRequests.size());
+        assertThat("repositories.size", repositories.size(), is(2));
+        
+        Repository repository = repositories.get(0);
+        assertThat("repositories[0].id", repository.getId(), is(1));
+        assertThat("repositories[0].name", repository.getName(), is("Review Board SVN"));
+        assertThat("repositories[0].path", repository.getPath(), is("http://reviewboard.googlecode.com/svn"));
+        assertThat("repositories[0].tool", repository.getTool(), is("Subversion"));
     }
 
     public void testReadReviewRequests() throws Exception {
