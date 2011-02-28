@@ -257,7 +257,12 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     @Override
     public void updateRepositoryConfiguration(TaskRepository taskRepository,
             IProgressMonitor monitor) throws CoreException {
-        // ignore
+        
+        try {
+            clientManager.getClient(taskRepository).updateRepositoryData(true, monitor);
+        } catch (ReviewboardException e) {
+            throw new CoreException(new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Updating repository configuration failed : " + e.getMessage(), e));
+        }
     }
 
     @Override

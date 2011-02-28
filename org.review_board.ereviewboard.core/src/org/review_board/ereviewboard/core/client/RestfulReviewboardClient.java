@@ -58,7 +58,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.Policy;
@@ -521,7 +520,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
             clientData.setRepositories(getRepositories(monitor));
             Policy.advance(monitor, 1);
-
+            
             clientData.lastupdate = new Date().getTime();
         } finally  {
             monitor.done();
