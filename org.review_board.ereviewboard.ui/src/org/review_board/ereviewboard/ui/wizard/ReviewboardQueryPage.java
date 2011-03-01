@@ -259,8 +259,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         ReviewRequestQuery query;
         ReviewRequestStatus status = getSelectedStatus();
         
-        System.out.println("Status is " + status  + " .");
-        
         switch ( selection ) {
         
         case ALL:
