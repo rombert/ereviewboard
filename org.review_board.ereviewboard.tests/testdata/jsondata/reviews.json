@@ -1,120 +1,59 @@
 {
-   "reviews":[
-      {
-         "body_top":"",
-         "ship_it":0,
-         "user":{
-            "username":"admin",
-            "first_name":"Markus",
-            "last_name":"Knittig",
-            "url":"/users/admin/",
-            "email":"markus@myd0.de",
-            "fullname":"Markus Knittig",
-            "id":1
-         },
-         "body_bottom":"",
-         "timestamp":"2009-06-29 16:40:30",
-         "id":1,
-         "comments":[
-            {
-               "user":{
-                  "username":"admin",
-                  "first_name":"Joe",
-                  "last_name":"Doe",
-                  "url":"/users/admin/",
-                  "email":"joe.doe@example.com",
-                  "fullname":"Joe Doe",
-                  "id":1
-               },
-               "public":1,
-               "interfilediff":null,
-               "num_lines":1,
-               "timestamp":"2009-06-29 16:40:12",
-               "first_line":2,
-               "text":"Test",
-               "timesince":"1 week, 6 days",
-               "id":1,
-               "filediff":{
-                  "diffset":{
-                     "timestamp":"2009-06-12 09:16:06",
-                     "revision":1,
-                     "id":1,
-                     "repository":{
-                        "path":"file:///home/joe/svn/test",
-                        "tool":"Subversion",
-                        "id":2,
-                        "name":"Test"
-                     },
-                     "name":"test.diff"
-                  },
-                  "dest_detail":"(working copy)",
-                  "source_revision":"1",
-                  "source_file":"/test.txt",
-                  "dest_file":"/test.txt",
-                  "id":1
-               }
-            },
-            {
-               "user":{
-                  "username":"admin",
-                  "first_name":"Joe",
-                  "last_name":"Doe",
-                  "url":"/users/admin/",
-                  "email":"joe.doe@example.com",
-                  "fullname":"Joe Doe",
-                  "id":1
-               },
-               "public":1,
-               "interfilediff":null,
-               "num_lines":1,
-               "timestamp":"2009-06-29 16:40:27",
-               "first_line":1,
-               "text":"Test2",
-               "timesince":"1 week, 6 days",
-               "id":2,
-               "filediff":{
-                  "diffset":{
-                     "timestamp":"2009-06-12 09:16:06",
-                     "revision":1,
-                     "id":1,
-                     "repository":{
-                        "path":"file:///home/joe/svn/test",
-                        "tool":"Subversion",
-                        "id":2,
-                        "name":"Test"
-                     },
-                     "name":"test.diff"
-                  },
-                  "dest_detail":"(working copy)",
-                  "source_revision":"1",
-                  "source_file":"/test.txt",
-                  "dest_file":"/test.txt",
-                  "id":1
-               }
-            }
-         ],
-         "public":1
-      },
-      {
-         "body_top":"foobar",
-         "ship_it":0,
-         "user":{
-            "username":"admin",
-            "first_name":"Joe",
-            "last_name":"Doe",
-            "url":"/users/admin/",
-            "email":"joe.doe@example.com",
-            "fullname":"Joe Doe",
-            "id":1
-         },
-         "body_bottom":"",
-         "timestamp":"2009-07-09 12:28:53",
-         "id":3,
-         "comments":[
-
-         ],
-         "public":1
-      }
-   ],
-   "stat":"ok"
+  "links": {
+    "create": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/", 
+      "method": "POST"
+    }, 
+    "review_draft": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/draft\/", 
+      "method": "GET"
+    }, 
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/", 
+      "method": "GET"
+    }
+  }, 
+  "reviews": [
+    {
+      "body_bottom": "", 
+      "body_top": "", 
+      "id": 8, 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/", 
+          "method": "DELETE"
+        }, 
+        "diff_comments": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/", 
+          "method": "GET"
+        }, 
+        "replies": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/replies\/", 
+          "method": "GET"
+        }, 
+        "screenshot_comments": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/screenshot-comments\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/", 
+          "method": "GET"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/", 
+          "method": "PUT"
+        }, 
+        "user": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET", 
+          "title": "admin"
+        }
+      }, 
+      "public": true, 
+      "ship_it": false, 
+      "timestamp": "2010-08-28 02:25:31"
+    }
+  ], 
+  "stat": "ok", 
+  "total_results": 1
 }

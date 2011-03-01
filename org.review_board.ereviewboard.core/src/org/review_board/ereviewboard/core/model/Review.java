@@ -40,23 +40,19 @@ package org.review_board.ereviewboard.core.model;
 import java.util.Date;
 import java.util.List;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.review_board.ereviewboard.core.util.ReviewboardUtil;
-
 /**
  * Domain class for reviews.
  *
  * @author Markus Knittig
  */
-public class Review implements Marshallable {
+public class Review {
 
     private int id;
     private String bodyTop;
     private String bodyBottom;
-    private int shipIt;
+    private boolean shipIt;
     private Date timestamp;
-    private User user;
+    private String user;
     private boolean publicReview;
     private List<Comment> comments;
 
@@ -84,11 +80,11 @@ public class Review implements Marshallable {
         this.bodyBottom = bodyBottom;
     }
 
-    public int getShipIt() {
+    public boolean getShipIt() {
         return shipIt;
     }
 
-    public void setShipIt(int shipIt) {
+    public void setShipIt(boolean shipIt) {
         this.shipIt = shipIt;
     }
 
@@ -100,11 +96,11 @@ public class Review implements Marshallable {
         this.timestamp = timestamp;
     }
 
-    public User getUser() {
+    public String getUser() {
         return user;
     }
-
-    public void setUser(User user) {
+    
+    public void setUser(String user) {
         this.user = user;
     }
 
@@ -123,42 +119,4 @@ public class Review implements Marshallable {
     public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
-
-    public void marshall(JSONObject jsonObject) {
-        try {
-            id = jsonObject.getInt("id");
-            bodyTop = jsonObject.getString("body_top");
-            bodyBottom = jsonObject.getString("body_bottom");
-            shipIt = jsonObject.getInt("ship_it");
-            timestamp = ReviewboardUtil.marshallDate(jsonObject.getString("timestamp"));
-            user = ReviewboardUtil.parseEntity(User.class, jsonObject
-                    .getJSONObject("user"));
-            publicReview = ReviewboardUtil.marshallBoolean(jsonObject, "public");
-            comments = ReviewboardUtil.parseEntities(Comment.class, jsonObject
-                    .getJSONArray("comments"));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public JSONObject unmarshall() {
-        JSONObject jsonObject = new JSONObject();
-
-        try {
-            jsonObject.put("id", id);
-            jsonObject.put("body_top", bodyTop);
-            jsonObject.put("body_bottom", bodyBottom);
-            jsonObject.put("ship_it", shipIt);
-            jsonObject.put("timestamp", ReviewboardUtil.unmarshallDate(timestamp));;
-            jsonObject.put("user", user.unmarshall());
-            jsonObject.put("public", ReviewboardUtil.unmarshallBoolean(publicReview));
-            //FIXME unmarshall
-            jsonObject.put("comments", comments);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        return jsonObject;
-    }
-
 }

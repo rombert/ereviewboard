@@ -249,11 +249,30 @@ public class RestfulReviewboardReader {
     }
 
     public List<Review> readReviews(String source) throws ReviewboardException {
+        
         try {
-            JSONObject jsonReviewRequest = new JSONObject(source);
-            return ReviewboardUtil.parseEntities(Review.class,
-                    jsonReviewRequest.getJSONArray("reviews"));
-        } catch (Exception e) {
+            JSONObject rootObject = checkedGetJSonRootObject(source);
+            JSONArray jsonReviews = rootObject.getJSONArray("reviews");
+            
+            List<Review> reviews = new ArrayList<Review>();
+            for ( int i = 0 ; i < jsonReviews.length(); i++ ) {
+                
+                JSONObject jsonReview = jsonReviews.getJSONObject(i);
+                
+                Review review = new Review();
+                review.setId(jsonReview.getInt("id"));
+                review.setBodyTop(jsonReview.getString("body_top"));
+                review.setBodyBottom(jsonReview.getString("body_bottom"));
+                review.setUser(jsonReview.getJSONObject("links").getJSONObject("user").getString("title"));
+                review.setPublicReview(jsonReview.getBoolean("public"));
+                review.setShipIt(jsonReview.getBoolean("ship_it"));
+                review.setTimestamp(ReviewboardUtil.marshallDate(jsonReview.getString("timestamp")));
+                
+                reviews.add(review);
+            }
+            
+            return reviews;
+        } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
@@ -268,17 +287,6 @@ public class RestfulReviewboardReader {
         }
     }
 
-    public List<Review> readReplies(String source) throws ReviewboardException {
-        try {
-            JSONObject jsonReviewRequest = new JSONObject(source);
-            return ReviewboardUtil.parseEntities(Review.class,
-                    jsonReviewRequest.getJSONArray("replies"));
-        } catch (Exception e) {
-            throw new ReviewboardException(e.getMessage(), e);
-        }
-    }
-
-    
     public List<Diff> readDiffs(String source) throws ReviewboardException {
 
         try {
@@ -302,7 +310,6 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
-
    
     public List<Screenshot> readScreenshots(String source) throws ReviewboardException {
         

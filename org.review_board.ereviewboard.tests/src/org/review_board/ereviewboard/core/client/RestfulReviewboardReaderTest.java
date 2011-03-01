@@ -206,10 +206,18 @@ public class RestfulReviewboardReaderTest {
     @Test
     public void readReviews() throws Exception {
 
+        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/review-list/
         List<Review> reviews = reader.readReviews(readJsonTestResource("reviews.json"));
-
-        assertNotNull(reviews);
-        assertEquals(1, reviews.get(0).getId());
+        assertThat("reviews.size", reviews.size(), is(1));
+        
+        Review firstReview = reviews.get(0);
+        assertThat("reviews[0].id", firstReview.getId(), is(8));
+        assertThat("reviews[0].bodyBottom", firstReview.getBodyBottom(), is(""));
+        assertThat("reviews[0].bodyTop", firstReview.getBodyTop(), is(""));
+        assertThat("reviews[0].user", firstReview.getUser(), is("admin"));
+        assertThat("reviews[0].public", firstReview.isPublicReview(), is(true));
+        assertThat("reviews[0].shipIt", firstReview.getShipIt(), is(false));
+        assertThat("reviews[0].timestamp", firstReview.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-28 02:25:31")));
     }
 
     @Test
@@ -221,15 +229,6 @@ public class RestfulReviewboardReaderTest {
         assertEquals(1, comments.get(0).getId());
     }
 
-    @Test
-    public void readReviewReplies() throws Exception {
-
-        List<Review> comments = reader.readReplies(readJsonTestResource("review_replies.json"));
-
-        assertNotNull(comments);
-        assertEquals(2, comments.get(0).getId());
-    }
-    
     @Test
     public void readDiffComments() throws ReviewboardException, IOException {
         

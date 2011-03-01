@@ -51,9 +51,6 @@ import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.*;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
@@ -123,8 +120,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             loadDiffsAndScreenshotsAsAttachments(taskData, taskRepository, diffs, monitor);
 
             return taskData;
-        } catch (JSONException e) {
-            throw new ReviewboardException("Error marshalling object to JSON", e);
         } finally {
             
             double elapsed = ( System.currentTimeMillis() - start) / 1000.0;
@@ -135,29 +130,12 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         }
     }
 
-    public void mapPeopleGroup(TaskData taskData, JSONObject jsonResult, Attribute targetAttribute) throws JSONException {
-        
-        JSONArray jsonArray = jsonResult.getJSONArray(targetAttribute.getJsonAttributeName());
-        
-        List<String> reviewPersons = new ArrayList<String>();
-        for ( int i = 0 ; i < jsonArray.length(); i++ ) {
-            
-            JSONObject object = jsonArray.getJSONObject(i);
-            reviewPersons.add(object.getString("title"));
-        }
-        
-        TaskAttribute taskAttribute = taskData.getRoot().createAttribute(targetAttribute.toString());
-        taskAttribute.setValues(reviewPersons);
-        
-        taskAttribute.getMetaData().setReadOnly(true).setLabel(targetAttribute.getDisplayName()).setType(targetAttribute.getAttributeType()).setKind(TaskAttribute.KIND_PEOPLE);
-    }
-
     /**
      * Advances monitor by one
      * 
      */
     private void loadReviewsAndDiffsAsComment(TaskData taskData, List<Diff> diffs, IProgressMonitor monitor)
-            throws JSONException, ReviewboardException {
+            throws  ReviewboardException {
 
         SortedMap<Date, Comment2> sortedComments = new TreeMap<Date, Comment2>();
 
@@ -170,34 +148,31 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
             sortedComments.put(diff.getTimestamp(), comment);
         }
-
-        JSONObject reviews = new JSONObject(httpClient.executeGet("/api/review-requests/" + taskData.getTaskId() + "/reviews", monitor));
+        
+        List<Review> reviews = reviewboardReader.readReviews(httpClient.executeGet("/api/review-requests/" + taskData.getTaskId() + "/reviews", monitor));
 
         Policy.advance(monitor, 1);
 
-        JSONArray reviewsArray = reviews.getJSONArray("reviews");
-        
         int shipItCount = 0;
+        
+        for ( Review review : reviews ) {
 
-        for (int i = 0; i < reviewsArray.length(); i++) {
-
-            JSONObject jsonReview = reviewsArray.getJSONObject(i);
-            int reviewId = jsonReview.getInt("id");
+            int reviewId = review.getId();
             int totalResults = readDiffComments(Integer.parseInt(taskData.getTaskId()), reviewId, monitor).size();
 
             StringBuilder text = new StringBuilder();
-            boolean shipit = jsonReview.getBoolean("ship_it");
+            boolean shipit = review.getShipIt();
             boolean appendWhiteSpace = false;
             if ( shipit ) {
                 text.append("Ship it!");
                 shipItCount++;
                 appendWhiteSpace = true;
             }
-            if ( jsonReview.getString("body_top").length() != 0  ) {
+            if ( review.getBodyTop().length() != 0  ) {
                 if ( appendWhiteSpace )
                     text.append("\n\n");
                 
-                text.append(jsonReview.getString("body_top"));
+                text.append(review.getBodyTop());
                 appendWhiteSpace = true;
             }
             if ( totalResults != 0 ) {
@@ -208,21 +183,18 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 
                 appendWhiteSpace = true;
             }
-            if ( jsonReview.getString("body_bottom").length() != 0  ) {
+            if ( review.getBodyBottom().length() != 0  ) {
                 if ( appendWhiteSpace )
                     text.append("\n\n");
 
-                text.append(jsonReview.getString("body_bottom"));
+                text.append(review.getBodyBottom());
             }
             
             Comment2 comment = new Comment2();
-            comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
-                    jsonReview.getJSONObject("links").getJSONObject("user").getString("title")));
+            comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(review.getUser()));
             comment.setText(text.toString());
 
-            sortedComments.put(
-                    ReviewboardAttributeMapper.parseDateValue(jsonReview.getString("timestamp")),
-                    comment);
+            sortedComments.put(review.getTimestamp(), comment);
 
         }
         
