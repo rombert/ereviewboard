@@ -65,31 +65,6 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  */
 public class RestfulReviewboardReader {
 
-    public boolean isStatOK(String source) throws ReviewboardException {
-        try {
-            JSONObject jsonStat = new JSONObject(source);
-            return jsonStat.getString("stat").equals("ok");
-        } catch (Exception e) {
-            throw new ReviewboardException(e.getMessage(), e);
-        }
-    }
-
-    public String getErrorMessage(String source) throws ReviewboardException {
-        try {
-            JSONObject jsonStat = new JSONObject(source);
-            if (jsonStat.getString("stat").equals("fail")) {
-                JSONObject jsonError = jsonStat.getJSONObject("err");
-                return jsonError.getString("msg") + " (Errorcode: " +
-                        jsonError.getString("code") + ")!";
-            } else {
-                throw new IllegalStateException("Request didn't fail!");
-            }
-        } catch (Exception e) {
-            throw new ReviewboardException(e.getMessage(), e);
-        }
-    }
-
-    
     public ServerInfo readServerInfo(String source) throws ReviewboardException {
         
         try {
@@ -127,7 +102,7 @@ public class RestfulReviewboardReader {
     
     public List<User> readUsers(String source) throws ReviewboardException {
         try {
-            JSONObject jsonUsers = new JSONObject(source);
+            JSONObject jsonUsers = checkedGetJSonRootObject(source);
             return ReviewboardUtil.parseEntities(User.class, jsonUsers.getJSONArray("users"));
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
@@ -136,7 +111,7 @@ public class RestfulReviewboardReader {
 
     public List<ReviewGroup> readGroups(String source) throws ReviewboardException {
         try {
-            JSONObject jsonGroups = new JSONObject(source);
+            JSONObject jsonGroups = checkedGetJSonRootObject(source);
             return ReviewboardUtil.parseEntities(ReviewGroup.class,
                     jsonGroups.getJSONArray("groups"));
         } catch (Exception e) {
@@ -161,7 +136,7 @@ public class RestfulReviewboardReader {
         }
     }
 
-    public ReviewRequest readReviewRequest(JSONObject jsonReviewRequest) throws JSONException {
+    private ReviewRequest readReviewRequest(JSONObject jsonReviewRequest) throws JSONException {
         
         ReviewRequest reviewRequest = new ReviewRequest();
         
@@ -211,7 +186,7 @@ public class RestfulReviewboardReader {
     public List<Integer> readReviewRequestIds(String source) throws ReviewboardException {
         
         try {
-            JSONObject jsonReviewRequests = new JSONObject(source);
+            JSONObject jsonReviewRequests = checkedGetJSonRootObject(source);
             JSONArray reviewRequests = jsonReviewRequests.getJSONArray("review_requests");
             
             List<Integer> ids = new ArrayList<Integer>(reviewRequests.length());
@@ -225,10 +200,9 @@ public class RestfulReviewboardReader {
         }
     }
     
-
     public List<Repository> readRepositories(String source) throws ReviewboardException {
         try {
-            JSONObject jsonRepositories = new JSONObject(source);
+            JSONObject jsonRepositories = checkedGetJSonRootObject(source);
             return ReviewboardUtil.parseEntities(Repository.class,
                     jsonRepositories.getJSONArray("repositories"));
         } catch (Exception e) {
@@ -279,7 +253,7 @@ public class RestfulReviewboardReader {
 
     public List<Comment> readComments(String source) throws ReviewboardException {
         try {
-            JSONObject jsonReviewRequest = new JSONObject(source);
+            JSONObject jsonReviewRequest = checkedGetJSonRootObject(source);
             return ReviewboardUtil.parseEntities(Comment.class,
                     jsonReviewRequest.getJSONArray("comments"));
         } catch (Exception e) {
@@ -290,7 +264,7 @@ public class RestfulReviewboardReader {
     public List<Diff> readDiffs(String source) throws ReviewboardException {
 
         try {
-            JSONObject json = new JSONObject(source);
+            JSONObject json = checkedGetJSonRootObject(source);
             JSONArray jsonDiffs = json.getJSONArray("diffs");
             
             List<Diff> diffList = new ArrayList<Diff>();
@@ -314,7 +288,7 @@ public class RestfulReviewboardReader {
     public List<Screenshot> readScreenshots(String source) throws ReviewboardException {
         
         try {
-            JSONObject json = new JSONObject(source);
+            JSONObject json = checkedGetJSonRootObject(source);
             JSONArray jsonScreenshots = json.getJSONArray("screenshots");
             
             List<Screenshot> screenshotList = new ArrayList<Screenshot>();
