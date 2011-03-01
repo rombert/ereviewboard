@@ -49,8 +49,6 @@ import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardConstants;
 import org.review_board.ereviewboard.core.model.Marshallable;
 
-import com.rits.cloning.Cloner;
-
 /**
  * @author Markus Knittig
  *
@@ -58,8 +56,6 @@ import com.rits.cloning.Cloner;
 public final class ReviewboardUtil {
 
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    private static Cloner cloner = new Cloner();
 
     private ReviewboardUtil() {
         super();
@@ -146,10 +142,6 @@ public final class ReviewboardUtil {
             return url.substring(0, url.length() - 1);
         }
         return url;
-    }
-
-    public static <T> T cloneEntity(T entity) {
-        return cloner.deepClone(entity);
     }
 
     public static <T> String joinList(List<T> list) {
