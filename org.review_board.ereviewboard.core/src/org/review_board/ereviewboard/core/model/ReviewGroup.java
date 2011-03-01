@@ -37,8 +37,6 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Domain class for review groups.
