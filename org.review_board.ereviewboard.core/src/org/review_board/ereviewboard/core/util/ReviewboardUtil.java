@@ -98,27 +98,11 @@ public final class ReviewboardUtil {
         return result.toString();
     }
 
-    public static List<String> splitString(String string) {
-        List<String> result = new ArrayList<String>();
-        for (String item : string.split(",\\s?")) {
-            result.add(item.trim());
-        }
-        return result;
-    }
-
     public static List<String> toStringList(List<?> list) {
         List<String> result = new ArrayList<String>();
         for (Object string : list) {
             result.add(string.toString());
         }
         return result;
-    }
-
-    public static String unmaskNull(String value) {
-        
-        if ( value == null || value.equals("null"))
-            return "";
-        
-        return value;
     }
 }

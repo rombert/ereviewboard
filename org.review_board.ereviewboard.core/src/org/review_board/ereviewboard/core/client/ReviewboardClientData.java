@@ -44,8 +44,6 @@ import java.util.List;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.User;
-import org.review_board.ereviewboard.core.util.CollectionUtil;
-import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
  * Container for persistent Review Board client data.
@@ -99,26 +97,4 @@ public class ReviewboardClientData implements Serializable {
         }
         return null;
     }
-
-    public List<User> marshallTargetPeople(String targetPeople) {
-        List<User> result = new ArrayList<User>();
-
-        for (String username : ReviewboardUtil.splitString(targetPeople)) {
-            CollectionUtil.addItemSafely(result, getUser(username));
-        }
-
-        return result;
-    }
-
-    public List<ReviewGroup> marshallTargetGroups(String targetGroups) {
-        List<ReviewGroup> result = new ArrayList<ReviewGroup>();
-
-        for (String groupname : ReviewboardUtil.splitString(targetGroups)) {
-            CollectionUtil.addItemSafely(result, getGroup(groupname));
-        }
-
-        return result;
-    }
-
-
 }
