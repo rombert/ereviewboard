@@ -400,6 +400,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     public List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor)
             throws ReviewboardException {
+        
+        System.out.println("Executing query " + query.toString());
+        
         return reviewboardReader.readReviewRequests( httpClient.executeGet("/api/review-requests/" + query, monitor));
     }
     

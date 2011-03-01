@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.json.JSONObject;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -55,13 +54,13 @@ public class ReviewRequest {
     private String submitter;
     private Date timeAdded;
     private Date lastUpdated;
-    private ReviewRequestStatus status = ReviewRequestStatus.PENDING;
+    private ReviewRequestStatus status;
     private boolean publicReviewRequest;
     private Integer changeNumber;
     private String summary = "";
     private String description = "";
     private String testingDone = "";
-    private List<Integer> bugsClosed = new ArrayList<Integer>();
+    private List<String> bugsClosed = new ArrayList<String>();
     private String branch = "";
     private List<String> targetGroups = new ArrayList<String>();
     private List<String> targetPeople = new ArrayList<String>();
@@ -159,7 +158,7 @@ public class ReviewRequest {
         this.testingDone = testingDone;
     }
 
-    public List<Integer> getBugsClosed() {
+    public List<String> getBugsClosed() {
         return bugsClosed;
     }
 
@@ -167,7 +166,7 @@ public class ReviewRequest {
         return ReviewboardUtil.joinList(bugsClosed);
     }
 
-    public void setBugsClosed(List<Integer> bugsClosed) {
+    public void setBugsClosed(List<String> bugsClosed) {
         this.bugsClosed = bugsClosed;
     }
 

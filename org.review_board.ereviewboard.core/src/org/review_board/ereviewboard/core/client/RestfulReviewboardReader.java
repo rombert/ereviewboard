@@ -52,6 +52,7 @@ import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.ServerInfo;
 import org.review_board.ereviewboard.core.model.User;
@@ -151,34 +152,57 @@ public class RestfulReviewboardReader {
             JSONArray jsonReviewRequests = object.getJSONArray("review_requests");
             List<ReviewRequest> reviewRequests = new ArrayList<ReviewRequest>();
             
-            for ( int i = 0 ; i < jsonReviewRequests.length() ; i++ ) {
-                
-                JSONObject jsonReviewRequest = jsonReviewRequests.getJSONObject(i);
-                ReviewRequest reviewRequest = new ReviewRequest();
-                
-                reviewRequest.setId(jsonReviewRequest.getInt("id"));
-                reviewRequest.setSubmitter(jsonReviewRequest.getJSONObject("links").getJSONObject("submitter").getString("title"));
-                reviewRequest.setSummary(jsonReviewRequest.getString("summary"));
-                reviewRequest.setDescription(jsonReviewRequest.getString("description"));
-                reviewRequest.setPublic(jsonReviewRequest.getBoolean("public"));
-                reviewRequest.setLastUpdated(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("last_updated")));
-                reviewRequest.setTimeAdded(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("time_added")));
-                reviewRequest.setBranch(jsonReviewRequest.getString("branch"));
-                reviewRequest.setRepository(jsonReviewRequest.getJSONObject("links").getJSONObject("repository").getString("title"));
-                
-                JSONArray jsonTargetPeople = jsonReviewRequest.getJSONArray("target_people");
-                List<String> targetPeople = new ArrayList<String>();
-                for ( int j = 0 ; j < jsonTargetPeople.length(); j++ )
-                    targetPeople.add(jsonTargetPeople.getJSONObject(j).getString("title"));
-                reviewRequest.setTargetPeople(targetPeople);
-                
-                reviewRequests.add(reviewRequest);
-                
-            }
+            for ( int i = 0 ; i < jsonReviewRequests.length() ; i++ )
+                reviewRequests.add(readReviewRequest(jsonReviewRequests.getJSONObject(i)));
+            
             return reviewRequests;
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
+    }
+
+    public ReviewRequest readReviewRequest(JSONObject jsonReviewRequest) throws JSONException {
+        
+        ReviewRequest reviewRequest = new ReviewRequest();
+        
+        reviewRequest.setId(jsonReviewRequest.getInt("id"));
+        reviewRequest.setSubmitter(jsonReviewRequest.getJSONObject("links").getJSONObject("submitter").getString("title"));
+        reviewRequest.setStatus(ReviewRequestStatus.parseStatus(jsonReviewRequest.getString("status")));
+        reviewRequest.setSummary(jsonReviewRequest.getString("summary"));
+        reviewRequest.setTestingDone(jsonReviewRequest.getString("testing_done"));
+        reviewRequest.setDescription(jsonReviewRequest.getString("description"));
+        reviewRequest.setPublic(jsonReviewRequest.getBoolean("public"));
+        reviewRequest.setLastUpdated(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("last_updated")));
+        reviewRequest.setTimeAdded(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("time_added")));
+        reviewRequest.setBranch(jsonReviewRequest.getString("branch"));
+        reviewRequest.setRepository(jsonReviewRequest.getJSONObject("links").getJSONObject("repository").getString("title"));
+        
+        // change number
+        String changeNumString = jsonReviewRequest.getString("changenum");
+        Integer changeNum = changeNumString.equals("null") ? null : Integer.valueOf(changeNumString);
+        reviewRequest.setChangeNumber(changeNum);
+        
+        // bugs
+        JSONArray jsonBugs = jsonReviewRequest.getJSONArray("bugs_closed");
+        List<String> bugs = new ArrayList<String>();
+        for (int j = 0; j < jsonBugs.length(); j++)
+            bugs.add(jsonBugs.getString(j));
+        reviewRequest.setBugsClosed(bugs);
+        
+        // target people
+        JSONArray jsonTargetPeople = jsonReviewRequest.getJSONArray("target_people");
+        List<String> targetPeople = new ArrayList<String>();
+        for ( int j = 0 ; j < jsonTargetPeople.length(); j++ )
+            targetPeople.add(jsonTargetPeople.getJSONObject(j).getString("title"));
+        reviewRequest.setTargetPeople(targetPeople);
+
+        // target groups
+        JSONArray jsonTargetGroups = jsonReviewRequest.getJSONArray("target_groups");
+        List<String> targetGroups = new ArrayList<String>();
+        for ( int j = 0 ; j < jsonTargetGroups.length(); j++ )
+            targetGroups.add(jsonTargetGroups.getJSONObject(j).getString("title"));
+        reviewRequest.setTargetGroups(targetGroups);
+        return reviewRequest;
     }
     
     public List<Integer> readReviewRequestIds(String source) throws ReviewboardException {

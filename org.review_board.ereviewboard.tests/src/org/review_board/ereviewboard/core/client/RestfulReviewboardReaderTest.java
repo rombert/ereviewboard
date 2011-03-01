@@ -47,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -157,6 +158,7 @@ public class RestfulReviewboardReaderTest {
         
         ReviewRequest firstRequest = reviewRequests.get(0);
 
+        // first review request, most fields are set
         assertThat("firstReviewRequest.id", firstRequest.getId(), is(8));
         assertThat("firstReviewRequest.submitter", firstRequest.getSubmitter(), is("admin"));
         assertThat("firstReviewRequest.summary", firstRequest.getSummary(), is("Interdiff Revision Test"));
@@ -176,6 +178,18 @@ public class RestfulReviewboardReaderTest {
         
         assertThat("firstReviewRequest.targetGroups", firstRequest.getTargetGroups().size(), is(0));
         assertThat("firstReviewRequest.repository", firstRequest.getRepository(), is("Review Board SVN"));
+        
+        // second review request, just test the fields which are not set in the first one
+        ReviewRequest secondRequest = reviewRequests.get(1);
+        
+        assertThat("reviewRequests[1].bugsClosed", secondRequest.getBugsClosed(), is(Collections.singletonList("12345")));
+        assertThat("reviewRequests[1].changeNumber", secondRequest.getChangeNumber(), is(1234));
+        
+        // third review request, just test the fields which are not set in the first one
+        ReviewRequest thirdRequest = reviewRequests.get(2);
+        
+        assertThat("reviewRequests[2].targetGroups", thirdRequest.getTargetGroups(), is(Collections.singletonList("emptygroup")));
+        assertThat("reviewRequests[2].testingDone", thirdRequest.getTestingDone(), is("Bar"));
         
     }
 
