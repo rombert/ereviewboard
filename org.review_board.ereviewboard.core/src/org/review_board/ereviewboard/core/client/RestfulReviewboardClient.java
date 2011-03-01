@@ -137,7 +137,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapPeopleGroup(taskData, jsonResult, Attribute.TARGET_PEOPLE);
             mapPeopleGroup(taskData, jsonResult, Attribute.TARGET_GROUPS);
             
-            mapJsonAttribute(jsonResult.getJSONObject("links"), taskData, ReviewboardAttributeMapper.Attribute.REPOSITORY);
+            JSONObject links = jsonResult.getJSONObject("links");
+            
+            if ( links.has(ReviewboardAttributeMapper.Attribute.REPOSITORY.getJsonAttributeName()) )
+                mapJsonAttribute(links, taskData, ReviewboardAttributeMapper.Attribute.REPOSITORY);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.BRANCH);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.CHANGENUM);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.STATUS);
@@ -145,12 +148,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.BUGS_CLOSED);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.TESTING_DONE);
 
-            
             // hidden attributes
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.SUMMARY);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.ID);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.DESCRIPTION);
-            mapJsonAttribute(jsonResult.getJSONObject("links"), taskData, ReviewboardAttributeMapper.Attribute.SUBMITTER);
+            mapJsonAttribute(links, taskData, ReviewboardAttributeMapper.Attribute.SUBMITTER);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.LAST_UPDATED);
             mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.TIME_ADDED);
             
@@ -450,13 +452,15 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public void performQuery(TaskRepository repository, IRepositoryQuery query,
             TaskDataCollector collector, IProgressMonitor monitor) throws CoreException {
         try {
+            
             List<ReviewRequest> reviewRequests = getReviewRequests(query.getUrl(), monitor);
+            
             for (ReviewRequest reviewRequest : reviewRequests) {
                 TaskData taskData = getTaskDataForReviewRequest(repository, reviewRequest);
                 collector.accept(taskData);
             }
         } catch (ReviewboardException e) {
-            throw new CoreException(Status.CANCEL_STATUS);
+            throw new CoreException(new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed performing query : " + e.getMessage(), e));
         }
     }
 

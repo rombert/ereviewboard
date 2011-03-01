@@ -165,8 +165,10 @@ public class RestfulReviewboardReader {
         
         ReviewRequest reviewRequest = new ReviewRequest();
         
+        JSONObject links = jsonReviewRequest.getJSONObject("links");
+        
         reviewRequest.setId(jsonReviewRequest.getInt("id"));
-        reviewRequest.setSubmitter(jsonReviewRequest.getJSONObject("links").getJSONObject("submitter").getString("title"));
+        reviewRequest.setSubmitter(links.getJSONObject("submitter").getString("title"));
         reviewRequest.setStatus(ReviewRequestStatus.parseStatus(jsonReviewRequest.getString("status")));
         reviewRequest.setSummary(jsonReviewRequest.getString("summary"));
         reviewRequest.setTestingDone(jsonReviewRequest.getString("testing_done"));
@@ -175,7 +177,8 @@ public class RestfulReviewboardReader {
         reviewRequest.setLastUpdated(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("last_updated")));
         reviewRequest.setTimeAdded(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("time_added")));
         reviewRequest.setBranch(jsonReviewRequest.getString("branch"));
-        reviewRequest.setRepository(jsonReviewRequest.getJSONObject("links").getJSONObject("repository").getString("title"));
+        if ( links.has("repository") )
+            reviewRequest.setRepository(links.getJSONObject("repository").getString("title"));
         
         // change number
         String changeNumString = jsonReviewRequest.getString("changenum");
