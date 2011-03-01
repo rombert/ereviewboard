@@ -102,17 +102,25 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             IProgressMonitor monitor) throws ReviewboardException {
 
         long start = System.currentTimeMillis();
+        
+        monitor.beginTask("", 4);
 
         try {
             
             ReviewRequest reviewRequest = reviewboardReader.readReviewRequest(httpClient.executeGet(
                     "/api/review-requests/" + Integer.parseInt(taskId) + "/", monitor));
             
+            Policy.advance(monitor, 1);
+            
             TaskData taskData = getTaskDataForReviewRequest(taskRepository, reviewRequest, false);
             
-            // TODO: these should be joined to make sure we only use one call
-            loadReviewsAndDiffsAsComment(taskData, monitor);
-            loadDiffsAndScreenshotsAsAttachments(taskData, taskRepository, monitor);
+            List<Diff> diffs = loadDiffs(Integer.parseInt(taskData.getTaskId()), monitor);
+            
+            Policy.advance(monitor, 1);
+            
+            loadReviewsAndDiffsAsComment(taskData, diffs, monitor);
+            
+            loadDiffsAndScreenshotsAsAttachments(taskData, taskRepository, diffs, monitor);
 
             return taskData;
         } catch (JSONException e) {
@@ -122,6 +130,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             double elapsed = ( System.currentTimeMillis() - start) / 1000.0;
             
             System.out.println("Review request with id  " + taskId + " synchronized in " + NumberFormat.getNumberInstance().format(elapsed) + " seconds.");
+            
+            monitor.done();
         }
     }
 
@@ -142,13 +152,12 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         taskAttribute.getMetaData().setReadOnly(true).setLabel(targetAttribute.getDisplayName()).setType(targetAttribute.getAttributeType()).setKind(TaskAttribute.KIND_PEOPLE);
     }
 
-    private void loadReviewsAndDiffsAsComment(TaskData taskData, IProgressMonitor monitor)
+    /**
+     * Advances monitor by one
+     * 
+     */
+    private void loadReviewsAndDiffsAsComment(TaskData taskData, List<Diff> diffs, IProgressMonitor monitor)
             throws JSONException, ReviewboardException {
-
-        
-        List<Diff> diffs = loadDiffs(Integer.parseInt(taskData.getTaskId()), monitor);
-        
-        Policy.advance(monitor, 1);
 
         SortedMap<Date, Comment2> sortedComments = new TreeMap<Date, Comment2>();
 
@@ -233,10 +242,14 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return reviewboardReader.readDiffComments(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments", monitor));
     }
     
-    private void loadDiffsAndScreenshotsAsAttachments(TaskData taskData, TaskRepository taskRepository, IProgressMonitor monitor) throws ReviewboardException {
+    /**
+     * Advances monitor by one
+     */
+    private void loadDiffsAndScreenshotsAsAttachments(TaskData taskData, TaskRepository taskRepository, List<Diff> diffs, IProgressMonitor monitor) throws ReviewboardException {
         
-        List<Diff> diffs = loadDiffs(Integer.parseInt(taskData.getTaskId()), monitor);
         List<Screenshot> screenshots = loadScreenshots(Integer.parseInt(taskData.getTaskId()), monitor);
+        
+        Policy.advance(monitor, 1);
         
         if ( diffs.isEmpty() && screenshots.isEmpty() )
             return;
@@ -276,7 +289,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
     }
 
-    public String stripPathFromLocation() throws ReviewboardException {
+    private String stripPathFromLocation() throws ReviewboardException {
         
         try {
             URI uri = new URI(location.getUrl());
