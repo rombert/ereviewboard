@@ -571,8 +571,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             mapper.setNumber(index);
 
             mapper.applyTo(attribute);
-            
         }
-
     }
 }
