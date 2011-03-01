@@ -1,0 +1,82 @@
+{
+  "diff_comments": [
+    {
+      "first_line": 12, 
+      "id": 5, 
+      "interfilediff": null, 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/5\/", 
+          "method": "DELETE"
+        }, 
+        "filediff": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/3\/files\/41\/", 
+          "method": "GET", 
+          "title": "\/trunk\/reviewboard\/settings_local.py.tmpl (1797) -> \/trunk\/reviewboard\/settings_local.py.tmpl ((working copy))"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/5\/", 
+          "method": "GET"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/5\/", 
+          "method": "PUT"
+        }, 
+        "user": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET", 
+          "title": "admin"
+        }
+      }, 
+      "num_lines": 3, 
+      "public": true, 
+      "text": "This is just a sample comment.", 
+      "timestamp": "2010-08-22 17:25:41"
+    }, 
+    {
+      "first_line": 29, 
+      "id": 6, 
+      "interfilediff": null, 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/6\/", 
+          "method": "DELETE"
+        }, 
+        "filediff": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/3\/files\/41\/", 
+          "method": "GET", 
+          "title": "\/trunk\/reviewboard\/settings_local.py.tmpl (1797) -> \/trunk\/reviewboard\/settings_local.py.tmpl ((working copy))"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/6\/", 
+          "method": "GET"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/6\/", 
+          "method": "PUT"
+        }, 
+        "user": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET", 
+          "title": "admin"
+        }
+      }, 
+      "num_lines": 3, 
+      "public": true, 
+      "text": "Another sample comment.", 
+      "timestamp": "2010-08-22 17:25:52"
+    }
+  ], 
+  "links": {
+    "create": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/", 
+      "method": "POST"
+    }, 
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/diff-comments\/", 
+      "method": "GET"
+    }
+  }, 
+  "stat": "ok", 
+  "total_results": 2
+}

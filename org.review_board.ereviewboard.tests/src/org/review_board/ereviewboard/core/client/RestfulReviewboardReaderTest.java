@@ -50,6 +50,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.*;
 
 /**
@@ -178,6 +180,21 @@ public class RestfulReviewboardReaderTest {
 
         assertNotNull(comments);
         assertEquals(2, comments.get(0).getId());
+    }
+    
+    @Test
+    public void readDiffComments() throws ReviewboardException, IOException {
+        
+        List<DiffComment> diffs = reader.readDiffComments(readJsonTestResource("diff_comments.json"));
+
+        assertThat("diffs.size", diffs.size(), is(2));
+        
+        DiffComment firstComment = diffs.get(0);
+        
+        assertThat("diffs[0].id", firstComment.getId(), is(5));
+        assertThat("diffs[0].username", firstComment.getUsername(), is("admin"));
+        assertThat("diffs[0].text", firstComment.getText(), is("This is just a sample comment."));
+        assertThat("diffs[0].timestamp", firstComment.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-22 17:25:41")));
     }
 
 }
