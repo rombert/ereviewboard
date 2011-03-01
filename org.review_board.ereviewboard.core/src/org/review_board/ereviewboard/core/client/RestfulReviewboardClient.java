@@ -66,6 +66,8 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  */
 public class RestfulReviewboardClient implements ReviewboardClient {
     
+    private static final int REVIEW_DIFF_TICKS = 6;
+    
     private final AbstractWebLocation location;
 
     private final RestfulReviewboardReader reviewboardReader;
@@ -100,7 +102,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
         long start = System.currentTimeMillis();
         
-        monitor.beginTask("", 4);
+        monitor.beginTask("", 4 + REVIEW_DIFF_TICKS); // 4 known + 6 chunks for loading diff comment count
 
         try {
             
@@ -131,7 +133,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     /**
-     * Advances monitor by one
+     * Advances monitor by one + {@value #REVIEW_DIFF_TICKS}
      * 
      */
     private void loadReviewsAndDiffsAsComment(TaskData taskData, List<Diff> diffs, IProgressMonitor monitor)
@@ -155,47 +157,58 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
         int shipItCount = 0;
         
-        for ( Review review : reviews ) {
+        IProgressMonitor reviewDiffMonitor = Policy.subMonitorFor(monitor, REVIEW_DIFF_TICKS);
+        reviewDiffMonitor.beginTask("", reviews.size());
+        
+        try {
+            for (Review review : reviews) {
 
-            int reviewId = review.getId();
-            int totalResults = readDiffComments(Integer.parseInt(taskData.getTaskId()), reviewId, monitor).size();
+                int reviewId = review.getId();
+                int totalResults = readDiffComments(Integer.parseInt(taskData.getTaskId()),
+                        reviewId, monitor).size();
 
-            StringBuilder text = new StringBuilder();
-            boolean shipit = review.getShipIt();
-            boolean appendWhiteSpace = false;
-            if ( shipit ) {
-                text.append("Ship it!");
-                shipItCount++;
-                appendWhiteSpace = true;
+                Policy.advance(reviewDiffMonitor, 1);
+
+                StringBuilder text = new StringBuilder();
+                boolean shipit = review.getShipIt();
+                boolean appendWhiteSpace = false;
+                if (shipit) {
+                    text.append("Ship it!");
+                    shipItCount++;
+                    appendWhiteSpace = true;
+                }
+                if (review.getBodyTop().length() != 0) {
+                    if (appendWhiteSpace)
+                        text.append("\n\n");
+
+                    text.append(review.getBodyTop());
+                    appendWhiteSpace = true;
+                }
+                if (totalResults != 0) {
+                    if (appendWhiteSpace)
+                        text.append("\n\n");
+
+                    text.append(totalResults).append(" inline comments.");
+
+                    appendWhiteSpace = true;
+                }
+                if (review.getBodyBottom().length() != 0) {
+                    if (appendWhiteSpace)
+                        text.append("\n\n");
+
+                    text.append(review.getBodyBottom());
+                }
+
+                Comment2 comment = new Comment2();
+                comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
+                        review.getUser()));
+                comment.setText(text.toString());
+
+                sortedComments.put(review.getTimestamp(), comment);
+
             }
-            if ( review.getBodyTop().length() != 0  ) {
-                if ( appendWhiteSpace )
-                    text.append("\n\n");
-                
-                text.append(review.getBodyTop());
-                appendWhiteSpace = true;
-            }
-            if ( totalResults != 0 ) {
-                if ( appendWhiteSpace )
-                    text.append("\n\n");
-                
-                text.append(totalResults).append(" inline comments.");
-                
-                appendWhiteSpace = true;
-            }
-            if ( review.getBodyBottom().length() != 0  ) {
-                if ( appendWhiteSpace )
-                    text.append("\n\n");
-
-                text.append(review.getBodyBottom());
-            }
-            
-            Comment2 comment = new Comment2();
-            comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(review.getUser()));
-            comment.setText(text.toString());
-
-            sortedComments.put(review.getTimestamp(), comment);
-
+        } finally {
+            reviewDiffMonitor.done();
         }
         
         TaskAttribute shipItAttribute = taskData.getRoot().createAttribute(Attribute.SHIP_IT.toString());
