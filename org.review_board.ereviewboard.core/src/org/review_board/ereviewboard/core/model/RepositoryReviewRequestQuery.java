@@ -38,9 +38,9 @@
 package org.review_board.ereviewboard.core.model;
 
 /**
- * Represents a query which gets review requests with a specific repository
- * by there status.
- *
+ * Represents a query which gets review requests with a specific repository by
+ * there status.
+ * 
  * @author Markus Knittig
  */
 public class RepositoryReviewRequestQuery extends StatusReviewRequestQuery {
@@ -56,14 +56,15 @@ public class RepositoryReviewRequestQuery extends StatusReviewRequestQuery {
 
     @Override
     public String getQuery() {
-        
-        return super.getQuery()+"&repository="+repositoryId+"&changenum="+changeNum;
+
+        return super.getQuery() + "&" + Parameter.Repository.getParameterName() + "=" + repositoryId + "&"
+                + Parameter.ChangeNum.getParameterName() + "=" + changeNum;
     }
-    
+
     public int getRepositoryId() {
         return repositoryId;
     }
-    
+
     public int getChangeNum() {
         return changeNum;
     }

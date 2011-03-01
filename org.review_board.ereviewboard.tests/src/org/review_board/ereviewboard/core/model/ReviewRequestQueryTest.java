@@ -62,7 +62,7 @@ public class ReviewRequestQueryTest extends TestCase {
 
     public void testFromUserReviewRequestQueryToQueryString() {
         query = new FromUserReviewRequestQuery(ReviewRequestStatus.DISCARDED, "test");
-        assertEquals("?status=discarded&from-users=test", query.getQuery());
+        assertEquals("?status=discarded&from-user=test", query.getQuery());
     }
 
     public void testToUserReviewRequestQueryToQueryString() {
@@ -91,7 +91,7 @@ public class ReviewRequestQueryTest extends TestCase {
     }
 
     public void testQueryStringToFromUserReviewRequestQuery() {
-        ReviewRequestQuery fromUsersQuery = StatusReviewRequestQuery.fromQueryString("?status=submitted&from-users=test");
+        ReviewRequestQuery fromUsersQuery = StatusReviewRequestQuery.fromQueryString("?status=submitted&from-user=test");
         
         assertThat(fromUsersQuery, instanceOf(FromUserReviewRequestQuery.class));
         assertThat(((FromUserReviewRequestQuery) fromUsersQuery).getStatus(), is(ReviewRequestStatus.SUBMITTED));

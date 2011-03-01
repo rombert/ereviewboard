@@ -48,7 +48,7 @@ import java.util.Map;
 public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
     
     enum Parameter {
-        Status("status"), ToUsers("to-users"),FromUsers("from-users"),ToGroups("to-groups"),Repository("repository"),ChangeNum("changenum");
+        Status("status"), ToUsers("to-users"),FromUser("from-user"),ToGroups("to-groups"),Repository("repository"),ChangeNum("changenum");
         
         public static Parameter fromString(String value) {
             
@@ -81,11 +81,11 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
     }
 
     public String getQuery() {
-        if (status == null) {
+
+        if (status == null)
             return "";
-        } else {
-            return String.format("?status=%s", status.getDisplayname().toLowerCase());
-        }
+
+        return "?" + Parameter.Status.getParameterName() + "=" + status.getDisplayname().toLowerCase();
     }
 
     public void setStatus(ReviewRequestStatus status) {
@@ -106,9 +106,9 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
             String usersString = parameters.get(Parameter.ToUsers);
             
             return new ToUserReviewRequestQuery(status, usersString);
-        } else if ( parameters.containsKey(Parameter.FromUsers) ) {
+        } else if ( parameters.containsKey(Parameter.FromUser) ) {
             
-            String usersString = parameters.get(Parameter.FromUsers);
+            String usersString = parameters.get(Parameter.FromUser);
             
             return new FromUserReviewRequestQuery(status, usersString);
         } else if ( parameters.containsKey(Parameter.ToGroups) ) {
