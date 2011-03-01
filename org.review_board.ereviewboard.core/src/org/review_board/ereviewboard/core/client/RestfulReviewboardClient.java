@@ -43,8 +43,6 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -76,11 +74,9 @@ import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
@@ -405,8 +401,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor)
             throws ReviewboardException {
         // TODO - should this be /api/review-requests/ ? 
-        return reviewboardReader.readReviewRequests(
-                httpClient.executeGet("/api/json/reviewrequests/" + query, monitor));
+        return reviewboardReader.readReviewRequests( httpClient.executeGet("/api/json/reviewrequests/" + query, monitor));
     }
     
     private List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
@@ -423,13 +418,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             throws ReviewboardException {
         return reviewboardReader.readReviewRequestIds(
                 httpClient.executeGet("/api/review-requests/" + query, monitor));
-    }
-
-    public ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor)
-            throws ReviewboardException {
-        return reviewboardReader.readReviewRequest(httpClient.executeGet(
-                "/api/json/reviewrequests/"
-                        + reviewRequestId + "/", monitor));
     }
 
     public boolean hasRepositoryData() {

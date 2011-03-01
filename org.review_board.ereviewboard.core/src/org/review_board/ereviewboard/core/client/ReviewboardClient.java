@@ -63,8 +63,6 @@ public interface ReviewboardClient {
 
     List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor) throws ReviewboardException;
 
-    ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
-
     void updateRepositoryData(boolean force, IProgressMonitor monitor) throws ReviewboardException;
 
     boolean hasRepositoryData();
