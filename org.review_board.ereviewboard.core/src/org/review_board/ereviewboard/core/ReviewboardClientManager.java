@@ -117,6 +117,9 @@ public class ReviewboardClientManager implements IRepositoryListener {
     }
 
     public void repositorySettingsChanged(TaskRepository repository) {
+        
+        
+        
         ReviewboardClient client = clientByUrl.get(repository.getRepositoryUrl());
 
         if (client != null) {
