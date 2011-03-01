@@ -42,30 +42,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
-import org.eclipse.mylyn.tasks.core.data.TaskAttachmentMapper;
-import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
-import org.eclipse.mylyn.tasks.core.data.TaskCommentMapper;
-import org.eclipse.mylyn.tasks.core.data.TaskData;
-import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
+import org.eclipse.mylyn.tasks.core.data.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -74,15 +59,7 @@ import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Diff;
-import org.review_board.ereviewboard.core.model.DiffComment;
-import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
-import org.review_board.ereviewboard.core.model.Screenshot;
-import org.review_board.ereviewboard.core.model.ServerInfo;
-import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.core.model.*;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -128,42 +105,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
         try {
             
-            TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository),
-                    ReviewboardCorePlugin.REPOSITORY_KIND, taskRepository.getUrl(), taskId);
-            JSONObject jsonResult = new JSONObject(httpClient.executeGet(
-                    "/api/review-requests/" + Integer.parseInt(taskId) + "/", monitor)).getJSONObject("review_request");
-
-            // people attributes
-            mapPeopleGroup(taskData, jsonResult, Attribute.TARGET_PEOPLE);
-            mapPeopleGroup(taskData, jsonResult, Attribute.TARGET_GROUPS);
+            ReviewRequest reviewRequest = reviewboardReader.readReviewRequest(httpClient.executeGet(
+                    "/api/review-requests/" + Integer.parseInt(taskId) + "/", monitor));
             
-            JSONObject links = jsonResult.getJSONObject("links");
-            
-            if ( links.has(ReviewboardAttributeMapper.Attribute.REPOSITORY.getJsonAttributeName()) )
-                mapJsonAttribute(links, taskData, ReviewboardAttributeMapper.Attribute.REPOSITORY);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.BRANCH);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.CHANGENUM);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.STATUS);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.PUBLIC);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.BUGS_CLOSED);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.TESTING_DONE);
-
-            // hidden attributes
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.SUMMARY);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.ID);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.DESCRIPTION);
-            mapJsonAttribute(links, taskData, ReviewboardAttributeMapper.Attribute.SUBMITTER);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.LAST_UPDATED);
-            mapJsonAttribute(jsonResult, taskData, ReviewboardAttributeMapper.Attribute.TIME_ADDED);
-            
-            ReviewRequestStatus status =  ReviewRequestStatus.parseStatus( jsonResult.getString(ReviewboardAttributeMapper.Attribute.STATUS.getJsonAttributeName()));
-            if ( status != ReviewRequestStatus.PENDING ) {
-                TaskAttribute completion = taskData.getRoot().createMappedAttribute(TaskAttribute.DATE_COMPLETION);
-                completion.getMetaData().setReadOnly(true);
-                completion.getMetaData().setKind(null);
-                completion.getMetaData().setType(TaskAttribute.TYPE_DATETIME);
-                completion.setValue(extractPossiblyNestedJsonValue(jsonResult, ReviewboardAttributeMapper.Attribute.LAST_UPDATED));
-            }
+            TaskData taskData = getTaskDataForReviewRequest(taskRepository, reviewRequest, false);
             
             // TODO: these should be joined to make sure we only use one call
             loadReviewsAndDiffsAsComment(taskData, monitor);
@@ -174,7 +119,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             throw new ReviewboardException("Error marshalling object to JSON", e);
         } finally {
             
-            double elapsed= ( System.currentTimeMillis() - start) / 1000.0;
+            double elapsed = ( System.currentTimeMillis() - start) / 1000.0;
             
             System.out.println("Review request with id  " + taskId + " synchronized in " + NumberFormat.getNumberInstance().format(elapsed) + " seconds.");
         }
@@ -195,52 +140,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         taskAttribute.setValues(reviewPersons);
         
         taskAttribute.getMetaData().setReadOnly(true).setLabel(targetAttribute.getDisplayName()).setType(targetAttribute.getAttributeType()).setKind(TaskAttribute.KIND_PEOPLE);
-    }
-
-    private void mapJsonAttribute(JSONObject from, TaskData to, Attribute attribute)
-            throws JSONException {
-
-        TaskAttribute taskAttribute = to.getRoot().createAttribute(attribute.toString());
-        taskAttribute.setValue(extractPossiblyNestedJsonValue(from, attribute));
-        taskAttribute.getMetaData().setReadOnly(true);
-        taskAttribute.getMetaData().setLabel(attribute.getDisplayName());
-        taskAttribute.getMetaData().setType(attribute.getAttributeType());
-        taskAttribute.getMetaData().setKind(
-                attribute.isHidden() ? null : TaskAttribute.KIND_DEFAULT);
-    }
-
-    private String extractPossiblyNestedJsonValue(JSONObject from, Attribute attribute)
-            throws JSONException {
-
-        String jsonAttributeName = attribute.getJsonAttributeName();
-        int separatorIndex = jsonAttributeName.indexOf('.');
-
-        if (separatorIndex == -1)
-            return splitWordListIfApplicable(ReviewboardUtil.unmaskNull(from.getString(jsonAttributeName)));
-
-        String[] paths = jsonAttributeName.split("\\.");
-        Assert.isTrue(paths.length == 2, "Expected paths length of 2, got " + paths.length + " .");
-        
-        return splitWordListIfApplicable(from.getJSONObject(paths[0]).getString(paths[1]));
-    }
-    
-    private String splitWordListIfApplicable(String value) {
-
-        List<String> values = new ArrayList<String>();
-        
-        if (value.startsWith("[") && value.endsWith("]")) {
-
-            Pattern pattern = Pattern.compile("\"(\\w+)\"+");
-
-            Matcher matcher = pattern.matcher(value.substring(1, value.length() - 1));
-
-            while (matcher.find())
-                values.add((matcher.group(1)));
-        } else {
-            values.add(value);
-        }
-        
-        return ReviewboardUtil.joinList(values);
     }
 
     private void loadReviewsAndDiffsAsComment(TaskData taskData, IProgressMonitor monitor)
@@ -321,7 +220,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         TaskAttribute shipItAttribute = taskData.getRoot().createAttribute(Attribute.SHIP_IT.toString());
         shipItAttribute.setValue(String.valueOf(shipItCount));
         shipItAttribute.getMetaData().setLabel(Attribute.SHIP_IT.getDisplayName()).setType(Attribute.SHIP_IT.getAttributeType());
-        shipItAttribute.getMetaData().setReadOnly(true).setKind(Attribute.SHIP_IT.isHidden() ? null : TaskAttribute.KIND_DEFAULT);
+        shipItAttribute.getMetaData().setReadOnly(true).setKind(Attribute.SHIP_IT.getAttributeKind());
 
         int commentIndex = 1;
         
@@ -456,7 +355,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             List<ReviewRequest> reviewRequests = getReviewRequests(query.getUrl(), monitor);
             
             for (ReviewRequest reviewRequest : reviewRequests) {
-                TaskData taskData = getTaskDataForReviewRequest(repository, reviewRequest);
+                TaskData taskData = getTaskDataForReviewRequest(repository, reviewRequest, true);
                 collector.accept(taskData);
             }
         } catch (ReviewboardException e) {
@@ -465,31 +364,45 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     private TaskData getTaskDataForReviewRequest(TaskRepository taskRepository,
-            ReviewRequest reviewRequest) {
-        String summary = reviewRequest.getSummary();
+            ReviewRequest reviewRequest, boolean partial) {
+
         String id = String.valueOf(reviewRequest.getId());
-        String owner = reviewRequest.getSubmitter();
-        Date creationDate = reviewRequest.getTimeAdded();
         Date dateModified = reviewRequest.getLastUpdated();
-        String description = reviewRequest.getDescription();
         ReviewRequestStatus status = reviewRequest.getStatus();
 
         TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository),
                 ReviewboardCorePlugin.REPOSITORY_KIND, location.getUrl(), id);
-        taskData.setPartial(true);
+        taskData.setPartial(partial);
 
         ReviewboardTaskMapper mapper = new ReviewboardTaskMapper(taskData, true);
+        // mapped fields
         mapper.setTaskKey(id);
-        mapper.setCreationDate(creationDate);
-        // intentionally left out
-//        mapper.setModificationDate(dateModified);
-        mapper.setSummary(summary);
-        mapper.setOwner(owner);
-        mapper.setDescription(description);
+        mapper.setReporter(reviewRequest.getSubmitter());
+        mapper.setCreationDate(reviewRequest.getTimeAdded());
+        mapper.setSummary(reviewRequest.getSummary());
+        mapper.setDescription(reviewRequest.getDescription());
         mapper.setTaskUrl(ReviewboardUtil.getReviewRequestUrl(taskRepository.getUrl(), id));
         mapper.setStatus(status.name().toLowerCase());
         if ( status != ReviewRequestStatus.PENDING )
             mapper.setCompletionDate(dateModified);
+
+        
+        if ( reviewRequest.getRepository() != null )
+            mapper.setRepository(reviewRequest.getRepository());
+        mapper.setBranch(reviewRequest.getBranch());
+        mapper.setChangeNum(reviewRequest.getChangeNumber());
+        mapper.setPublic(reviewRequest.isPublic());
+        mapper.setBugsClosed(reviewRequest.getBugsClosed());
+        mapper.setTestingDone(reviewRequest.getTestingDone());
+        mapper.setTargetPeople(reviewRequest.getTargetPeople());
+        mapper.setTargetGroups(reviewRequest.getTargetGroups());
+        
+        if ( !partial) {
+            // on purpose not set for partial tasks
+            mapper.setModificationDate(dateModified);
+        }
+        
+        mapper.complete();
         
         return taskData;
     }

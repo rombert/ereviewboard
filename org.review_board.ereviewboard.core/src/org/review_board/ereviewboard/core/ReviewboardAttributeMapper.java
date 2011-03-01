@@ -18,34 +18,34 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
 
     public enum Attribute {
 
-        ID("id", "Id", TaskAttribute.TYPE_INTEGER, true),
-        REPOSITORY("repository.title", "Repository", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
-        SUBMITTER("submitter.title", "Submitter", TaskAttribute.TYPE_PERSON, true),
-        SUMMARY("summary", "Summary", TaskAttribute.TYPE_SHORT_RICH_TEXT, true),
-        DESCRIPTION("description", "Description", TaskAttribute.TYPE_LONG_RICH_TEXT, true),
-        TESTING_DONE("testing_done", "Testing done", TaskAttribute.TYPE_LONG_RICH_TEXT, true),
-        STATUS("status", "Status", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
-        SHIP_IT("ship-it", "Ship-it", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
-        BUGS_CLOSED("bugs_closed", "Bugs closed", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
-        PUBLIC("public", "Public", TaskAttribute.TYPE_BOOLEAN, false),
-        BRANCH("branch", "Branch", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
-        CHANGENUM("changenum", "Change number", TaskAttribute.TYPE_SHORT_RICH_TEXT, false),
-        TARGET_PEOPLE("target_people", "People", TaskAttribute.TYPE_PERSON, false),
-        TARGET_GROUPS("target_groups", "Groups", TaskAttribute.TYPE_PERSON, false),
-        LAST_UPDATED("last_updated", "Last updated", TaskAttribute.TYPE_DATETIME, true),
-        TIME_ADDED("time_added", "Time added", TaskAttribute.TYPE_DATETIME, true);
+        ID("id", "Id", TaskAttribute.TYPE_INTEGER, null),
+        REPOSITORY("repository.title", "Repository", TaskAttribute.TYPE_SHORT_RICH_TEXT, TaskAttribute.KIND_DEFAULT),
+        SUBMITTER("submitter.title", "Submitter", TaskAttribute.TYPE_PERSON, null),
+        SUMMARY("summary", "Summary", TaskAttribute.TYPE_SHORT_RICH_TEXT, null),
+        DESCRIPTION("description", "Description", TaskAttribute.TYPE_LONG_RICH_TEXT, null),
+        TESTING_DONE("testing_done", "Testing done", TaskAttribute.TYPE_LONG_RICH_TEXT, null),
+        STATUS("status", "Status", TaskAttribute.TYPE_SHORT_RICH_TEXT, TaskAttribute.KIND_DEFAULT),
+        SHIP_IT("ship-it", "Ship-it", TaskAttribute.TYPE_SHORT_RICH_TEXT, TaskAttribute.KIND_DEFAULT),
+        BUGS_CLOSED("bugs_closed", "Bugs closed", TaskAttribute.TYPE_SHORT_RICH_TEXT, TaskAttribute.KIND_DEFAULT),
+        PUBLIC("public", "Public", TaskAttribute.TYPE_BOOLEAN, TaskAttribute.KIND_DEFAULT),
+        BRANCH("branch", "Branch", TaskAttribute.TYPE_SHORT_RICH_TEXT, TaskAttribute.KIND_DEFAULT),
+        CHANGENUM("changenum", "Change number", TaskAttribute.TYPE_SHORT_RICH_TEXT, TaskAttribute.KIND_DEFAULT),
+        TARGET_PEOPLE("target_people", "People", TaskAttribute.TYPE_PERSON, TaskAttribute.KIND_PEOPLE),
+        TARGET_GROUPS("target_groups", "Groups", TaskAttribute.TYPE_PERSON, TaskAttribute.KIND_PEOPLE),
+        LAST_UPDATED("last_updated", "Last updated", TaskAttribute.TYPE_DATETIME, null),
+        TIME_ADDED("time_added", "Time added", TaskAttribute.TYPE_DATETIME, null);
 
         private final String jsonAttributeName;
         private final String displayName;
         private final String attributeType;
-        private final boolean hidden;
+        private final String attributeKind;
 
-        private Attribute(String jsonAttributeName, String displayName, String attributeType, boolean hidden) {
+        private Attribute(String jsonAttributeName, String displayName, String attributeType, String attributeKind) {
 
             this.jsonAttributeName = jsonAttributeName;
             this.displayName = displayName;
             this.attributeType = attributeType;
-            this.hidden = hidden;
+            this.attributeKind = attributeKind;
         }
 
         public String getJsonAttributeName() {
@@ -62,10 +62,10 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
 
             return attributeType;
         }
-        
-        public boolean isHidden() {
+
+        public String getAttributeKind() {
          
-            return hidden;
+            return attributeKind;
         }
 
     }

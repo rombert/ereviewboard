@@ -37,23 +37,130 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core;
 
+import java.util.List;
+
+import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
 
+import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
+
 /**
  * Utility class for mapping between TaskData and Task
- *
+ * 
  * @author Markus Knittig
  */
 public class ReviewboardTaskMapper extends TaskMapper {
 
-	public ReviewboardTaskMapper(TaskData taskData) {
-		super(taskData);
-	}
+    public ReviewboardTaskMapper(TaskData taskData) {
+        super(taskData);
+    }
 
-	public ReviewboardTaskMapper(TaskData taskData,
-			boolean createNonExistingAttributes) {
-		super(taskData, createNonExistingAttributes);
-	}
+    public ReviewboardTaskMapper(TaskData taskData,
+            boolean createNonExistingAttributes) {
+        super(taskData, createNonExistingAttributes);
+    }
+    
+    public void setTestingDone(String testingDone) {
 
+        setAttributeValue(Attribute.TESTING_DONE, testingDone);
+    }
+    
+    public String getTestingDone() {
+    
+        return getAttributeValue(Attribute.TESTING_DONE);
+    }
+    
+    public void setRepository(String repository) {
+        
+        setAttributeValue(Attribute.REPOSITORY, repository);
+    }
+
+    public void setBranch(String branch) {
+        
+        setAttributeValue(Attribute.BRANCH, branch);
+    }
+
+    public void setChangeNum(Integer changeNumber) {
+
+        setAttributeValue(Attribute.CHANGENUM, changeNumber == null ? "" : changeNumber.toString());
+    }
+    
+    public void setBugsClosed(List<String> bugsClosed) {
+     
+        setAttributeValues(Attribute.BUGS_CLOSED, bugsClosed);
+    }
+    
+    public void setPublic(boolean isPublic) {
+
+        setAttributeValue(Attribute.PUBLIC, Boolean.toString(isPublic));
+    }
+
+    public void setTargetPeople(List<String> targetPeople) {
+        
+        setAttributeValues(Attribute.TARGET_PEOPLE, targetPeople);
+    }
+    
+    public void setTargetGroups(List<String> targetGroups) {
+        
+        setAttributeValues(Attribute.TARGET_GROUPS, targetGroups);
+    }
+    
+    /**
+     * Applies final customisations to mapped task data
+     */
+    public void complete() {
+        
+        for ( String attribute : new String[] { TaskAttribute.SUMMARY, TaskAttribute.USER_REPORTER, TaskAttribute.DESCRIPTION } )
+            getTaskData().getRoot().getMappedAttribute(attribute).getMetaData().setReadOnly(true);
+    }
+    
+    private String getAttributeValue(Attribute attributeEnum) {
+        
+        TaskAttribute attribute = getTaskData().getRoot().getAttribute(attributeEnum.toString());
+        
+        if ( attribute == null )
+            return null;
+        
+        return attribute.getValue();
+    }
+    
+    private void setAttributeValue(Attribute enumAttribute, String value) {
+    
+        TaskAttribute attribute = getWriteableAttribute(enumAttribute);
+
+        if ( attribute != null )
+            attribute.setValue(value);
+
+    }
+    
+    private void setAttributeValues(Attribute enumAttribute, List<String> values) {
+        
+        TaskAttribute attribute = getWriteableAttribute(enumAttribute);
+
+        if ( attribute != null )
+            attribute.setValues(values);
+    }
+
+
+    private TaskAttribute getWriteableAttribute(Attribute attributeEnum) {
+        String attributeKey = attributeEnum.toString();
+        TaskAttribute attribute = getTaskData().getRoot().getAttribute(attributeKey);
+        if (attribute == null) {
+            attribute = createAttribute(attributeEnum);
+        } else if (attribute != null && attribute.getMetaData().isReadOnly()) {
+            attribute = null;
+        }
+        return attribute;
+    }
+
+    private TaskAttribute createAttribute(Attribute attributeEnum) {
+
+        TaskAttribute attribute = getTaskData().getRoot().createAttribute(attributeEnum.toString());
+        attribute.getMetaData().defaults().setType(attributeEnum.getAttributeType())
+            .setReadOnly(true).setKind(attributeEnum.getAttributeType()).setLabel(attributeEnum.getDisplayName())
+            .setKind(attributeEnum.getAttributeKind());
+            
+        return attribute;
+    }
 }
