@@ -48,7 +48,6 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 
 /**
@@ -65,8 +64,6 @@ public interface ReviewboardClient {
     List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor) throws ReviewboardException;
 
     ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
-
-    List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
     void updateRepositoryData(boolean force, IProgressMonitor monitor) throws ReviewboardException;
 

@@ -432,27 +432,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                         + reviewRequestId + "/", monitor));
     }
 
-    public List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor)
-            throws ReviewboardException {
-        List<Review> result = reviewboardReader.readReviews(
-                httpClient.executeGet("/api/json/reviewrequests/" + reviewRequestId + "/reviews/",
-                        monitor));
-
-        for (Review review : result) {
-            sortCommentsByLine(review);
-        }
-
-        return result;
-    }
-
-    private void sortCommentsByLine(Review review) {
-        Collections.sort(review.getComments(), new Comparator<Comment>() {
-            public int compare(Comment comment1, Comment comment2) {
-                return ((Integer) comment1.getFirstLine()).compareTo(comment2.getFirstLine());
-            }
-        });
-    }
-
     public boolean hasRepositoryData() {
         return (clientData.lastupdate != 0);
     }
