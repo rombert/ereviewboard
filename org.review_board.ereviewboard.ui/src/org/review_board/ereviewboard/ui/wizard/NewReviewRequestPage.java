@@ -116,7 +116,7 @@ public class NewReviewRequestPage extends WizardPage {
     public ReviewRequest getReviewRequest() {
         ReviewRequest reviewRequest = new ReviewRequest();
 
-        reviewRequest.setRepository(getSelectedRepository());
+        reviewRequest.setRepository(getSelectedRepository().getName());
         if (changeNumText.getEnabled() && changeNumText.getText().length() > 0) {
             reviewRequest.setChangeNumber(Integer.parseInt(changeNumText.getText()));
         }

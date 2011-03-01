@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
@@ -51,23 +49,23 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  *
  * @author Markus Knittig
  */
-public class ReviewRequest implements Marshallable {
+public class ReviewRequest {
 
     private int id;
-    private User submitter;
+    private String submitter;
     private Date timeAdded;
     private Date lastUpdated;
     private ReviewRequestStatus status = ReviewRequestStatus.PENDING;
     private boolean publicReviewRequest;
     private Integer changeNumber;
-    private Repository repository;
     private String summary = "";
     private String description = "";
     private String testingDone = "";
     private List<Integer> bugsClosed = new ArrayList<Integer>();
     private String branch = "";
-    private List<ReviewGroup> targetGroups = new ArrayList<ReviewGroup>();
-    private List<User> targetPeople = new ArrayList<User>();
+    private List<String> targetGroups = new ArrayList<String>();
+    private List<String> targetPeople = new ArrayList<String>();
+    private String repository;;
 
     // TODO Add Diffs
     // TODO Add Screenshots
@@ -82,11 +80,11 @@ public class ReviewRequest implements Marshallable {
         this.id = id;
     }
 
-    public User getSubmitter() {
+    public String getSubmitter() {
         return submitter;
     }
 
-    public void setSubmitter(User submitter) {
+    public void setSubmitter(String submitter) {
         this.submitter = submitter;
     }
 
@@ -137,14 +135,6 @@ public class ReviewRequest implements Marshallable {
         this.changeNumber = changeNumber;
     }
 
-    public Repository getRepository() {
-        return repository;
-    }
-
-    public void setRepository(Repository repository) {
-        this.repository = repository;
-    }
-
     public String getSummary() {
         return summary;
     }
@@ -181,17 +171,6 @@ public class ReviewRequest implements Marshallable {
         this.bugsClosed = bugsClosed;
     }
 
-    public void setBugsClosedText(String bugsClosedText) {
-        bugsClosed.clear();
-        for (String bugClosed : ReviewboardUtil.splitString(bugsClosedText)) {
-            try {
-                bugsClosed.add(Integer.parseInt(bugClosed));
-            } catch (NumberFormatException e) {
-                // ignore
-            }
-        }
-    }
-
     public String getBranch() {
         return branch;
     }
@@ -200,7 +179,7 @@ public class ReviewRequest implements Marshallable {
         this.branch = branch;
     }
 
-    public List<ReviewGroup> getTargetGroups() {
+    public List<String> getTargetGroups() {
         return targetGroups;
     }
 
@@ -208,11 +187,11 @@ public class ReviewRequest implements Marshallable {
         return ReviewboardUtil.joinList(targetGroups);
     }
 
-    public void setTargetGroups(List<ReviewGroup> targetGroups) {
+    public void setTargetGroups(List<String> targetGroups) {
         this.targetGroups = targetGroups;
     }
 
-    public List<User> getTargetPeople() {
+    public List<String> getTargetPeople() {
         return targetPeople;
     }
 
@@ -220,84 +199,16 @@ public class ReviewRequest implements Marshallable {
         return ReviewboardUtil.joinList(targetPeople);
     }
 
-    public void setTargetPeople(List<User> targetUsers) {
+    public void setTargetPeople(List<String> targetUsers) {
         this.targetPeople = targetUsers;
     }
-
-    public void marshall(JSONObject jsonObject) {
-        try {
-            id = jsonObject.getInt("id");
-            submitter = ReviewboardUtil.parseEntity(User.class, jsonObject
-                    .getJSONObject("submitter"));
-            timeAdded = ReviewboardUtil.marshallDate(jsonObject.getString("time_added"));
-            lastUpdated = ReviewboardUtil.marshallDate(jsonObject.getString("last_updated"));
-            status = ReviewRequestStatus.parseStatus(jsonObject.getString("status"));
-            publicReviewRequest = ReviewboardUtil.marshallBoolean(jsonObject, "public");
-            marshallChangeNumber(jsonObject);
-            repository = ReviewboardUtil.parseEntity(Repository.class, jsonObject
-                    .getJSONObject("repository"));
-            summary = jsonObject.getString("summary");
-            description = jsonObject.getString("description");
-            testingDone = jsonObject.getString("testing_done");
-            marshallClosedBugs(jsonObject);
-            branch = jsonObject.getString("branch");
-            targetGroups = ReviewboardUtil.parseEntities(ReviewGroup.class, jsonObject
-                    .getJSONArray("target_groups"));
-            targetPeople = ReviewboardUtil.parseEntities(User.class, jsonObject
-                    .getJSONArray("target_people"));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+    
+    public String getRepository() {
+        return repository;
     }
-
-    private void marshallChangeNumber(JSONObject jsonObject) {
-        try {
-            changeNumber = jsonObject.getInt("changenum");
-        } catch (JSONException e) {
-            // ignore
-        }
+    
+    public void setRepository(String repository) {
+        this.repository = repository;
     }
-
-    private void marshallClosedBugs(JSONObject jsonObject) {
-        try {
-            JSONArray jsonBugsClosed = jsonObject.getJSONArray("bugs_closed");
-            bugsClosed.clear();
-            for (int iter = 0; iter < jsonBugsClosed.length(); iter++) {
-                // FIXME Should string like "1 2" be parsed or is this a Review
-                // Board bug?
-                String bugsClosedString = jsonBugsClosed.getString(iter);
-                bugsClosed.add(Integer.parseInt(bugsClosedString));
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-
-    }
-
-    public JSONObject unmarshall() {
-        JSONObject jsonObject = new JSONObject();
-
-        try {
-            jsonObject.put("id", id);
-            jsonObject.put("submitter", submitter.unmarshall());
-            jsonObject.put("time_added", ReviewboardUtil.unmarshallDate(timeAdded));
-            jsonObject.put("last_updated", ReviewboardUtil.unmarshallDate(lastUpdated));
-            jsonObject.put("text", status);
-            jsonObject.put("public", ReviewboardUtil.unmarshallBoolean(publicReviewRequest));
-            jsonObject.put("changenum", changeNumber);
-            jsonObject.put("repository", repository.unmarshall());
-            jsonObject.put("summary", summary);
-            jsonObject.put("description", description);
-            jsonObject.put("testing_done", testingDone);
-            jsonObject.put("bugs_closed", bugsClosed);
-            jsonObject.put("branch", branch);
-            jsonObject.put("target_groups", targetGroups);
-            jsonObject.put("target_people", targetPeople);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        return jsonObject;
-    }
-
+    
 }

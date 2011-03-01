@@ -38,6 +38,7 @@
 package org.review_board.ereviewboard.core.client;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -52,7 +53,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.core.model.Comment;
+import org.review_board.ereviewboard.core.model.Diff;
+import org.review_board.ereviewboard.core.model.DiffComment;
+import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.Review;
+import org.review_board.ereviewboard.core.model.ReviewGroup;
+import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
+import org.review_board.ereviewboard.core.model.User;
 
 /**
  * @author Markus Knittig
@@ -141,9 +150,33 @@ public class RestfulReviewboardReaderTest {
     @Test
     public void readReviewRequests() throws Exception {
 
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/review-request-list/
         List<ReviewRequest> reviewRequests = reader.readReviewRequests(readJsonTestResource("review_requests.json"));
 
-        assertEquals(1, reviewRequests.size());
+        assertThat("reviewRequests.size", reviewRequests.size(), is(5));
+        
+        ReviewRequest firstRequest = reviewRequests.get(0);
+
+        assertThat("firstReviewRequest.id", firstRequest.getId(), is(8));
+        assertThat("firstReviewRequest.submitter", firstRequest.getSubmitter(), is("admin"));
+        assertThat("firstReviewRequest.summary", firstRequest.getSummary(), is("Interdiff Revision Test"));
+        assertThat("firstReviewRequest.description", firstRequest.getDescription(), is("This is a test designed for interdiffs."));
+        assertThat("firstReviewRequest.public", firstRequest.isPublic(), is(true));
+        assertThat("firstReviewRequest.status", firstRequest.getStatus(), is(ReviewRequestStatus.PENDING));
+        assertThat("firstReviewRequest.changeNum", firstRequest.getChangeNumber(), nullValue());
+        assertThat("firstReviewRequest.lastUpdated", firstRequest.getLastUpdated(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-28 02:26:18")));
+        assertThat("firstReviewRequest.timeAdded", firstRequest.getTimeAdded(), is(ReviewboardAttributeMapper.parseDateValue("2009-02-25 02:01:21")));
+        assertThat("firstReviewRequest.branch", firstRequest.getBranch(), is("trunk"));
+        assertThat("firstReviewRequest.bugsClosed", firstRequest.getBugsClosed().size(), is(0));
+        assertThat("firstReviewRequest.testingDone", firstRequest.getTestingDone(), is(""));
+        
+        List<String> targetPeople = firstRequest.getTargetPeople();
+        assertThat("firstReviewRequest.targetPeople.size", targetPeople.size(), is(1));
+        assertThat("firstReviewRequest.targetPeople[0]", targetPeople.get(0), is("grumpy"));
+        
+        assertThat("firstReviewRequest.targetGroups", firstRequest.getTargetGroups().size(), is(0));
+        assertThat("firstReviewRequest.repository", firstRequest.getRepository(), is("Review Board SVN"));
+        
     }
 
     @Test

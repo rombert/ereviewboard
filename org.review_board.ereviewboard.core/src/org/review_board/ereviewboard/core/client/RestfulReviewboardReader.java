@@ -145,9 +145,36 @@ public class RestfulReviewboardReader {
 
     public List<ReviewRequest> readReviewRequests(String source) throws ReviewboardException {
         try {
-            JSONObject jsonReviewRequests = new JSONObject(source);
-            List<ReviewRequest> reviewRequests = ReviewboardUtil.parseEntities(ReviewRequest.class,
-                    jsonReviewRequests.getJSONArray("review_requests"));
+
+            JSONObject object = checkedGetJSonRootObject(source);
+            
+            JSONArray jsonReviewRequests = object.getJSONArray("review_requests");
+            List<ReviewRequest> reviewRequests = new ArrayList<ReviewRequest>();
+            
+            for ( int i = 0 ; i < jsonReviewRequests.length() ; i++ ) {
+                
+                JSONObject jsonReviewRequest = jsonReviewRequests.getJSONObject(i);
+                ReviewRequest reviewRequest = new ReviewRequest();
+                
+                reviewRequest.setId(jsonReviewRequest.getInt("id"));
+                reviewRequest.setSubmitter(jsonReviewRequest.getJSONObject("links").getJSONObject("submitter").getString("title"));
+                reviewRequest.setSummary(jsonReviewRequest.getString("summary"));
+                reviewRequest.setDescription(jsonReviewRequest.getString("description"));
+                reviewRequest.setPublic(jsonReviewRequest.getBoolean("public"));
+                reviewRequest.setLastUpdated(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("last_updated")));
+                reviewRequest.setTimeAdded(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("time_added")));
+                reviewRequest.setBranch(jsonReviewRequest.getString("branch"));
+                reviewRequest.setRepository(jsonReviewRequest.getJSONObject("links").getJSONObject("repository").getString("title"));
+                
+                JSONArray jsonTargetPeople = jsonReviewRequest.getJSONArray("target_people");
+                List<String> targetPeople = new ArrayList<String>();
+                for ( int j = 0 ; j < jsonTargetPeople.length(); j++ )
+                    targetPeople.add(jsonTargetPeople.getJSONObject(j).getString("title"));
+                reviewRequest.setTargetPeople(targetPeople);
+                
+                reviewRequests.add(reviewRequest);
+                
+            }
             return reviewRequests;
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
@@ -183,13 +210,8 @@ public class RestfulReviewboardReader {
     }
 
     public ReviewRequest readReviewRequest(String source) throws ReviewboardException {
-        try {
-            JSONObject jsonReviewRequest = new JSONObject(source);
-            return ReviewboardUtil.parseEntity(ReviewRequest.class,
-                    jsonReviewRequest.getJSONObject("review_request"));
-        } catch (Exception e) {
-            throw new ReviewboardException(e.getMessage(), e);
-        }
+        
+        throw new UnsupportedOperationException("Not implemented.");
     }
 
     public List<Review> readReviews(String source) throws ReviewboardException {

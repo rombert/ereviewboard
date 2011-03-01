@@ -400,8 +400,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     public List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor)
             throws ReviewboardException {
-        // TODO - should this be /api/review-requests/ ? 
-        return reviewboardReader.readReviewRequests( httpClient.executeGet("/api/json/reviewrequests/" + query, monitor));
+        return reviewboardReader.readReviewRequests( httpClient.executeGet("/api/review-requests/" + query, monitor));
     }
     
     private List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
@@ -464,7 +463,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             ReviewRequest reviewRequest) {
         String summary = reviewRequest.getSummary();
         String id = String.valueOf(reviewRequest.getId());
-        String owner = reviewRequest.getSubmitter().getUsername();
+        String owner = reviewRequest.getSubmitter();
         Date creationDate = reviewRequest.getTimeAdded();
         Date dateModified = reviewRequest.getLastUpdated();
         String description = reviewRequest.getDescription();

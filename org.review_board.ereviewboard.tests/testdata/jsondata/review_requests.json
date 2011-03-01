@@ -1,64 +1,361 @@
 {
-   "stat":"ok",
-   "review_requests":[
-      {
-         "status":"pending",
-         "last_updated":"2009-06-29 16:02:51",
-         "description":"Test",
-         "repository":{
-            "path":"file:///home/joe/svn/test",
-            "tool":"Subversion",
-            "id":2,
-            "name":"Test"
-         },
-         "bugs_closed":[
-            "1"
-         ],
-         "id":1,
-         "target_people":[
-            {
-               "username":"admin",
-               "first_name":"Joe",
-               "last_name":"Doe",
-               "url":"/users/admin/",
-               "email":"joe.doe@example.com",
-               "fullname":"Joe Doe",
-               "id":1
-            },
-            {
-               "username":"max",
-               "first_name":"Max",
-               "last_name":"Mustermann",
-               "url":"/users/max/",
-               "email":"max.mustermann@example.com",
-               "fullname":"Max Mustermann",
-               "id":2
-            }
-         ],
-         "target_groups":[
-            {
-               "url":"/iphone/groups/Test/",
-               "display_name":"GSOC Test",
-               "id":1,
-               "mailing_list":"",
-               "name":"Test"
-            }
-         ],
-         "summary":"Test",
-         "changenum":null,
-         "testing_done":"No",
-         "branch":"trunk",
-         "submitter":{
-            "username":"admin",
-            "first_name":"Joe",
-            "last_name":"Doe",
-            "url":"/users/admin/",
-            "email":"joe.doe@example.com",
-            "fullname":"Joe Doe",
-            "id":1
-         },
-         "time_added":"2009-06-12 09:16:06",
-         "public":1
-      }
-   ]
+  "links": {
+    "create": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/", 
+      "method": "POST"
+    }, 
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/", 
+      "method": "GET"
+    }
+  }, 
+  "review_requests": [
+    {
+      "branch": "trunk", 
+      "bugs_closed": [], 
+      "changenum": null, 
+      "description": "This is a test designed for interdiffs.", 
+      "id": 8, 
+      "last_updated": "2010-08-28 02:26:18", 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/", 
+          "method": "DELETE"
+        }, 
+        "diffs": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/", 
+          "method": "GET"
+        }, 
+        "draft": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/draft\/", 
+          "method": "GET"
+        }, 
+        "last_update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/last-update\/", 
+          "method": "GET"
+        }, 
+        "repository": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET", 
+          "title": "Review Board SVN"
+        }, 
+        "reviews": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/", 
+          "method": "GET"
+        }, 
+        "screenshots": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/", 
+          "method": "GET"
+        }, 
+        "submitter": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET", 
+          "title": "admin"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/", 
+          "method": "PUT"
+        }
+      }, 
+      "public": true, 
+      "status": "pending", 
+      "summary": "Interdiff Revision Test", 
+      "target_groups": [], 
+      "target_people": [
+        {
+          "href": "http:\/\/reviews.example.com\/api\/users\/grumpy\/", 
+          "method": "GET", 
+          "title": "grumpy"
+        }
+      ], 
+      "testing_done": "", 
+      "time_added": "2009-02-25 02:01:21"
+    }, 
+    {
+      "branch": "", 
+      "bugs_closed": [
+        "12345"
+      ], 
+      "changenum": 1234, 
+      "description": "Test description.", 
+      "id": 4, 
+      "last_updated": "2007-06-24 01:11:24", 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/4\/", 
+          "method": "DELETE"
+        }, 
+        "diffs": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/4\/diffs\/", 
+          "method": "GET"
+        }, 
+        "draft": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/4\/draft\/", 
+          "method": "GET"
+        }, 
+        "last_update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/4\/last-update\/", 
+          "method": "GET"
+        }, 
+        "repository": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET", 
+          "title": "Review Board SVN"
+        }, 
+        "reviews": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/4\/reviews\/", 
+          "method": "GET"
+        }, 
+        "screenshots": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/4\/screenshots\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/4\/", 
+          "method": "GET"
+        }, 
+        "submitter": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/grumpy\/", 
+          "method": "GET", 
+          "title": "grumpy"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/4\/", 
+          "method": "PUT"
+        }
+      }, 
+      "public": true, 
+      "status": "pending", 
+      "summary": "Made e-mail improvements", 
+      "target_groups": [], 
+      "target_people": [
+        {
+          "href": "http:\/\/reviews.example.com\/api\/users\/doc\/", 
+          "method": "GET", 
+          "title": "doc"
+        }
+      ], 
+      "testing_done": "Tested.", 
+      "time_added": "2007-06-24 00:42:42"
+    }, 
+    {
+      "branch": "trunk", 
+      "bugs_closed": [], 
+      "changenum": null, 
+      "description": "Foo", 
+      "id": 6, 
+      "last_updated": "2007-06-24 01:10:59", 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/6\/", 
+          "method": "DELETE"
+        }, 
+        "diffs": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/6\/diffs\/", 
+          "method": "GET"
+        }, 
+        "draft": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/6\/draft\/", 
+          "method": "GET"
+        }, 
+        "last_update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/6\/last-update\/", 
+          "method": "GET"
+        }, 
+        "repository": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET", 
+          "title": "Review Board SVN"
+        }, 
+        "reviews": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/6\/reviews\/", 
+          "method": "GET"
+        }, 
+        "screenshots": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/6\/screenshots\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/6\/", 
+          "method": "GET"
+        }, 
+        "submitter": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/dopey\/", 
+          "method": "GET", 
+          "title": "dopey"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/6\/", 
+          "method": "PUT"
+        }
+      }, 
+      "public": true, 
+      "status": "pending", 
+      "summary": "Error dialog", 
+      "target_groups": [
+        {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/emptygroup\/", 
+          "method": "GET", 
+          "title": "emptygroup"
+        }
+      ], 
+      "target_people": [], 
+      "testing_done": "Bar", 
+      "time_added": "2007-06-24 00:47:14"
+    }, 
+    {
+      "branch": "trunk", 
+      "bugs_closed": [
+        "123"
+      ], 
+      "changenum": null, 
+      "description": "Be compatible with cleaned_data changes in Django.", 
+      "id": 2, 
+      "last_updated": "2007-06-24 00:34:17", 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/2\/", 
+          "method": "DELETE"
+        }, 
+        "diffs": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/2\/diffs\/", 
+          "method": "GET"
+        }, 
+        "draft": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/2\/draft\/", 
+          "method": "GET"
+        }, 
+        "last_update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/2\/last-update\/", 
+          "method": "GET"
+        }, 
+        "repository": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET", 
+          "title": "Review Board SVN"
+        }, 
+        "reviews": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/2\/reviews\/", 
+          "method": "GET"
+        }, 
+        "screenshots": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/2\/screenshots\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/2\/", 
+          "method": "GET"
+        }, 
+        "submitter": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/dopey\/", 
+          "method": "GET", 
+          "title": "dopey"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/2\/", 
+          "method": "PUT"
+        }
+      }, 
+      "public": true, 
+      "status": "pending", 
+      "summary": "Update for cleaned_data changes", 
+      "target_groups": [
+        {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/devgroup\/", 
+          "method": "GET", 
+          "title": "devgroup"
+        }
+      ], 
+      "target_people": [], 
+      "testing_done": "Works.", 
+      "time_added": "2007-06-24 00:14:32"
+    }, 
+    {
+      "branch": "trunk", 
+      "bugs_closed": [
+        "1234", 
+        "4321", 
+        "5678", 
+        "8765"
+      ], 
+      "changenum": null, 
+      "description": "Added some user permissions checking for JSON API functions.", 
+      "id": 3, 
+      "last_updated": "2007-06-24 00:28:33", 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/3\/", 
+          "method": "DELETE"
+        }, 
+        "diffs": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/3\/diffs\/", 
+          "method": "GET"
+        }, 
+        "draft": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/3\/draft\/", 
+          "method": "GET"
+        }, 
+        "last_update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/3\/last-update\/", 
+          "method": "GET"
+        }, 
+        "repository": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET", 
+          "title": "Review Board SVN"
+        }, 
+        "reviews": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/3\/reviews\/", 
+          "method": "GET"
+        }, 
+        "screenshots": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/3\/screenshots\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/3\/", 
+          "method": "GET"
+        }, 
+        "submitter": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET", 
+          "title": "admin"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/3\/", 
+          "method": "PUT"
+        }
+      }, 
+      "public": true, 
+      "status": "pending", 
+      "summary": "Add permission checking for JSON API", 
+      "target_groups": [
+        {
+          "href": "http:\/\/reviews.example.com\/api\/groups\/privgroup\/", 
+          "method": "GET", 
+          "title": "privgroup"
+        }
+      ], 
+      "target_people": [
+        {
+          "href": "http:\/\/reviews.example.com\/api\/users\/doc\/", 
+          "method": "GET", 
+          "title": "doc"
+        }, 
+        {
+          "href": "http:\/\/reviews.example.com\/api\/users\/dopey\/", 
+          "method": "GET", 
+          "title": "dopey"
+        }
+      ], 
+      "testing_done": "Tested some functions.", 
+      "time_added": "2007-06-24 00:17:33"
+    }
+  ], 
+  "stat": "ok", 
+  "total_results": 5
 }
