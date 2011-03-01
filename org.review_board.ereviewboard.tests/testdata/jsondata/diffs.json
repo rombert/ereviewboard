@@ -1,0 +1,79 @@
+{
+  "diffs": [
+    {
+      "id": 8, 
+      "links": {
+        "files": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/files\/", 
+          "method": "GET"
+        }, 
+        "repository": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET", 
+          "title": "Review Board SVN"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/", 
+          "method": "GET"
+        }
+      }, 
+      "name": "diff", 
+      "revision": 1, 
+      "timestamp": "2009-02-25 02:01:21"
+    }, 
+    {
+      "id": 10, 
+      "links": {
+        "files": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/2\/files\/", 
+          "method": "GET"
+        }, 
+        "repository": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET", 
+          "title": "Review Board SVN"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/2\/", 
+          "method": "GET"
+        }
+      }, 
+      "name": "diff", 
+      "revision": 2, 
+      "timestamp": "2009-02-25 02:03:05"
+    }, 
+    {
+      "id": 11, 
+      "links": {
+        "files": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/3\/files\/", 
+          "method": "GET"
+        }, 
+        "repository": {
+          "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+          "method": "GET", 
+          "title": "Review Board SVN"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/3\/", 
+          "method": "GET"
+        }
+      }, 
+      "name": "diff", 
+      "revision": 3, 
+      "timestamp": "2009-02-25 21:39:42"
+    }
+  ], 
+  "links": {
+    "create": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/", 
+      "method": "POST"
+    }, 
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/", 
+      "method": "GET"
+    }
+  }, 
+  "stat": "ok", 
+  "total_results": 3
+}

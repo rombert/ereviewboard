@@ -78,6 +78,7 @@ import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Diff;
+import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
@@ -247,27 +248,21 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     private void loadReviewsAndDiffsAsComment(TaskData taskData, IProgressMonitor monitor)
             throws JSONException, ReviewboardException {
 
-        JSONObject diffs = new JSONObject(httpClient.executeGet("/api/json/reviewrequests/"
-                + taskData.getTaskId() + "/diff", monitor));
-
+        
+        List<Diff> diffs = loadDiffs(Integer.parseInt(taskData.getTaskId()), monitor);
+        
         Policy.advance(monitor, 1);
-
-        JSONArray diffArray = diffs.getJSONArray("diffsets");
 
         SortedMap<Date, Comment2> sortedComments = new TreeMap<Date, Comment2>();
 
-        for (int i = 0; i < diffArray.length(); i++) {
-
-            JSONObject jsonComment = diffArray.getJSONObject(i);
+        for (Diff diff : diffs ) {
 
             Comment2 comment = new Comment2();
             comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
                     taskData.getRoot().getAttribute(Attribute.SUBMITTER.toString()).getValue()));
-            comment.setText(Diff.DIFF_REVISION_PREFIX + jsonComment.getString("revision"));
+            comment.setText(Diff.DIFF_REVISION_PREFIX + diff.getRevision());
 
-            sortedComments.put(
-                    ReviewboardAttributeMapper.parseDateValue(jsonComment.getString("timestamp")),
-                    comment);
+            sortedComments.put(diff.getTimestamp(), comment);
         }
 
         JSONObject reviews = new JSONObject(httpClient.executeGet("/api/review-requests/" + taskData.getTaskId() + "/reviews", monitor));
@@ -282,7 +277,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
             JSONObject jsonReview = reviewsArray.getJSONObject(i);
             int reviewId = jsonReview.getInt("id");
-            int totalResults = new JSONObject(httpClient.executeGet("/api/review-requests/" + taskData.getTaskId()+"/reviews/" + reviewId +"/diff-comments", monitor)).getInt("total_results");
+            int totalResults = readDiffComments(Integer.parseInt(taskData.getTaskId()), reviewId, monitor).size();
 
             StringBuilder text = new StringBuilder();
             boolean shipit = jsonReview.getBoolean("ship_it");
@@ -334,6 +329,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         for ( Map.Entry<Date, Comment2>  entry : sortedComments.entrySet() )
             entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
+    }
+
+    private List<DiffComment> readDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {
+        
+        return reviewboardReader.readDiffComments(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments", monitor));
     }
     
     private void loadDiffsAndScreenshotsAsAttachments(TaskData taskData, TaskRepository taskRepository, IProgressMonitor monitor) throws ReviewboardException {

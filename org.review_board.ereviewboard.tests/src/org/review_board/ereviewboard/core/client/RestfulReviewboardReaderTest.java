@@ -187,14 +187,29 @@ public class RestfulReviewboardReaderTest {
         
         List<DiffComment> diffs = reader.readDiffComments(readJsonTestResource("diff_comments.json"));
 
-        assertThat("diffs.size", diffs.size(), is(2));
+        assertThat("diffComments.size", diffs.size(), is(2));
         
         DiffComment firstComment = diffs.get(0);
         
-        assertThat("diffs[0].id", firstComment.getId(), is(5));
-        assertThat("diffs[0].username", firstComment.getUsername(), is("admin"));
-        assertThat("diffs[0].text", firstComment.getText(), is("This is just a sample comment."));
-        assertThat("diffs[0].timestamp", firstComment.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-22 17:25:41")));
+        assertThat("diffComments[0].id", firstComment.getId(), is(5));
+        assertThat("diffComments[0].username", firstComment.getUsername(), is("admin"));
+        assertThat("diffComments[0].text", firstComment.getText(), is("This is just a sample comment."));
+        assertThat("diffComments[0].timestamp", firstComment.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-22 17:25:41")));
+    }
+    
+    @Test
+    public void readDiffs() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/diff-list/
+        List<Diff> diffs = reader.readDiffs(readJsonTestResource("diffs.json"));
+        
+        assertThat("diffs.size", diffs.size(), is(3));
+        
+        Diff firstDiff = diffs.get(0);
+        
+        assertThat("diffs[0].id", firstDiff.getId(), is(8));
+        assertThat("diffs[0].revision", firstDiff.getRevision(), is(1));
+        assertThat("diffs[0].timestamp", firstDiff.getTimestamp(), is (ReviewboardAttributeMapper.parseDateValue("2009-02-25 02:01:21")));
     }
 
 }
