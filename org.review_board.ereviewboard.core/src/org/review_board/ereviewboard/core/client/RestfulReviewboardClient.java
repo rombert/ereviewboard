@@ -372,7 +372,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 collector.accept(taskData);
             }
         } catch (ReviewboardException e) {
-            throw new CoreException(new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed performing query : " + e.getMessage(), e));
+            
+            // Mylyn does not log the error cause, just decorates the query in the task list
+            Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed performing query : " + e.getMessage(), e);
+            ReviewboardCorePlugin.getDefault().getLog().log(status);
+            throw new CoreException(status);
         }
     }
 
