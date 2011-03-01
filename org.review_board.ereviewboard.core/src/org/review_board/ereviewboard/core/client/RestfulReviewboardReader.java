@@ -100,10 +100,29 @@ public class RestfulReviewboardReader {
     }
     
     public List<User> readUsers(String source) throws ReviewboardException {
+        
         try {
-            JSONObject jsonUsers = checkedGetJSonRootObject(source);
-            return ReviewboardUtil.parseEntities(User.class, jsonUsers.getJSONArray("users"));
-        } catch (Exception e) {
+            JSONObject rootObject = checkedGetJSonRootObject(source);
+            JSONArray jsonUsers = rootObject.getJSONArray("users");
+            List<User> users = new ArrayList<User>();
+            
+            for ( int i = 0 ; i < jsonUsers.length(); i++ ) {
+                
+                JSONObject jsonUser = jsonUsers.getJSONObject(i);
+                
+                User user = new User();
+                user.setId(jsonUser.getInt("id"));
+                user.setUrl(jsonUser.getString("url"));
+                user.setUsername(jsonUser.getString("username"));
+                user.setEmail(jsonUser.getString("email"));
+                user.setFirstName(jsonUser.getString("first_name"));
+                user.setLastName(jsonUser.getString("last_name"));
+                
+                users.add(user);
+            }
+            
+            return users;
+        } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }

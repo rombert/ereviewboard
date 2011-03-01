@@ -37,15 +37,13 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Domain class for users.
  *
  * @author Markus Knittig
  */
-public class User implements Marshallable {
+public class User {
 
     private int id;
     private String username;
@@ -55,12 +53,7 @@ public class User implements Marshallable {
     private String email;
 
     public User() {
-        super();
-    }
 
-    public User(JSONObject jsonObject) throws JSONException {
-        super();
-        marshall(jsonObject);
     }
 
     public User(String username) {
@@ -157,36 +150,6 @@ public class User implements Marshallable {
      */
     public String getFullName() {
         return firstName + " " + lastName;
-    }
-
-    public void marshall(JSONObject jsonObject) {
-        try {
-            id = jsonObject.getInt("id");
-            url = jsonObject.getString("url");
-            username = jsonObject.getString("username");
-            email = jsonObject.getString("email");
-            firstName = jsonObject.getString("first_name");
-            lastName = jsonObject.getString("last_name");
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public JSONObject unmarshall() {
-        JSONObject jsonObject = new JSONObject();
-
-        try {
-            jsonObject.put("id", id);
-            jsonObject.put("url", url);
-            jsonObject.put("username", username);
-            jsonObject.put("email", email);
-            jsonObject.put("first_name", firstName);
-            jsonObject.put("last_name", lastName);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        return jsonObject;
     }
 
     @Override
