@@ -196,10 +196,11 @@ public class RestfulReviewboardReaderTest {
     @Test
     public void readReviewRequest() throws Exception {
 
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/review-request/
         ReviewRequest reviewRequest = reader.readReviewRequest(readJsonTestResource("review_request.json"));
 
         assertNotNull(reviewRequest);
-        assertEquals(2, reviewRequest.getTargetPeople().size());
+        assertEquals(1, reviewRequest.getTargetPeople().size());
     }
 
     @Test

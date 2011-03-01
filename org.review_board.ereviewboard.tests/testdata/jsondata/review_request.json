@@ -1,62 +1,68 @@
 {
-   "stat":"ok",
-   "review_request":{
-      "status":"pending",
-      "last_updated":"2009-06-29 16:40:30",
-      "description":"Test",
-      "repository":{
-         "path":"file:///home/joe/svn/test",
-         "tool":"Subversion",
-         "id":2,
-         "name":"Test"
-      },
-      "bugs_closed":[
-         "1"
-      ],
-      "id":1,
-      "target_people":[
-         {
-            "username":"admin",
-            "first_name":"Joe",
-            "last_name":"Doe",
-            "url":"/users/admin/",
-            "email":"joe.doe@example.com",
-            "fullname":"Joe Doe",
-            "id":1
-         },
-         {
-            "username":"max",
-            "first_name":"Max",
-            "last_name":"Mustermann",
-            "url":"/users/max/",
-            "email":"max.mustermann@example.com",
-            "fullname":"Max Mustermann",
-            "id":2
-         }
-      ],
-      "target_groups":[
-         {
-            "url":"/iphone/groups/Test/",
-            "display_name":"GSOC Test",
-            "id":1,
-            "mailing_list":"",
-            "name":"Test"
-         }
-      ],
-      "summary":"Test",
-      "changenum":null,
-      "testing_done":"No",
-      "branch":"trunk",
-      "submitter":{
-         "username":"admin",
-         "first_name":"Joe",
-         "last_name":"Doe",
-         "url":"/users/admin/",
-         "email":"joe.doe@example.com",
-         "fullname":"Joe Doe",
-         "id":1
-      },
-      "time_added":"2009-06-12 09:16:06",
-      "public":1
-   }
+  "review_request": {
+    "branch": "trunk", 
+    "bugs_closed": [], 
+    "changenum": null, 
+    "description": "This is a test designed for interdiffs.", 
+    "id": 8, 
+    "last_updated": "2010-08-28 02:26:18", 
+    "links": {
+      "delete": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/", 
+        "method": "DELETE"
+      }, 
+      "diffs": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/", 
+        "method": "GET"
+      }, 
+      "draft": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/draft\/", 
+        "method": "GET"
+      }, 
+      "last_update": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/last-update\/", 
+        "method": "GET"
+      }, 
+      "repository": {
+        "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+        "method": "GET", 
+        "title": "Review Board SVN"
+      }, 
+      "reviews": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/", 
+        "method": "GET"
+      }, 
+      "screenshots": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/", 
+        "method": "GET"
+      }, 
+      "self": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/", 
+        "method": "GET"
+      }, 
+      "submitter": {
+        "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+        "method": "GET", 
+        "title": "admin"
+      }, 
+      "update": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/", 
+        "method": "PUT"
+      }
+    }, 
+    "public": true, 
+    "status": "pending", 
+    "summary": "Interdiff Revision Test", 
+    "target_groups": [], 
+    "target_people": [
+      {
+        "href": "http:\/\/reviews.example.com\/api\/users\/grumpy\/", 
+        "method": "GET", 
+        "title": "grumpy"
+      }
+    ], 
+    "testing_done": "", 
+    "time_added": "2009-02-25 02:01:21"
+  }, 
+  "stat": "ok"
 }

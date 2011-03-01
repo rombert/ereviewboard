@@ -235,7 +235,14 @@ public class RestfulReviewboardReader {
 
     public ReviewRequest readReviewRequest(String source) throws ReviewboardException {
         
-        throw new UnsupportedOperationException("Not implemented.");
+        try {
+            
+            JSONObject jsonObject = checkedGetJSonRootObject(source);
+            
+            return readReviewRequest(jsonObject.getJSONObject("review_request"));
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
     }
 
     public List<Review> readReviews(String source) throws ReviewboardException {
