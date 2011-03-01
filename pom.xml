@@ -11,7 +11,6 @@
     <module>org.review_board.ereviewboard</module>
     <module>org.review_board.ereviewboard.core</module>
     <module>org.review_board.ereviewboard.tests</module>
-    <module>org.review_board.ereviewboard.tests.feature</module>
     <module>org.review_board.ereviewboard.ui</module>
     <module>org.review_board.ereviewboard.update</module>
   </modules>
