@@ -37,6 +37,9 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import junit.framework.TestCase;
 
 /**
@@ -49,53 +52,67 @@ public class ReviewRequestQueryTest extends TestCase {
 
     public void testAllReviewRequestQueryToQueryString() {
         query = new AllReviewRequestQuery(ReviewRequestStatus.NONE);
-        assertEquals("all/?status=none", query.getQuery());
+        assertEquals("?status=none", query.getQuery());
     }
 
     public void testGroupReviewRequestQueryToQueryString() {
         query = new GroupReviewRequestQuery(ReviewRequestStatus.PENDING, "test");
-        assertEquals("to/group/test/?status=pending", query.getQuery());
+        assertEquals("?status=pending&to-groups=test", query.getQuery());
     }
 
     public void testFromUserReviewRequestQueryToQueryString() {
         query = new FromUserReviewRequestQuery(ReviewRequestStatus.DISCARDED, "test");
-        assertEquals("from/user/test/?status=discarded", query.getQuery());
+        assertEquals("?status=discarded&from-users=test", query.getQuery());
     }
 
     public void testToUserReviewRequestQueryToQueryString() {
         query = new ToUserReviewRequestQuery(ReviewRequestStatus.DISCARDED, "test");
-        assertEquals("to/user/test/?status=discarded", query.getQuery());
+        assertEquals("?status=discarded&to-users=test", query.getQuery());
     }
 
     public void testToRepositoryReviewRequestQueryToQueryString() {
         query = new RepositoryReviewRequestQuery(ReviewRequestStatus.SUBMITTED, 1, 2);
-        assertEquals("repository/1/changenum/2/?status=submitted", query.getQuery());
+        assertEquals("?status=submitted&repository=1&changenum=2", query.getQuery());
     }
 
     public void testQueryStringToAllReviewRequestQuery() {
-        query = StatusReviewRequestQuery.fromQueryString("/all?status=pending");
+        query = StatusReviewRequestQuery.fromQueryString("?status=pending");
         assertTrue(query instanceof AllReviewRequestQuery);
     }
 
     public void testQueryStringToGroupReviewRequestQuery() {
-        query = StatusReviewRequestQuery.fromQueryString("to/group/test?status=discarded");
-        assertTrue(query instanceof GroupReviewRequestQuery);
+        
+        ReviewRequestQuery groupQuery = StatusReviewRequestQuery.fromQueryString("?status=discarded&to-groups=test");
+        
+        assertThat(groupQuery, instanceOf(GroupReviewRequestQuery.class));
+        assertThat(((GroupReviewRequestQuery) groupQuery).getStatus(), is(ReviewRequestStatus.DISCARDED));
+        assertThat(((GroupReviewRequestQuery) groupQuery).getGroupname(), is("test"));
+        
     }
 
     public void testQueryStringToFromUserReviewRequestQuery() {
-        query = StatusReviewRequestQuery.fromQueryString("from/user/test?status=discarded");
-        assertTrue(query instanceof FromUserReviewRequestQuery);
+        ReviewRequestQuery fromUsersQuery = StatusReviewRequestQuery.fromQueryString("?status=submitted&from-users=test");
+        
+        assertThat(fromUsersQuery, instanceOf(FromUserReviewRequestQuery.class));
+        assertThat(((FromUserReviewRequestQuery) fromUsersQuery).getStatus(), is(ReviewRequestStatus.SUBMITTED));
+        assertThat(((FromUserReviewRequestQuery) fromUsersQuery).getUsername(), is("test"));
     }
 
     public void testQueryStringToToUserReviewRequestQuery() {
-        query = StatusReviewRequestQuery.fromQueryString("to/user/test?status=discarded");
-        assertTrue(query instanceof ToUserReviewRequestQuery);
+        ReviewRequestQuery toUserQuery = StatusReviewRequestQuery.fromQueryString("?status=pending&to-users=test");
+        
+        assertThat(toUserQuery, instanceOf(ToUserReviewRequestQuery.class));
+        assertThat(((ToUserReviewRequestQuery) toUserQuery).getStatus(), is(ReviewRequestStatus.PENDING));
+        assertThat(((ToUserReviewRequestQuery) toUserQuery).getUsername(), is("test"));
     }
 
     public void testQueryStringToRepositoryReviewRequestQuery() {
-        query = StatusReviewRequestQuery
-                .fromQueryString("repository/1/changenum/2?status=submitted");
-        assertTrue(query instanceof RepositoryReviewRequestQuery);
+        ReviewRequestQuery repositoryQuery = StatusReviewRequestQuery.fromQueryString("?status=all&repository=1&changenum=2");
+        
+        assertThat(repositoryQuery, instanceOf(RepositoryReviewRequestQuery.class));
+        assertThat(((RepositoryReviewRequestQuery) repositoryQuery).getStatus(), is(ReviewRequestStatus.ALL));
+        assertThat(((RepositoryReviewRequestQuery) repositoryQuery).getRepositoryId(), is(1));
+        assertThat(((RepositoryReviewRequestQuery) repositoryQuery).getChangeNum(), is(2));
     }
     
     public void testGroupReviewRequestRoundTrip() {

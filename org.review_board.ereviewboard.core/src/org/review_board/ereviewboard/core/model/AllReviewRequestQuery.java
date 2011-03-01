@@ -47,10 +47,4 @@ public class AllReviewRequestQuery extends StatusReviewRequestQuery {
     public AllReviewRequestQuery(ReviewRequestStatus status) {
         super(status);
     }
-
-    @Override
-    public String getQuery() {
-        return String.format("all%s", super.getQuery());
-    }
-
 }

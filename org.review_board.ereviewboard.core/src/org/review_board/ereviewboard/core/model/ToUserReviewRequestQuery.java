@@ -58,7 +58,8 @@ public class ToUserReviewRequestQuery extends StatusReviewRequestQuery {
 
     @Override
     public String getQuery() {
-        return String.format("to/user/%s%s", username, super.getQuery());
+        
+        return super.getQuery()+"&to-users="+username;
     }
 
 }

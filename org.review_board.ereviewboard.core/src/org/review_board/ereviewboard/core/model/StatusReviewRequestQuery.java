@@ -37,20 +37,41 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 /**
  * Abstract class for queries getting review requests by status.
  *
  * @author Markus Knittig
  */
 public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
-
-    private static final String QUERY_FRAGMENT_TO_USER = "to/user/";
     
-    private static final String QUERY_FRAGMENT_FROM_USER = "from/user/";
+    enum Parameter {
+        Status("status"), ToUsers("to-users"),FromUsers("from-users"),ToGroups("to-groups"),Repository("repository"),ChangeNum("changenum");
+        
+        public static Parameter fromString(String value) {
+            
+            for ( Parameter parameter : Parameter.values() )
+                if ( parameter.getParameterName().equals(value))
+                    return parameter;
+            
+            throw new IllegalArgumentException("Unknown query parameter " + value);
+        }
+        
+        private final String parameterName;
 
-    private static final String QUERY_FRAGMENT_GROUP = "to/group/";
-
-    private static final String QUERY_FRAGMENT_REPOSITORY = "repository/";
+        private Parameter(String parameterName) {
+            
+            this.parameterName = parameterName;
+        }
+        
+        String getParameterName() {
+        
+            return parameterName;
+        }
+        
+    }
     
     private ReviewRequestStatus status;
 
@@ -63,7 +84,7 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
         if (status == null) {
             return "";
         } else {
-            return String.format("/?status=%s", status.getDisplayname().toLowerCase());
+            return String.format("?status=%s", status.getDisplayname().toLowerCase());
         }
     }
 
@@ -76,41 +97,56 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
     }
 
     public static ReviewRequestQuery fromQueryString(String queryString) {
-        ReviewRequestQuery result = null;
-        ReviewRequestStatus status = ReviewRequestStatus.PENDING;
 
-        int statusIndex = queryString.indexOf("?");
-        if (statusIndex > 0) {
-            status = ReviewRequestStatus.parseStatus(queryString.substring(statusIndex + 8));
-        } else {
-            statusIndex = queryString.length();
+        Map<Parameter, String> parameters = parseQueryString(queryString);
+        ReviewRequestStatus status = ReviewRequestStatus.parseStatus(parameters.get(Parameter.Status));
+        
+        if ( parameters.containsKey(Parameter.ToUsers )) {
+
+            String usersString = parameters.get(Parameter.ToUsers);
+            
+            return new ToUserReviewRequestQuery(status, usersString);
+        } else if ( parameters.containsKey(Parameter.FromUsers) ) {
+            
+            String usersString = parameters.get(Parameter.FromUsers);
+            
+            return new FromUserReviewRequestQuery(status, usersString);
+        } else if ( parameters.containsKey(Parameter.ToGroups) ) {
+            
+            String groupsName = parameters.get(Parameter.ToGroups);
+            
+            return new GroupReviewRequestQuery(status, groupsName);
+        } else if ( parameters.containsKey(Parameter.Repository) ) {
+            
+            int repositoryId = Integer.parseInt(parameters.get(Parameter.Repository));
+            int changeNum = Integer.parseInt(parameters.get(Parameter.ChangeNum));
+            
+            return new RepositoryReviewRequestQuery(status, repositoryId, changeNum);
         }
-
-        if (queryString.startsWith(QUERY_FRAGMENT_GROUP)) {
-            result = new GroupReviewRequestQuery(status, removeTrailingSlashIfPresent(queryString.substring(QUERY_FRAGMENT_GROUP.length(), statusIndex)));
-        } else if (queryString.startsWith(QUERY_FRAGMENT_TO_USER)) {
-            result = new ToUserReviewRequestQuery(status, removeTrailingSlashIfPresent(queryString.substring(QUERY_FRAGMENT_TO_USER.length(), statusIndex)));
-        } else if (queryString.startsWith(QUERY_FRAGMENT_FROM_USER)) {
-            result = new FromUserReviewRequestQuery(status, removeTrailingSlashIfPresent(queryString.substring(QUERY_FRAGMENT_FROM_USER.length(), statusIndex)));
-        } else if (queryString.startsWith(QUERY_FRAGMENT_REPOSITORY)) {
-            int changeNumIndex = queryString.indexOf("/changenum/");
-            int repositoryEndIndex = queryString.indexOf(QUERY_FRAGMENT_REPOSITORY) + + QUERY_FRAGMENT_REPOSITORY.length();
-            int repositoryId = Integer.parseInt(queryString .substring(repositoryEndIndex , changeNumIndex));
-            String changeIdString = queryString.substring( changeNumIndex + 11, statusIndex);
-            changeIdString = removeTrailingSlashIfPresent(changeIdString);
-            int changeId = Integer.parseInt(changeIdString);
-            result = new RepositoryReviewRequestQuery(status, repositoryId, changeId);
-        } else {
-            result = new AllReviewRequestQuery(status);
-        }
-
-        return result;
+        
+        return new AllReviewRequestQuery(status);
     }
-
-    private static String removeTrailingSlashIfPresent(String value) {
-        if ( value.endsWith("/"))
-            value = value.substring(0, value.length() - 1);
-        return value;
+    
+    private static Map<Parameter, String> parseQueryString(String queryString) {
+        
+        Map<Parameter, String> parsedParameters = new EnumMap<StatusReviewRequestQuery.Parameter, String>(Parameter.class);
+        
+        String[] keyValuePairs = queryString.split("\\&");
+        
+        for ( String keyValuePair : keyValuePairs ) {
+            
+            String[] keyValue = keyValuePair.split("=");
+            String keyString = keyValue[0];
+            if ( keyString.charAt(0) == '?' )
+                keyString = keyString.substring(1);
+            
+            Parameter key = Parameter.fromString(keyString);
+            String value = keyValue[1];
+            
+            parsedParameters.put(key, value);
+        }
+        
+        return parsedParameters;
     }
 
 }
