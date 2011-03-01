@@ -64,15 +64,9 @@ public interface ReviewboardClient {
 
     List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor) throws ReviewboardException;
 
-    ReviewRequest newReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor) throws ReviewboardException;
-
     ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
-    List<String> getRawDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
-
     List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
-
-    void updateReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor) throws ReviewboardException;
 
     void updateRepositoryData(boolean force, IProgressMonitor monitor) throws ReviewboardException;
 

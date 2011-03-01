@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -426,30 +425,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 httpClient.executeGet("/api/review-requests/" + query, monitor));
     }
 
-    public ReviewRequest newReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor)
-            throws ReviewboardException {
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("repository_id", String.valueOf(reviewRequest.getRepository().getId()));
-        if (reviewRequest.getChangeNumber() != null) {
-            parameters.put("changenum", String.valueOf(reviewRequest.getChangeNumber()));
-        }
-
-        ReviewRequest newReviewRequest = reviewboardReader.readReviewRequest(httpClient.executePost(
-                "/api/json/reviewrequests/new/", parameters, monitor));
-        reviewRequest.setId(newReviewRequest.getId());
-        reviewRequest.setTimeAdded(newReviewRequest.getTimeAdded());
-        reviewRequest.setLastUpdated(newReviewRequest.getLastUpdated());
-        reviewRequest.setSubmitter(newReviewRequest.getSubmitter());
-
-        // TODO
-        // reviewRequest.getTargetPeople().add(newReviewRequest.getSubmitter());
-        // reviewRequest.setSummary("Test");
-        // reviewRequest.setDescription("Test");
-        // updateReviewRequest(reviewRequest);
-
-        return reviewRequest;
-    }
-
     public ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor)
             throws ReviewboardException {
         return reviewboardReader.readReviewRequest(httpClient.executeGet(
@@ -476,28 +451,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 return ((Integer) comment1.getFirstLine()).compareTo(comment2.getFirstLine());
             }
         });
-    }
-
-    public void updateReviewRequest(ReviewRequest reviewRequest, IProgressMonitor monitor)
-            throws ReviewboardException {
-        Map<String, String> parameters = new HashMap<String, String>();
-
-        parameters.put("status", reviewRequest.getStatus().toString());
-        // parameters.put("public", reviewRequest.getPublicReviewRequest());
-        parameters.put("summary", reviewRequest.getSummary());
-        parameters.put("description", reviewRequest.getDescription());
-        parameters.put("testing_done", reviewRequest.getTestingDone());
-        parameters.put("branch", reviewRequest.getBranch());
-        parameters.put("bugs_closed", ReviewboardUtil.joinList(reviewRequest.getBugsClosed()));
-        parameters.put("target_groups", ReviewboardUtil.joinList(reviewRequest.getTargetGroups()));
-        parameters.put("target_people", ReviewboardUtil.joinList(reviewRequest.getTargetPeople()));
-
-        httpClient.executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/set/",
-                parameters, monitor);
-        httpClient.executePost(
-                "/api/json/reviewrequests/" + reviewRequest.getId() + "/draft/save/", monitor);
-        httpClient.executePost("/api/json/reviewrequests/" + reviewRequest.getId() + "/publish/",
-                monitor);
     }
 
     public boolean hasRepositoryData() {
@@ -570,25 +523,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return taskData;
     }
 
-    public List<String> getRawDiffs(int reviewRequestId, IProgressMonitor monitor)
-            throws ReviewboardException {
-        List<String> diffs = new ArrayList<String>();
-        int iter = 1;
-
-        // XXX Ugly hack, there should be an API call for this function
-        while (true) {
-            try {
-                diffs.add(httpClient.executeGet(
-                        String.format("/r/%d/diff/%d/raw/", reviewRequestId, iter), monitor));
-                iter++;
-            } catch (Exception e) {
-                break;
-            }
-        }
-
-        return diffs;
-    }
-    
     public byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException {
         
         return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/","text/x-patch", monitor);

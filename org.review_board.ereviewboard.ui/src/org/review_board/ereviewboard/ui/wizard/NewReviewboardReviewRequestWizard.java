@@ -37,13 +37,11 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.wizard;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.wizards.NewTaskWizard;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.INewWizard;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
-import org.review_board.ereviewboard.core.exception.ReviewboardException;
 
 /**
  * @author Markus Knittig
@@ -73,12 +71,8 @@ public class NewReviewboardReviewRequestWizard extends NewTaskWizard implements 
 
     @Override
     public boolean performFinish() {
-        try {
-            client.newReviewRequest(newReviewRequestWizardPage.getReviewRequest(), new NullProgressMonitor());
-        } catch (ReviewboardException e) {
-            throw new RuntimeException(e);
-        }
-        return true;
+        
+        throw new UnsupportedOperationException("Not implemented");
     }
 
 }
