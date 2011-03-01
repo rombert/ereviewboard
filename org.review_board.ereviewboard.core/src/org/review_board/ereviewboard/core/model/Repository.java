@@ -37,15 +37,13 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Domain class for repositories.
  *
  * @author Markus Knittig
  */
-public class Repository implements Marshallable {
+public class Repository  {
 
     private int id;
     private String name;
@@ -106,32 +104,6 @@ public class Repository implements Marshallable {
      */
     public void setPath(String path) {
         this.path = path;
-    }
-
-    public void marshall(JSONObject jsonObject) {
-        try {
-            id = jsonObject.getInt("id");
-            name = jsonObject.getString("name");
-            tool = jsonObject.getString("tool");
-            path = jsonObject.getString("path");
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public JSONObject unmarshall() {
-        JSONObject jsonObject = new JSONObject();
-
-        try {
-            jsonObject.put("id", id);
-            jsonObject.put("name", name);
-            jsonObject.put("tool", tool);
-            jsonObject.put("path", path);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        return jsonObject;
     }
 
     @Override

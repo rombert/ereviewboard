@@ -129,10 +129,26 @@ public class RestfulReviewboardReader {
 
     public List<ReviewGroup> readGroups(String source) throws ReviewboardException {
         try {
-            JSONObject jsonGroups = checkedGetJSonRootObject(source);
-            return ReviewboardUtil.parseEntities(ReviewGroup.class,
-                    jsonGroups.getJSONArray("groups"));
-        } catch (Exception e) {
+            JSONObject rootObject = checkedGetJSonRootObject(source);
+            JSONArray jsonGroups = rootObject.getJSONArray("groups");
+            
+            List<ReviewGroup> groups = new ArrayList<ReviewGroup>();
+            for ( int i = 0; i < jsonGroups.length(); i++ ) {
+                
+                JSONObject jsonObject = jsonGroups.getJSONObject(i);
+                
+                ReviewGroup group = new ReviewGroup();
+                group.setId(jsonObject.getInt("id"));
+                group.setName(jsonObject.getString("name"));
+                group.setDisplayName(jsonObject.getString("display_name"));
+                group.setUrl(jsonObject.getString("url"));
+                group.setMailingList(jsonObject.getString("mailing_list"));
+                
+                groups.add(group);
+            }
+            
+            return groups;
+        } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
@@ -219,11 +235,28 @@ public class RestfulReviewboardReader {
     }
     
     public List<Repository> readRepositories(String source) throws ReviewboardException {
+        
         try {
-            JSONObject jsonRepositories = checkedGetJSonRootObject(source);
-            return ReviewboardUtil.parseEntities(Repository.class,
-                    jsonRepositories.getJSONArray("repositories"));
-        } catch (Exception e) {
+            JSONObject rootObject = checkedGetJSonRootObject(source);
+            JSONArray jsonRepositories = rootObject.getJSONArray("repositories");
+            
+            List<Repository> repositories = new ArrayList<Repository>();
+            
+            for ( int i = 0 ; i < jsonRepositories.length(); i++ ) {
+                
+                JSONObject jsonRepository = jsonRepositories.getJSONObject(i);
+                
+                Repository repository = new Repository();
+                repository.setId(jsonRepository.getInt("id"));
+                repository.setName(jsonRepository.getString("name"));
+                repository.setTool(jsonRepository.getString("tool"));
+                repository.setPath(jsonRepository.getString("path"));
+                
+                repositories.add(repository);
+            }
+            
+            return repositories;
+        } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
