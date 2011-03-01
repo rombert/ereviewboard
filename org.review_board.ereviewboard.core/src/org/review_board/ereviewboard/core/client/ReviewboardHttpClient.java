@@ -210,7 +210,11 @@ public class ReviewboardHttpClient {
         try {
             monitor.beginTask("Executing request", IProgressMonitor.UNKNOWN);
 
-            executeRequest(request, monitor);
+            int statusCode = executeRequest(request, monitor);
+            
+            if ( statusCode == HttpStatus.SC_NOT_FOUND )
+                throw new ReviewboardException("No resource found at location " + request.getPath());
+            
             return getResponseBodyAsString(request, monitor);
         } finally {
             request.releaseConnection();
