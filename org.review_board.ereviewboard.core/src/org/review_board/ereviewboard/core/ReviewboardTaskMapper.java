@@ -37,8 +37,6 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core;
 
-import java.util.Date;
-
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
 
