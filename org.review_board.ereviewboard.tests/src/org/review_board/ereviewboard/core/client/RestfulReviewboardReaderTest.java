@@ -54,7 +54,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Repository;
@@ -218,15 +217,6 @@ public class RestfulReviewboardReaderTest {
         assertThat("reviews[0].public", firstReview.isPublicReview(), is(true));
         assertThat("reviews[0].shipIt", firstReview.getShipIt(), is(false));
         assertThat("reviews[0].timestamp", firstReview.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-28 02:25:31")));
-    }
-
-    @Test
-    public void readReviewComments() throws Exception {
-
-        List<Comment> comments = reader.readComments(readJsonTestResource("review_comments.json"));
-
-        assertNotNull(comments);
-        assertEquals(1, comments.get(0).getId());
     }
 
     @Test

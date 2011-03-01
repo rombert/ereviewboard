@@ -45,7 +45,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Repository;
@@ -247,16 +246,6 @@ public class RestfulReviewboardReader {
             
             return reviews;
         } catch (JSONException e) {
-            throw new ReviewboardException(e.getMessage(), e);
-        }
-    }
-
-    public List<Comment> readComments(String source) throws ReviewboardException {
-        try {
-            JSONObject jsonReviewRequest = checkedGetJSonRootObject(source);
-            return ReviewboardUtil.parseEntities(Comment.class,
-                    jsonReviewRequest.getJSONArray("comments"));
-        } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }

@@ -38,7 +38,6 @@
 package org.review_board.ereviewboard.core.model;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Domain class for reviews.
@@ -54,7 +53,6 @@ public class Review {
     private Date timestamp;
     private String user;
     private boolean publicReview;
-    private List<Comment> comments;
 
     public int getId() {
         return id;
@@ -110,13 +108,5 @@ public class Review {
 
     public void setPublicReview(boolean publicReview) {
         this.publicReview = publicReview;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
     }
 }
