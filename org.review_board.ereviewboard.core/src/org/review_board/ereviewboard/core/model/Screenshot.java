@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.io.Serializable;
+
 /**
  * @author Robert Munteanu
  */
-public class Screenshot {
+public class Screenshot implements Serializable {
 
     private final int id;
     private final String caption;

@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author Robert Munteanu
  */
-public class DiffComment {
+public class DiffComment implements Serializable {
 
     private final int id;
     private String username;

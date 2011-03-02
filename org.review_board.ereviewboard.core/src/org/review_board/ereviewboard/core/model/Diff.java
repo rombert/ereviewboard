@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -20,7 +21,7 @@ import java.util.Date;
  * @author Robert Munteanu
  *
  */
-public class Diff {
+public class Diff implements Serializable {
     
     public static final String DIFF_REVISION_PREFIX = "Diff revision ";
     

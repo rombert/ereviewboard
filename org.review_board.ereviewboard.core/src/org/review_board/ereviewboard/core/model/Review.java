@@ -37,6 +37,7 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -44,7 +45,7 @@ import java.util.Date;
  *
  * @author Markus Knittig
  */
-public class Review {
+public class Review implements Serializable {
 
     private int id;
     private String bodyTop;

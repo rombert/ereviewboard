@@ -37,13 +37,15 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.io.Serializable;
+
 
 /**
  * Domain class for users.
  *
  * @author Markus Knittig
  */
-public class User {
+public class User implements Serializable {
 
     private int id;
     private String username;

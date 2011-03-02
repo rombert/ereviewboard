@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +19,7 @@ import java.util.regex.Pattern;
  * @author Robert Munteanu
  *
  */
-public class ServerInfo {
+public class ServerInfo implements Serializable {
     
     private static final Pattern DIGITS = Pattern.compile("(\\d)+");
 

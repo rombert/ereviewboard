@@ -37,13 +37,15 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.io.Serializable;
+
 
 /**
  * Domain class for review groups.
  *
  * @author Markus Knittig
  */
-public class ReviewGroup {
+public class ReviewGroup implements Serializable {
 
     private int id;
     private String name;

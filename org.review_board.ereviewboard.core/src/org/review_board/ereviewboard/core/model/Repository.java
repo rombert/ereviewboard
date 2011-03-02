@@ -37,13 +37,15 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.io.Serializable;
+
 
 /**
  * Domain class for repositories.
  *
  * @author Markus Knittig
  */
-public class Repository  {
+public class Repository implements Serializable  {
 
     private int id;
     private String name;
