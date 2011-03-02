@@ -37,9 +37,15 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,7 +54,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.tasks.core.AbstractRepositoryConnector;
+import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.ITask;
 import org.eclipse.mylyn.tasks.core.ITaskMapping;
@@ -57,15 +65,23 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.TaskRepositoryLocationFactory;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentHandler;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskDataHandler;
+import org.eclipse.mylyn.tasks.core.data.TaskAttachmentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
+import org.eclipse.mylyn.tasks.core.data.TaskCommentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
 import org.eclipse.mylyn.tasks.core.sync.ISynchronizationSession;
+import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
 import org.review_board.ereviewboard.core.client.ReviewboardAttachmentHandler;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.Diff;
+import org.review_board.ereviewboard.core.model.Review;
+import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
+import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -76,6 +92,8 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     
     private static final String CLIENT_LABEL = "Reviewboard (supports 1.5 and later)";
 
+    private static final int REVIEW_DIFF_TICKS = 6;
+    
     private final static Pattern REVIEW_REQUEST_ID_FROM_TASK_URL = Pattern
             .compile(ReviewboardConstants.REVIEW_REQUEST_URL + "(\\d+)");
 
@@ -132,15 +150,198 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     public TaskData getTaskData(TaskRepository taskRepository, String taskId,
             IProgressMonitor monitor) throws CoreException {
         try {
+            
+            long start = System.currentTimeMillis();
+
             ReviewboardClient client = getClientManager().getClient(taskRepository);
-            return client.getTaskData(taskRepository, taskId, monitor);
+            
+            monitor.beginTask("", 4 + REVIEW_DIFF_TICKS); // 4 known + 6 chunks for loading diff comment count
+
+            try {
+                
+                int reviewRequestId = Integer.parseInt(taskId);
+                
+                ReviewRequest reviewRequest = client.getReviewRequest(reviewRequestId, monitor);
+                
+                Policy.advance(monitor, 1);
+                
+                TaskData taskData = getTaskDataForReviewRequest(taskRepository, reviewRequest, false);
+                
+                List<Diff> diffs = client.loadDiffs(reviewRequestId, monitor);
+                
+                Policy.advance(monitor, 1);
+                
+                loadReviewsAndDiffsAsComment(client, taskData, diffs, monitor);
+                
+                loadDiffsAndScreenshotsAsAttachments(client, taskData, taskRepository, diffs, monitor);
+
+                return taskData;
+            } finally {
+                
+                double elapsed = ( System.currentTimeMillis() - start) / 1000.0;
+                
+                System.out.println("Review request with id  " + taskId + " synchronized in " + NumberFormat.getNumberInstance().format(elapsed) + " seconds.");
+                
+                monitor.done();
+            }
+
+            
         } catch (ReviewboardException e) {
             Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed getting task data for task with id " + taskId , e);
             ReviewboardCorePlugin.getDefault().getLog().log(status);
             throw new CoreException(status);
         }
     }
+    
+    /**
+     * Advances monitor by one + {@value #REVIEW_DIFF_TICKS}
+     * 
+     */
+    private void loadReviewsAndDiffsAsComment(ReviewboardClient client, TaskData taskData, List<Diff> diffs, IProgressMonitor monitor)
+            throws  ReviewboardException {
 
+        SortedMap<Date, Comment2> sortedComments = new TreeMap<Date, Comment2>();
+
+        for (Diff diff : diffs ) {
+
+            Comment2 comment = new Comment2();
+            comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
+                    taskData.getRoot().getAttribute(Attribute.SUBMITTER.toString()).getValue()));
+            comment.setText(Diff.DIFF_REVISION_PREFIX + diff.getRevision());
+
+            sortedComments.put(diff.getTimestamp(), comment);
+        }
+        
+        int reviewRequestId = Integer.parseInt(taskData.getTaskId());
+        List<Review> reviews = client.getReviews(reviewRequestId, monitor);
+
+        Policy.advance(monitor, 1);
+
+        int shipItCount = 0;
+        
+        IProgressMonitor reviewDiffMonitor = Policy.subMonitorFor(monitor, REVIEW_DIFF_TICKS);
+        reviewDiffMonitor.beginTask("", reviews.size());
+        
+        try {
+            for (Review review : reviews) {
+
+                int reviewId = review.getId();
+                int totalResults = client.readDiffComments(reviewRequestId, reviewId, monitor).size();
+
+                Policy.advance(reviewDiffMonitor, 1);
+
+                StringBuilder text = new StringBuilder();
+                boolean shipit = review.getShipIt();
+                boolean appendWhiteSpace = false;
+                if (shipit) {
+                    text.append("Ship it!");
+                    shipItCount++;
+                    appendWhiteSpace = true;
+                }
+                if (review.getBodyTop().length() != 0) {
+                    if (appendWhiteSpace)
+                        text.append("\n\n");
+
+                    text.append(review.getBodyTop());
+                    appendWhiteSpace = true;
+                }
+                if (totalResults != 0) {
+                    if (appendWhiteSpace)
+                        text.append("\n\n");
+
+                    text.append(totalResults).append(" inline comments.");
+
+                    appendWhiteSpace = true;
+                }
+                if (review.getBodyBottom().length() != 0) {
+                    if (appendWhiteSpace)
+                        text.append("\n\n");
+
+                    text.append(review.getBodyBottom());
+                }
+
+                Comment2 comment = new Comment2();
+                comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
+                        review.getUser()));
+                comment.setText(text.toString());
+
+                sortedComments.put(review.getTimestamp(), comment);
+
+            }
+        } finally {
+            reviewDiffMonitor.done();
+        }
+        
+        TaskAttribute shipItAttribute = taskData.getRoot().createAttribute(Attribute.SHIP_IT.toString());
+        shipItAttribute.setValue(String.valueOf(shipItCount));
+        shipItAttribute.getMetaData().setLabel(Attribute.SHIP_IT.getDisplayName()).setType(Attribute.SHIP_IT.getAttributeType());
+        shipItAttribute.getMetaData().setReadOnly(true).setKind(Attribute.SHIP_IT.getAttributeKind());
+
+        int commentIndex = 1;
+        
+        for ( Map.Entry<Date, Comment2>  entry : sortedComments.entrySet() )
+            entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
+    }
+    
+    /**
+     * Advances monitor by one
+     * @param client 
+     */
+    private void loadDiffsAndScreenshotsAsAttachments(ReviewboardClient client, TaskData taskData, TaskRepository taskRepository, List<Diff> diffs, IProgressMonitor monitor) throws ReviewboardException {
+        
+        List<Screenshot> screenshots = client.loadScreenshots(Integer.parseInt(taskData.getTaskId()), monitor);
+        
+        Policy.advance(monitor, 1);
+        
+        if ( diffs.isEmpty() && screenshots.isEmpty() )
+            return;
+        
+        int mostRecentRevision = diffs.size();
+
+        for (Diff diff : diffs) {
+            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + diff.getRevision());
+            TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
+            mapper.setFileName(diff.getName());
+            mapper.setDescription(diff.getName());
+            mapper.setAuthor(taskRepository.createPerson(taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
+            mapper.setCreationDate(diff.getTimestamp());
+            mapper.setAttachmentId(Integer.toString(diff.getId()));
+            mapper.setPatch(Boolean.TRUE);
+            mapper.setDeprecated(diff.getRevision() != mostRecentRevision);
+            mapper.setLength(ReviewboardAttachmentHandler.ATTACHMENT_SIZE_UNKNOWN);
+            mapper.applyTo(attribute);
+            
+            attribute.createAttribute(ReviewboardAttachmentHandler.ATTACHMENT_ATTRIBUTE_REVISION).setValue(String.valueOf(diff.getRevision()));
+        }
+        
+        int attachmentIndex = mostRecentRevision;
+        
+        for ( Screenshot screenshot : screenshots ) {
+  
+            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + ++ attachmentIndex);
+            TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
+            mapper.setFileName(screenshot.getFileName());
+            mapper.setDescription(screenshot.getCaption());
+            mapper.setAttachmentId(Integer.toString(screenshot.getId()));
+            mapper.setLength(ReviewboardAttachmentHandler.ATTACHMENT_SIZE_UNKNOWN);
+            mapper.setContentType(screenshot.getContentType());
+            mapper.setUrl(stripPathFromLocation(taskRepository.getUrl()) + screenshot.getUrl());
+            mapper.applyTo(attribute);
+        }
+        
+    }
+
+    private String stripPathFromLocation(String location) throws ReviewboardException {
+        
+        try {
+            URI uri = new URI(location);
+            return location.substring(0, location.length() - uri.getPath().length());
+        } catch (URISyntaxException e) {
+            throw new ReviewboardException("Unable to retrive host from the location", e);
+        }
+    }
+
+    
     @Override
     public String getTaskIdFromTaskUrl(String taskFullUrl) {
         Matcher matcher = REVIEW_REQUEST_ID_FROM_TASK_URL.matcher(taskFullUrl);
@@ -214,15 +415,67 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
         try {
             client.updateRepositoryData(false, monitor);
-            client.performQuery(repository, query, collector, monitor);
-        } catch (CoreException e) {
-            return e.getStatus();
+                
+            List<ReviewRequest> reviewRequests = client.getReviewRequests(query.getUrl(), monitor);
+            
+            for (ReviewRequest reviewRequest : reviewRequests) {
+                TaskData taskData = getTaskDataForReviewRequest(repository, reviewRequest, true);
+                collector.accept(taskData);
+            }
         } catch ( ReviewboardException e) {
-            return new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Query failed : " + e.getMessage(), e);
+            // Mylyn does not log the error cause, just decorates the query in the task list
+            Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed performing query : " + e.getMessage(), e);
+            ReviewboardCorePlugin.getDefault().getLog().log(status);
+
+            return status;
         }
 
         return Status.OK_STATUS;
     }
+    
+    private TaskData getTaskDataForReviewRequest(TaskRepository taskRepository,
+            ReviewRequest reviewRequest, boolean partial) {
+
+        String id = String.valueOf(reviewRequest.getId());
+        Date dateModified = reviewRequest.getLastUpdated();
+        ReviewRequestStatus status = reviewRequest.getStatus();
+
+        TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository),
+                ReviewboardCorePlugin.REPOSITORY_KIND, taskRepository.getUrl(), id);
+        taskData.setPartial(partial);
+
+        ReviewboardTaskMapper mapper = new ReviewboardTaskMapper(taskData, true);
+        // mapped fields
+        mapper.setTaskKey(id);
+        mapper.setReporter(reviewRequest.getSubmitter());
+        mapper.setCreationDate(reviewRequest.getTimeAdded());
+        mapper.setSummary(reviewRequest.getSummary());
+        mapper.setDescription(reviewRequest.getDescription());
+        mapper.setTaskUrl(ReviewboardUtil.getReviewRequestUrl(taskRepository.getUrl(), id));
+        mapper.setStatus(status.name().toLowerCase());
+        if ( status != ReviewRequestStatus.PENDING )
+            mapper.setCompletionDate(dateModified);
+        
+        if ( reviewRequest.getRepository() != null )
+            mapper.setRepository(reviewRequest.getRepository());
+        mapper.setBranch(reviewRequest.getBranch());
+        mapper.setChangeNum(reviewRequest.getChangeNumber());
+        mapper.setPublic(reviewRequest.isPublic());
+        mapper.setBugsClosed(reviewRequest.getBugsClosed());
+        mapper.setTestingDone(reviewRequest.getTestingDone());
+        mapper.setTargetPeople(reviewRequest.getTargetPeople());
+        mapper.setTargetGroups(reviewRequest.getTargetGroups());
+        
+        if ( !partial) {
+            // on purpose not set for partial tasks
+            mapper.setModificationDate(dateModified);
+        }
+        
+        mapper.complete();
+        
+        return taskData;
+    }
+
     
     @Override
     public void postSynchronization(ISynchronizationSession event, IProgressMonitor monitor) throws CoreException {
@@ -329,4 +582,34 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         
         return new ReviewboardTaskMapper(taskData);
     }
+
+    private static class Comment2 {
+
+        private IRepositoryPerson author;
+        private String text;
+
+        public void setAuthor(IRepositoryPerson author) {
+            this.author = author;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public void applyTo(TaskData taskData, int index, Date creationDate) {
+
+            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_COMMENT + index);
+
+            TaskCommentMapper mapper = new TaskCommentMapper();
+            mapper.setCommentId(String.valueOf(index));
+            mapper.setCreationDate(creationDate);
+            mapper.setAuthor(author);
+            mapper.setText(text);
+            mapper.setNumber(index);
+
+            mapper.applyTo(attribute);
+        }
+    }
+
+
 }

@@ -40,15 +40,15 @@ package org.review_board.ereviewboard.core.client;
 import java.util.Date;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
-import org.eclipse.mylyn.tasks.core.data.TaskData;
-import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.Diff;
+import org.review_board.ereviewboard.core.model.DiffComment;
+import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.core.model.Screenshot;
 
 /**
  * Interface for Review Board operations.
@@ -67,11 +67,6 @@ public interface ReviewboardClient {
 
     boolean hasRepositoryData();
 
-    TaskData getTaskData(TaskRepository taskRepository, String taskId, IProgressMonitor monitor) throws ReviewboardException;
-
-    void performQuery(TaskRepository repository, IRepositoryQuery query,
-            TaskDataCollector collector, IProgressMonitor monitor) throws CoreException;
-
     IStatus validate(String username, String password, IProgressMonitor monitor);
 
     List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException;
@@ -79,5 +74,15 @@ public interface ReviewboardClient {
     byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException;
 
     byte[] getScreenshot(String url, IProgressMonitor monitor) throws ReviewboardException;
+
+    ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
+
+    List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
+
+    List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
+
+    List<DiffComment> readDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException;
+
+    List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
 }
