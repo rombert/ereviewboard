@@ -42,7 +42,6 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -211,10 +210,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException {
         
         try {
-            // TODO: extract into a ReviewRequestQuery
-            Assert.isNotNull(timestamp);
             
-            String query = "?last-updated-from=" + URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8");
+            if ( timestamp == null )
+                throw new IllegalArgumentException("Timestamp may not be null");
+            
+            String query = "?max-results=10000&last-updated-from=" + URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8");
             return getReviewRequestIds( query, monitor);
             
         } catch (UnsupportedEncodingException e) {
