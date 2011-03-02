@@ -48,8 +48,8 @@ public class RepositoryReviewRequestQuery extends StatusReviewRequestQuery {
     private int repositoryId;
     private int changeNum;
 
-    public RepositoryReviewRequestQuery(ReviewRequestStatus status, int repositoryId, int changeNum) {
-        super(status);
+    public RepositoryReviewRequestQuery(ReviewRequestStatus status, int maxResults, int repositoryId, int changeNum) {
+        super(status, maxResults);
         this.repositoryId = repositoryId;
         this.changeNum = changeNum;
     }

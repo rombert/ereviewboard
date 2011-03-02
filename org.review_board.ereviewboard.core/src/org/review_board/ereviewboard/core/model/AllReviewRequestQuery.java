@@ -44,7 +44,7 @@ package org.review_board.ereviewboard.core.model;
  */
 public class AllReviewRequestQuery extends StatusReviewRequestQuery {
 
-    public AllReviewRequestQuery(ReviewRequestStatus status) {
-        super(status);
+    public AllReviewRequestQuery(ReviewRequestStatus status, int maxResults) {
+        super(status, maxResults);
     }
 }

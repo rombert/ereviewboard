@@ -47,8 +47,8 @@ public class GroupReviewRequestQuery extends StatusReviewRequestQuery {
 
     private String groupname;
 
-    public GroupReviewRequestQuery(ReviewRequestStatus status, String groupname) {
-        super(status);
+    public GroupReviewRequestQuery(ReviewRequestStatus status, int maxResults, String groupname) {
+        super(status, maxResults);
         this.groupname = groupname;
     }
 

@@ -47,8 +47,8 @@ public class FromUserReviewRequestQuery extends StatusReviewRequestQuery {
 
     private String username;
 
-    public FromUserReviewRequestQuery(ReviewRequestStatus status, String username) {
-        super(status);
+    public FromUserReviewRequestQuery(ReviewRequestStatus status, int maxResults, String username) {
+        super(status, maxResults);
         this.username = username;
     }
 

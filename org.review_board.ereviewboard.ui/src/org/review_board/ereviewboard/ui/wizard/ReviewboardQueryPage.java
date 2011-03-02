@@ -128,6 +128,8 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private List<Repository> repositoryList;
     
+    private Text maxResultsText;
+    
     private Map<Button, SelectionRunnable> radioButtons = new HashMap<Button, SelectionRunnable>();
 
     private Selection selection = Selection.ALL;
@@ -195,6 +197,9 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
             
             ReviewRequestStatus status = ((StatusReviewRequestQuery) reviewRequestQuery).getStatus();
             ReviewboardUiUtil.selectComboItemByValue(statusCombo, status.getDisplayname());
+            maxResultsText.setText(String.valueOf(((StatusReviewRequestQuery) reviewRequestQuery).getMaxResults()));
+            
+            System.out.println("Max results is " + String.valueOf(((StatusReviewRequestQuery) reviewRequestQuery).getMaxResults()));
             
             if (reviewRequestQuery instanceof GroupReviewRequestQuery) {
                 GroupReviewRequestQuery specificQuery = (GroupReviewRequestQuery) reviewRequestQuery;
@@ -259,14 +264,23 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         ReviewRequestQuery query;
         ReviewRequestStatus status = getSelectedStatus();
         
+        int maxResults;
+        try {
+            maxResults = Integer.parseInt(maxResultsText.getText());
+            if ( maxResults <= 0 )
+                return false;
+        } catch ( NumberFormatException e) {
+            return false;
+        }
+        
         switch ( selection ) {
         
         case ALL:
-            query = new AllReviewRequestQuery(status);
+            query = new AllReviewRequestQuery(status, maxResults);
             break;
         
         case GROUP:
-            query = new GroupReviewRequestQuery(status, groupCombo.getCombo().getText());
+            query = new GroupReviewRequestQuery(status, maxResults, groupCombo.getCombo().getText());
             break;
             
         case REPOSITORY:
@@ -279,7 +293,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
                 int repositoryIndex = repositoryCombo.getCombo().getSelectionIndex();
                 int repositoryId = repositoryList.get(repositoryIndex).getId();
                 
-                query = new RepositoryReviewRequestQuery(status, repositoryId, changeNumInt);
+                query = new RepositoryReviewRequestQuery(status, maxResults, repositoryId, changeNumInt);
             } catch ( NumberFormatException e ) {
                 return false;
             }
@@ -290,14 +304,14 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
             if ( !toUsers.contains(toUserText.getText()) )
                 return false;
             
-            query = new ToUserReviewRequestQuery(status, toUserText.getText());
+            query = new ToUserReviewRequestQuery(status, maxResults, toUserText.getText());
             break;
             
         case FROM_USER:
             if ( ! fromUsers.contains(fromUserText.getText() ) )
                 return false;
 
-            query = new FromUserReviewRequestQuery(status, fromUserText.getText());
+            query = new FromUserReviewRequestQuery(status, maxResults, fromUserText.getText());
             break;
             
             default: 
@@ -306,7 +320,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
         // assign at the end to benefit from 'definite assignment' compiler analysis
         reviewRequestQuery = query;
-
+        
         return (titleText != null && titleText.getText().length() > 0) && valid;
     }
 
@@ -362,6 +376,16 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         statusCombo.getCombo().select(0);
         statusCombo.getCombo().addListener(SWT.Modify, updateButtonsListener);
 
+        Composite maxResultComposite = new Composite(parentRadioComposite, SWT.NONE);
+        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(maxResultComposite);
+        
+        Label maxResultsLabel = new Label(maxResultComposite , SWT.FILL);
+        maxResultsLabel.setText("Maximum results");
+        
+        maxResultsText = new Text(maxResultComposite, SWT.BORDER);
+        GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).applyTo(maxResultsText);
+        maxResultsText.addListener(SWT.Modify, updateButtonsListener);
+
         Button button = new Button(control, SWT.NONE);
         GridDataFactory.swtDefaults().span(4, 1).applyTo(button);
         button.setText("Refresh repository configuration");
@@ -379,6 +403,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         
         ReviewboardUiUtil.selectDefaultComboItem(groupCombo);
         ReviewboardUiUtil.selectDefaultComboItem(repositoryCombo);
+        maxResultsText.setText(String.valueOf(ReviewRequestQuery.DEFAULT_MAX_RESULTS));
         
         if (query != null)
             restoreQuery(query);

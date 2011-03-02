@@ -47,8 +47,8 @@ public class ToUserReviewRequestQuery extends StatusReviewRequestQuery {
 
     private String username;
 
-    public ToUserReviewRequestQuery(ReviewRequestStatus status, String username) {
-        super(status);
+    public ToUserReviewRequestQuery(ReviewRequestStatus status, int maxResults, String username) {
+        super(status, maxResults);
         this.username = username;
     }
 

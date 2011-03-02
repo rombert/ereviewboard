@@ -46,8 +46,7 @@ import java.io.Serializable;
  */
 public interface ReviewRequestQuery extends Serializable {
 
+    int DEFAULT_MAX_RESULTS = 25;
+    
     String getQuery();
-
-    void setStatus(ReviewRequestStatus status);
-
 }

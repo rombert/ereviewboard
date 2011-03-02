@@ -51,28 +51,28 @@ public class ReviewRequestQueryTest extends TestCase {
     private ReviewRequestQuery query;
 
     public void testAllReviewRequestQueryToQueryString() {
-        query = new AllReviewRequestQuery(ReviewRequestStatus.NONE);
-        assertEquals("?status=none", query.getQuery());
+        query = new AllReviewRequestQuery(ReviewRequestStatus.NONE, 15);
+        assertEquals("?status=none&max-results=15", query.getQuery());
     }
 
     public void testGroupReviewRequestQueryToQueryString() {
-        query = new GroupReviewRequestQuery(ReviewRequestStatus.PENDING, "test");
-        assertEquals("?status=pending&to-groups=test", query.getQuery());
+        query = new GroupReviewRequestQuery(ReviewRequestStatus.PENDING, 20, "test");
+        assertEquals("?status=pending&max-results=20&to-groups=test", query.getQuery());
     }
 
     public void testFromUserReviewRequestQueryToQueryString() {
-        query = new FromUserReviewRequestQuery(ReviewRequestStatus.DISCARDED, "test");
-        assertEquals("?status=discarded&from-user=test", query.getQuery());
+        query = new FromUserReviewRequestQuery(ReviewRequestStatus.DISCARDED, 10, "test");
+        assertEquals("?status=discarded&max-results=10&from-user=test", query.getQuery());
     }
 
     public void testToUserReviewRequestQueryToQueryString() {
-        query = new ToUserReviewRequestQuery(ReviewRequestStatus.DISCARDED, "test");
-        assertEquals("?status=discarded&to-users=test", query.getQuery());
+        query = new ToUserReviewRequestQuery(ReviewRequestStatus.DISCARDED, 25, "test");
+        assertEquals("?status=discarded&max-results=25&to-users=test", query.getQuery());
     }
 
     public void testToRepositoryReviewRequestQueryToQueryString() {
-        query = new RepositoryReviewRequestQuery(ReviewRequestStatus.SUBMITTED, 1, 2);
-        assertEquals("?status=submitted&repository=1&changenum=2", query.getQuery());
+        query = new RepositoryReviewRequestQuery(ReviewRequestStatus.SUBMITTED, 10, 1, 2);
+        assertEquals("?status=submitted&max-results=10&repository=1&changenum=2", query.getQuery());
     }
 
     public void testQueryStringToAllReviewRequestQuery() {
@@ -117,37 +117,40 @@ public class ReviewRequestQueryTest extends TestCase {
     
     public void testGroupReviewRequestRoundTrip() {
         
-        GroupReviewRequestQuery query = new GroupReviewRequestQuery(ReviewRequestStatus.PENDING, "group");
+        GroupReviewRequestQuery query = new GroupReviewRequestQuery(ReviewRequestStatus.PENDING, 10, "group");
         ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
         
         assertTrue(restoredQuery instanceof GroupReviewRequestQuery);
         
         GroupReviewRequestQuery groupQuery = (GroupReviewRequestQuery) restoredQuery;
         assertEquals("group", groupQuery.getGroupname());
+        assertEquals(10, groupQuery.getMaxResults());
     }
     
     public void testFromUserReviewRequestRoundTrip() {
         
-        FromUserReviewRequestQuery query = new FromUserReviewRequestQuery(ReviewRequestStatus.PENDING, "username");
+        FromUserReviewRequestQuery query = new FromUserReviewRequestQuery(ReviewRequestStatus.PENDING, 15, "username");
         ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
         
         assertTrue(restoredQuery instanceof FromUserReviewRequestQuery);
         
         FromUserReviewRequestQuery fromUserQuery = ( FromUserReviewRequestQuery ) query;
         assertEquals("username", fromUserQuery.getUsername());
+        assertEquals(15, fromUserQuery.getMaxResults());
     }
     
     public void testAllReviewRequestRoundTrip() {
         
-        AllReviewRequestQuery query = new AllReviewRequestQuery(ReviewRequestStatus.PENDING);
+        AllReviewRequestQuery query = new AllReviewRequestQuery(ReviewRequestStatus.PENDING, 5);
         ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
         
         assertTrue(restoredQuery instanceof AllReviewRequestQuery);
+        assertEquals(5, ((StatusReviewRequestQuery) restoredQuery).getMaxResults());
     }
     
     public void testRepositoryReviewRequestRoundTrip() {
         
-        RepositoryReviewRequestQuery query = new RepositoryReviewRequestQuery(ReviewRequestStatus.PENDING, 5, 3);
+        RepositoryReviewRequestQuery query = new RepositoryReviewRequestQuery(ReviewRequestStatus.PENDING, 7, 5, 3);
         ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
         
         assertTrue(restoredQuery instanceof RepositoryReviewRequestQuery);
@@ -155,16 +158,18 @@ public class ReviewRequestQueryTest extends TestCase {
         RepositoryReviewRequestQuery repositoryQuery = (RepositoryReviewRequestQuery) restoredQuery;
         assertEquals(5, repositoryQuery.getRepositoryId());
         assertEquals(3, repositoryQuery.getChangeNum());
+        assertEquals(7, repositoryQuery.getMaxResults());
     }
     
     public void testToUserReviewRequestRoundTrip() {
         
-        ToUserReviewRequestQuery query = new ToUserReviewRequestQuery(ReviewRequestStatus.PENDING, "username");
+        ToUserReviewRequestQuery query = new ToUserReviewRequestQuery(ReviewRequestStatus.PENDING, 50, "username");
         ReviewRequestQuery restoredQuery = StatusReviewRequestQuery.fromQueryString(query.getQuery());
         
         assertTrue(restoredQuery instanceof ToUserReviewRequestQuery);
         
         ToUserReviewRequestQuery toUserQuery = (ToUserReviewRequestQuery) restoredQuery;
         assertEquals("username", toUserQuery.getUsername());
+        assertEquals(50, toUserQuery.getMaxResults());
     }    
 }

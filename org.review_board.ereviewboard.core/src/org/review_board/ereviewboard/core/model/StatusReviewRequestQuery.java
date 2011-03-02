@@ -48,7 +48,7 @@ import java.util.Map;
 public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
     
     enum Parameter {
-        Status("status"), ToUsers("to-users"),FromUser("from-user"),ToGroups("to-groups"),Repository("repository"),ChangeNum("changenum");
+        Status("status"), ToUsers("to-users"),FromUser("from-user"),ToGroups("to-groups"),Repository("repository"),ChangeNum("changenum"), MaxResults("max-results");
         
         public static Parameter fromString(String value) {
             
@@ -73,11 +73,12 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
         
     }
     
-    private ReviewRequestStatus status;
+    private final ReviewRequestStatus status;
+    private final int maxResults;
 
-    public StatusReviewRequestQuery(ReviewRequestStatus status) {
-        super();
+    public StatusReviewRequestQuery(ReviewRequestStatus status, int maxResults) {
         this.status = status;
+        this.maxResults = maxResults;
     }
 
     public String getQuery() {
@@ -85,46 +86,54 @@ public abstract class StatusReviewRequestQuery implements ReviewRequestQuery {
         if (status == null)
             return "";
 
-        return "?" + Parameter.Status.getParameterName() + "=" + status.getDisplayname().toLowerCase();
+        return "?" + Parameter.Status.getParameterName() + "=" + status.getDisplayname().toLowerCase() + 
+            "&" +  Parameter.MaxResults.getParameterName() + "=" + maxResults;
     }
 
-    public void setStatus(ReviewRequestStatus status) {
-        this.status = status;
+    public ReviewRequestStatus getStatus() {
+
+        return status;
     }
     
-    public ReviewRequestStatus getStatus() {
-        return status;
+    public int getMaxResults() {
+     
+        return maxResults;
     }
 
     public static ReviewRequestQuery fromQueryString(String queryString) {
 
         Map<Parameter, String> parameters = parseQueryString(queryString);
         ReviewRequestStatus status = ReviewRequestStatus.parseStatus(parameters.get(Parameter.Status));
+        String maxResults = parameters.get(Parameter.MaxResults);
+        if ( maxResults == null )
+            maxResults = String.valueOf(DEFAULT_MAX_RESULTS);
+        
+        int maxResultsParameter = Integer.parseInt(maxResults);
         
         if ( parameters.containsKey(Parameter.ToUsers )) {
 
             String usersString = parameters.get(Parameter.ToUsers);
             
-            return new ToUserReviewRequestQuery(status, usersString);
+            return new ToUserReviewRequestQuery(status, maxResultsParameter, usersString);
         } else if ( parameters.containsKey(Parameter.FromUser) ) {
             
             String usersString = parameters.get(Parameter.FromUser);
             
-            return new FromUserReviewRequestQuery(status, usersString);
+            return new FromUserReviewRequestQuery(status, maxResultsParameter, usersString);
         } else if ( parameters.containsKey(Parameter.ToGroups) ) {
             
             String groupsName = parameters.get(Parameter.ToGroups);
             
-            return new GroupReviewRequestQuery(status, groupsName);
+            return new GroupReviewRequestQuery(status, maxResultsParameter, groupsName);
         } else if ( parameters.containsKey(Parameter.Repository) ) {
             
             int repositoryId = Integer.parseInt(parameters.get(Parameter.Repository));
             int changeNum = Integer.parseInt(parameters.get(Parameter.ChangeNum));
             
-            return new RepositoryReviewRequestQuery(status, repositoryId, changeNum);
+            return new RepositoryReviewRequestQuery(status, maxResultsParameter, repositoryId, changeNum);
         }
         
-        return new AllReviewRequestQuery(status);
+        return new AllReviewRequestQuery(status, maxResultsParameter);
     }
     
     private static Map<Parameter, String> parseQueryString(String queryString) {
