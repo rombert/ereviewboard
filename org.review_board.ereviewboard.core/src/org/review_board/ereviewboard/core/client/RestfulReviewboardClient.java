@@ -111,7 +111,20 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
-        return reviewboardReader.readUsers(httpClient.executeGet("/api/users/", monitor));
+        
+        int start = 0;
+        int maxResults = 50;
+        
+        return readUsersPaged(monitor, start, maxResults);
+    }
+
+    private List<User> readUsersPaged(IProgressMonitor monitor, int start, int maxResults)
+            throws ReviewboardException {
+        
+        StringBuilder query = new StringBuilder();
+        query.append("/api/users?start=").append(start).append("&max-results="+maxResults);
+        
+        return reviewboardReader.readUsers(httpClient.executeGet(query.toString(), monitor)).getResults();
     }
 
     public List<ReviewGroup> getReviewGroups(IProgressMonitor monitor) throws ReviewboardException {

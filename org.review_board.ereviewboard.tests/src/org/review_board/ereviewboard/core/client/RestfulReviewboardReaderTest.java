@@ -81,7 +81,11 @@ public class RestfulReviewboardReaderTest {
     public void readUsers() throws Exception {
 
         // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/user-list/
-        List<User> users = reader.readUsers(readJsonTestResource("users.json"));
+        PagedResult<User> pagedResult = reader.readUsers(readJsonTestResource("users.json"));
+        
+        assertThat("total_result", pagedResult.getTotalResults(), is(4));
+        
+        List<User> users = pagedResult.getResults();
 
         assertThat("users.size", users.size(), is(4));
 

@@ -99,10 +99,13 @@ public class RestfulReviewboardReader {
         
     }
     
-    public List<User> readUsers(String source) throws ReviewboardException {
+    public PagedResult<User> readUsers(String source) throws ReviewboardException {
         
         try {
             JSONObject rootObject = checkedGetJSonRootObject(source);
+            
+            int totalResults = rootObject.getInt("total_results");
+            
             JSONArray jsonUsers = rootObject.getJSONArray("users");
             List<User> users = new ArrayList<User>();
             
@@ -121,7 +124,7 @@ public class RestfulReviewboardReader {
                 users.add(user);
             }
             
-            return users;
+            return PagedResult.create(users, totalResults);
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
