@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core;
 
-import org.eclipse.mylyn.internal.tasks.core.IRepositoryConstants;
 import org.eclipse.mylyn.tasks.core.AbstractRepositoryMigrator;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 
