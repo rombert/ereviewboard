@@ -199,8 +199,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
             ReviewboardUiUtil.selectComboItemByValue(statusCombo, status.getDisplayname());
             maxResultsText.setText(String.valueOf(((StatusReviewRequestQuery) reviewRequestQuery).getMaxResults()));
             
-            System.out.println("Max results is " + String.valueOf(((StatusReviewRequestQuery) reviewRequestQuery).getMaxResults()));
-            
             if (reviewRequestQuery instanceof GroupReviewRequestQuery) {
                 GroupReviewRequestQuery specificQuery = (GroupReviewRequestQuery) reviewRequestQuery;
                 ReviewboardUiUtil.selectComboItemByValue(groupCombo, specificQuery.getGroupname());
