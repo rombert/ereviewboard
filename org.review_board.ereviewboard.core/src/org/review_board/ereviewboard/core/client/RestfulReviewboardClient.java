@@ -39,11 +39,13 @@ package org.review_board.ereviewboard.core.client;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.Policy;
@@ -106,29 +108,67 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
     
 
-    public List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
-        return reviewboardReader.readRepositories(httpClient.executeGet("/api/repositories/", monitor));
+    private List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
+        
+        monitor.beginTask("Retrieving repositories", IProgressMonitor.UNKNOWN);
+
+        try {
+            return reviewboardReader.readRepositories(httpClient.executeGet("/api/repositories/",
+                    monitor));
+        } finally {
+            monitor.done();
+        }
     }
 
-    public List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
+    private List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
         
-        int start = 0;
-        int maxResults = 50;
+        List<User> allResults = null;
         
-        return readUsersPaged(monitor, start, maxResults);
+        int increment = 50;
+        int currentPage = 0;
+
+        while ( true ) {
+            // we perform the monitor work ourselves, so pass a NPM downstream
+            PagedResult<User> pagedUsers = readUsersPaged(new NullProgressMonitor(), currentPage * increment, increment);
+            if ( allResults == null ) {
+                allResults = new ArrayList<User>(pagedUsers.getTotalResults());
+                monitor.beginTask("Retrieving users", pagedUsers.getTotalResults());
+            }
+            
+            Policy.advance(monitor, pagedUsers.getResults().size());
+            
+            allResults.addAll(pagedUsers.getResults());
+            currentPage++;
+            
+            if ( allResults.size() == pagedUsers.getTotalResults())
+                break;
+        }
+        
+        monitor.done();
+        
+        return allResults;
     }
 
-    private List<User> readUsersPaged(IProgressMonitor monitor, int start, int maxResults)
+    private PagedResult<User> readUsersPaged(IProgressMonitor monitor, int start, int maxResults)
             throws ReviewboardException {
         
         StringBuilder query = new StringBuilder();
+        
         query.append("/api/users?start=").append(start).append("&max-results="+maxResults);
         
-        return reviewboardReader.readUsers(httpClient.executeGet(query.toString(), monitor)).getResults();
+        return reviewboardReader.readUsers(httpClient.executeGet(query.toString(), monitor));
     }
 
-    public List<ReviewGroup> getReviewGroups(IProgressMonitor monitor) throws ReviewboardException {
-        return reviewboardReader.readGroups(httpClient.executeGet("/api/groups/", monitor));
+    private List<ReviewGroup> getReviewGroups(IProgressMonitor monitor) throws ReviewboardException {
+        
+        monitor.beginTask("Retrieving review groups", 1);
+        
+        try {
+            return reviewboardReader.readGroups(httpClient.executeGet(
+                    "/api/groups/", monitor));
+        } finally {
+            monitor.done();
+        }
     }
 
     public List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor)
@@ -158,22 +198,23 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public void updateRepositoryData(boolean force, IProgressMonitor monitor) throws ReviewboardException {
-        if (hasRepositoryData() && !force) {
-            return;
-        }
         
-        monitor.beginTask("Refreshing repository data", 3);
+        if (hasRepositoryData() && !force)
+            return;
+        
+        monitor.beginTask("Refreshing repository data", 100);
 
         try {
-            clientData.setGroups(getReviewGroups(monitor));
-            Policy.advance(monitor, 1);
-
-            clientData.setUsers(getUsers(monitor));
-            Policy.advance(monitor, 1);
-
-            clientData.setRepositories(getRepositories(monitor));
-            Policy.advance(monitor, 1);
             
+            // users usually outnumber groups and repositories
+            // try to get good progress reporting by approximating the ratios
+            // repositories with small data sets will not need very accurate progress reporting anyway
+            clientData.setUsers(getUsers(Policy.subMonitorFor(monitor, 90)));
+            
+            clientData.setGroups(getReviewGroups(Policy.subMonitorFor(monitor, 5)));
+
+            clientData.setRepositories(getRepositories(Policy.subMonitorFor(monitor, 5)));
+
             clientData.lastupdate = new Date().getTime();
         } finally  {
             monitor.done();
