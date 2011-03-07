@@ -37,6 +37,8 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
+import java.util.Arrays;
+
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.User;
 
@@ -58,7 +60,7 @@ public class ReviewboardClientDataTest extends TestCase {
 
     public void testGetUser() {
         User joe = new User("Joe");
-        reviewboardClientData.getUsers().add(joe);
+        reviewboardClientData.setUsers(Arrays.asList(joe));
         assertEquals(joe, reviewboardClientData.getUser("Joe"));
     }
 

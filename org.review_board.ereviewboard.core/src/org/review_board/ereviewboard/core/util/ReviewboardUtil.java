@@ -41,6 +41,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -98,7 +99,7 @@ public final class ReviewboardUtil {
         return result.toString();
     }
 
-    public static List<String> toStringList(List<?> list) {
+    public static List<String> toStringList(Collection<?> list) {
         List<String> result = new ArrayList<String>();
         for (Object string : list) {
             result.add(string.toString());

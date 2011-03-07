@@ -7,9 +7,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
+import org.review_board.ereviewboard.core.client.ReviewboardClientData;
+import org.review_board.ereviewboard.core.model.User;
 
 /**
  * @author Robert Munteanu
@@ -71,6 +74,7 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
     }
 
     private Map<String, ReviewboardAttributeMapper.Attribute> taskAttributeToMantisAttributes = new HashMap<String, ReviewboardAttributeMapper.Attribute>();
+    private final ReviewboardClientData reviewboardClientData;
     {
         taskAttributeToMantisAttributes.put(TaskAttribute.PRODUCT, Attribute.REPOSITORY);
         taskAttributeToMantisAttributes.put(TaskAttribute.DESCRIPTION, Attribute.DESCRIPTION);
@@ -108,8 +112,9 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         }
     }
 
-    public ReviewboardAttributeMapper(TaskRepository taskRepository) {
+    public ReviewboardAttributeMapper(TaskRepository taskRepository, ReviewboardClientData reviewboardClientData) {
         super(taskRepository);
+        this.reviewboardClientData = reviewboardClientData;
     }
 
     @Override
@@ -126,5 +131,19 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
     public Date getDateValue(TaskAttribute attribute) {
 
         return parseDateValue(attribute.getValue());
+    }
+
+
+    @Override
+    public IRepositoryPerson getRepositoryPerson(TaskAttribute taskAttribute) {
+        
+        IRepositoryPerson person = super.getRepositoryPerson(taskAttribute);
+        
+        if ( taskAttribute.getId().equals(Attribute.SUBMITTER.toString()) ) {
+            User user = reviewboardClientData.getUser(taskAttribute.getValue());
+            person.setName(user.getFullName());
+        }
+        
+        return person;
     }
 }

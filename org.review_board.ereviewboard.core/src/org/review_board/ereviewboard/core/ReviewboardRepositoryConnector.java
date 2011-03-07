@@ -205,8 +205,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         for (Diff diff : diffs ) {
 
             Comment2 comment = new Comment2();
-            comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
-                    taskData.getRoot().getAttribute(Attribute.SUBMITTER.toString()).getValue()));
+            comment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), taskData.getRoot().getAttribute(Attribute.SUBMITTER.toString()).getValue()));
             comment.setText(Diff.DIFF_REVISION_PREFIX + diff.getRevision());
 
             sortedComments.put(diff.getTimestamp(), comment);
@@ -261,8 +260,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 }
 
                 Comment2 comment = new Comment2();
-                comment.setAuthor(taskData.getAttributeMapper().getTaskRepository().createPerson(
-                        review.getUser()));
+                comment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), review.getUser()));
                 comment.setText(text.toString());
 
                 sortedComments.put(review.getTimestamp(), comment);
@@ -281,6 +279,13 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         
         for ( Map.Entry<Date, Comment2>  entry : sortedComments.entrySet() )
             entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
+    }
+
+    private IRepositoryPerson newPerson(TaskRepository repository, String username) {
+        
+        IRepositoryPerson person = repository.createPerson(username);
+        person.setName(getClientManager().getClient(repository).getClientData().getUser(username).getFullName());
+        return person;
     }
     
     /**
@@ -303,7 +308,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
             mapper.setFileName(diff.getName());
             mapper.setDescription(diff.getName());
-            mapper.setAuthor(taskRepository.createPerson(taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
+            mapper.setAuthor(newPerson(taskRepository, taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
             mapper.setCreationDate(diff.getTimestamp());
             mapper.setAttachmentId(Integer.toString(diff.getId()));
             mapper.setPatch(Boolean.TRUE);
@@ -440,7 +445,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         Date dateModified = reviewRequest.getLastUpdated();
         ReviewRequestStatus status = reviewRequest.getStatus();
 
-        TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository),
+        TaskData taskData = new TaskData(new ReviewboardAttributeMapper(taskRepository, clientManager.getClient(taskRepository).getClientData()),
                 ReviewboardCorePlugin.REPOSITORY_KIND, taskRepository.getUrl(), id);
         taskData.setPartial(partial);
 
@@ -556,7 +561,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         return new AbstractTaskDataHandler() {
             @Override
             public TaskAttributeMapper getAttributeMapper(TaskRepository taskRepository) {
-                return new ReviewboardAttributeMapper(taskRepository);
+                return new ReviewboardAttributeMapper(taskRepository, clientManager.getClient(taskRepository).getClientData());
             }
 
             @Override

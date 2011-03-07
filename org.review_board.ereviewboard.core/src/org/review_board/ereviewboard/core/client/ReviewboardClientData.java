@@ -39,7 +39,11 @@ package org.review_board.ereviewboard.core.client;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
@@ -51,19 +55,30 @@ import org.review_board.ereviewboard.core.model.User;
  * @author Markus Knittig
  */
 public class ReviewboardClientData implements Serializable {
-
-    private List<User> users = new ArrayList<User>();
+    
+    private Map<String, User> usersByUsername = new HashMap<String, User>();
+    
     private List<ReviewGroup> groups = new ArrayList<ReviewGroup>();
     private List<Repository> repositories = new ArrayList<Repository>();
 
     long lastupdate = 0;
 
-    public List<User> getUsers() {
-        return users;
+    public Collection<User> getUsers() {
+        
+        return Collections.unmodifiableCollection(usersByUsername.values());
+    }
+    
+    public User getUser(String username) {
+     
+        return usersByUsername.get(username);
     }
 
     public void setUsers(List<User> users) {
-        this.users = users;
+        
+        usersByUsername.clear();
+        
+        for ( User user : users )
+            usersByUsername.put(user.getUsername(), user);
     }
 
     public List<ReviewGroup> getGroups() {
@@ -80,10 +95,6 @@ public class ReviewboardClientData implements Serializable {
 
     public void setRepositories(List<Repository> repositories) {
         this.repositories = repositories;
-    }
-
-    public User getUser(String username) {
-        return getItem(users, new User(username));
     }
 
     public ReviewGroup getGroup(String groupname) {
