@@ -214,7 +214,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             if ( timestamp == null )
                 throw new IllegalArgumentException("Timestamp may not be null");
             
-            String query = "?max-results=10000&last-updated-from=" + URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8");
+            String query = "?status=all&max-results=10000&last-updated-from=" + URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8");
             return getReviewRequestIds( query, monitor);
             
         } catch (UnsupportedEncodingException e) {
