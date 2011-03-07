@@ -15,6 +15,9 @@
             name="Reviewboard"
             overlayIcon="icons/eview16/reviewboard-overlay-icon.png">
       </connectorUi>
+      <repositoryMigrator
+            class="org.review_board.ereviewboard.core.ReviewboardRepositoryMigrator">
+      </repositoryMigrator>
    </extension>
    <extension
          point="org.eclipse.mylyn.tasks.ui.editors">

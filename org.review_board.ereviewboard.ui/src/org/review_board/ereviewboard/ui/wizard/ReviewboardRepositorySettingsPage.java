@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
+import org.review_board.ereviewboard.core.ReviewboardRepositoryMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 
 /**
@@ -90,7 +91,7 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
         super.createControl(parent);
         checkedUrl = getRepositoryUrl();
     }
-
+    
     @Override
     public boolean isPageComplete() {
         return super.isPageComplete() && checkedUrl != null
@@ -159,4 +160,12 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
         return false;
     }
 
+    @Override
+    public void applyTo(TaskRepository repository) {
+        
+        super.applyTo(repository);
+        
+        new ReviewboardRepositoryMapper(repository).setCategoryIfNotSet();
+        
+    }
 }
