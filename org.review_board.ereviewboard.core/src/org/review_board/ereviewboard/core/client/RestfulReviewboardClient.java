@@ -70,6 +70,8 @@ import org.review_board.ereviewboard.core.model.User;
  */
 public class RestfulReviewboardClient implements ReviewboardClient {
     
+    private static final int PAGED_RESULT_INCREMENT = 50;
+
     private final RestfulReviewboardReader reviewboardReader;
 
     private ReviewboardClientData clientData;
@@ -110,26 +112,51 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     private List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
         
-        monitor.beginTask("Retrieving repositories", IProgressMonitor.UNKNOWN);
+        List<Repository> allResults = null;
+        
+        int currentPage = 0;
 
-        try {
-            return reviewboardReader.readRepositories(httpClient.executeGet("/api/repositories/",
-                    monitor)).getResults();
-        } finally {
-            monitor.done();
+        while ( true ) {
+            // we perform the monitor work ourselves, so pass a NPM downstream
+            PagedResult<Repository> pagedRepositories = getRepositoriesPaged(new NullProgressMonitor(), currentPage * PAGED_RESULT_INCREMENT, PAGED_RESULT_INCREMENT);
+            if ( allResults == null ) {
+                allResults = new ArrayList<Repository>(pagedRepositories.getTotalResults());
+                monitor.beginTask("Retrieving repositories", pagedRepositories.getTotalResults());
+            }
+            
+            Policy.advance(monitor, pagedRepositories.getResults().size());
+            
+            allResults.addAll(pagedRepositories.getResults());
+            currentPage++;
+            
+            if ( allResults.size() == pagedRepositories.getTotalResults())
+                break;
         }
+        
+        monitor.done();
+        
+        return allResults;
+    }
+    
+    private PagedResult<Repository> getRepositoriesPaged(IProgressMonitor monitor, int start, int maxResults) throws ReviewboardException {
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("/api/repositories?start=").append(start).append("&max-results=" + maxResults);
+
+        return reviewboardReader.readRepositories(httpClient.executeGet(query.toString(),
+                    monitor));
     }
 
     private List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
         
         List<User> allResults = null;
         
-        int increment = 50;
         int currentPage = 0;
 
         while ( true ) {
             // we perform the monitor work ourselves, so pass a NPM downstream
-            PagedResult<User> pagedUsers = readUsersPaged(new NullProgressMonitor(), currentPage * increment, increment);
+            PagedResult<User> pagedUsers = readUsersPaged(new NullProgressMonitor(), currentPage * PAGED_RESULT_INCREMENT, PAGED_RESULT_INCREMENT);
             if ( allResults == null ) {
                 allResults = new ArrayList<User>(pagedUsers.getTotalResults());
                 monitor.beginTask("Retrieving users", pagedUsers.getTotalResults());
@@ -148,6 +175,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         return allResults;
     }
+    
+
 
     private PagedResult<User> readUsersPaged(IProgressMonitor monitor, int start, int maxResults)
             throws ReviewboardException {
