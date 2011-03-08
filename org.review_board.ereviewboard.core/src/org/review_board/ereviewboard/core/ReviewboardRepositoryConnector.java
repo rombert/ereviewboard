@@ -345,7 +345,6 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             throw new ReviewboardException("Unable to retrive host from the location", e);
         }
     }
-
     
     @Override
     public String getTaskIdFromTaskUrl(String taskFullUrl) {
@@ -481,7 +480,6 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         return taskData;
     }
 
-    
     @Override
     public void postSynchronization(ISynchronizationSession event, IProgressMonitor monitor) throws CoreException {
 
