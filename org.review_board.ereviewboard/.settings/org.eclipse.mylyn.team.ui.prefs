@@ -1,0 +1,3 @@
+#Tue Mar 08 13:29:00 EET 2011
+commit.comment.template=\n\nFixes \#${task.id}\: ${task.description}
+eclipse.preferences.version=1
