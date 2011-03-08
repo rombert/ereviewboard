@@ -114,7 +114,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
         try {
             return reviewboardReader.readRepositories(httpClient.executeGet("/api/repositories/",
-                    monitor));
+                    monitor)).getResults();
         } finally {
             monitor.done();
         }

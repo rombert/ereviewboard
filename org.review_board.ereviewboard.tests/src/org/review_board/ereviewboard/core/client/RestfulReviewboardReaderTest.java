@@ -139,7 +139,11 @@ public class RestfulReviewboardReaderTest {
     public void readRepositories() throws Exception {
 
         // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/repository-list/
-        List<Repository> repositories = reader.readRepositories(readJsonTestResource("repositories.json"));
+        PagedResult<Repository> pagedRepositories = reader.readRepositories(readJsonTestResource("repositories.json"));
+        
+        assertThat("totalResults", pagedRepositories.getTotalResults(), is(2));
+        
+        List<Repository> repositories = pagedRepositories.getResults();
 
         assertThat("repositories.size", repositories.size(), is(2));
 
