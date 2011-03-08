@@ -554,7 +554,11 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
     
     private final class UpdateButtonsListener implements Listener {
         public void handleEvent(Event event) {
-            getContainer().updateButtons();
+            
+            // event might be triggered before the wizard is shown
+            // see task #42
+            if ( getContainer().getCurrentPage() != null ) 
+                getContainer().updateButtons();
         }
     }
 }
