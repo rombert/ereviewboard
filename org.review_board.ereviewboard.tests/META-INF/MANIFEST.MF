@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.review_board.ereviewboard.core,
  org.junit;bundle-version="3.8.2",
  org.apache.commons.lang;bundle-version="2.3.0"
+Import-Package: org.eclipse.core.runtime;version="3.4.0"

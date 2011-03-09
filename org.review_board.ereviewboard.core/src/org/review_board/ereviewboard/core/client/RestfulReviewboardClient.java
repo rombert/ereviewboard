@@ -39,13 +39,11 @@ package org.review_board.ereviewboard.core.client;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.Policy;
@@ -112,82 +110,42 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     private List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
         
-        List<Repository> allResults = null;
-        
-        int currentPage = 0;
+        PagedLoader<Repository> loader = new PagedLoader<Repository>(PAGED_RESULT_INCREMENT, monitor, "Retrieving repositories") {
+            
+            @Override
+            protected PagedResult<Repository> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+                
+                StringBuilder query = new StringBuilder();
 
-        while ( true ) {
-            // we perform the monitor work ourselves, so pass a NPM downstream
-            PagedResult<Repository> pagedRepositories = getRepositoriesPaged(new NullProgressMonitor(), currentPage * PAGED_RESULT_INCREMENT, PAGED_RESULT_INCREMENT);
-            if ( allResults == null ) {
-                allResults = new ArrayList<Repository>(pagedRepositories.getTotalResults());
-                monitor.beginTask("Retrieving repositories", pagedRepositories.getTotalResults());
+                query.append("/api/repositories?start=").append(start).append("&max-results=" + maxResults);
+
+                return reviewboardReader.readRepositories(httpClient.executeGet(query.toString(),
+                            monitor));
             }
-            
-            Policy.advance(monitor, pagedRepositories.getResults().size());
-            
-            allResults.addAll(pagedRepositories.getResults());
-            currentPage++;
-            
-            if ( allResults.size() == pagedRepositories.getTotalResults())
-                break;
-        }
+        };
         
-        monitor.done();
-        
-        return allResults;
-    }
-    
-    private PagedResult<Repository> getRepositoriesPaged(IProgressMonitor monitor, int start, int maxResults) throws ReviewboardException {
-
-        StringBuilder query = new StringBuilder();
-
-        query.append("/api/repositories?start=").append(start).append("&max-results=" + maxResults);
-
-        return reviewboardReader.readRepositories(httpClient.executeGet(query.toString(),
-                    monitor));
+        return loader.doLoad();
     }
 
     private List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
-        
-        List<User> allResults = null;
-        
-        int currentPage = 0;
+    
+        PagedLoader<User> loader = new PagedLoader<User>(PAGED_RESULT_INCREMENT, monitor, "Retrieving users") {
 
-        while ( true ) {
-            // we perform the monitor work ourselves, so pass a NPM downstream
-            PagedResult<User> pagedUsers = readUsersPaged(new NullProgressMonitor(), currentPage * PAGED_RESULT_INCREMENT, PAGED_RESULT_INCREMENT);
-            if ( allResults == null ) {
-                allResults = new ArrayList<User>(pagedUsers.getTotalResults());
-                monitor.beginTask("Retrieving users", pagedUsers.getTotalResults());
+            @Override
+            protected PagedResult<User> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+                
+                StringBuilder query = new StringBuilder();
+                
+                query.append("/api/users?start=").append(start).append("&max-results="+maxResults);
+                
+                return reviewboardReader.readUsers(httpClient.executeGet(query.toString(), monitor));
             }
             
-            Policy.advance(monitor, pagedUsers.getResults().size());
-            
-            allResults.addAll(pagedUsers.getResults());
-            currentPage++;
-            
-            if ( allResults.size() == pagedUsers.getTotalResults())
-                break;
-        }
+        };
         
-        monitor.done();
-        
-        return allResults;
+        return loader.doLoad();
     }
     
-
-
-    private PagedResult<User> readUsersPaged(IProgressMonitor monitor, int start, int maxResults)
-            throws ReviewboardException {
-        
-        StringBuilder query = new StringBuilder();
-        
-        query.append("/api/users?start=").append(start).append("&max-results="+maxResults);
-        
-        return reviewboardReader.readUsers(httpClient.executeGet(query.toString(), monitor));
-    }
-
     private List<ReviewGroup> getReviewGroups(IProgressMonitor monitor) throws ReviewboardException {
         
         monitor.beginTask("Retrieving review groups", 1);
