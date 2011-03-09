@@ -50,6 +50,7 @@ import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
+import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
@@ -303,6 +304,38 @@ public class RestfulReviewboardReader {
             }
             
             return reviews;
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+    
+    public PagedResult<ReviewReply> readReviewReplies(String source) throws ReviewboardException {
+        
+        
+        try {
+            JSONObject rootObject = checkedGetJSonRootObject(source);
+            
+            int totalResults = rootObject.getInt("total_results");
+            
+            JSONArray jsonReplies = rootObject.getJSONArray("replies");
+            List<ReviewReply> replies = new ArrayList<ReviewReply>();
+            
+            for ( int i = 0; i < jsonReplies.length(); i++ ) {
+                
+                JSONObject jsonReply = jsonReplies.getJSONObject(i);
+                
+                ReviewReply reply = new ReviewReply();
+                reply.setId(jsonReply.getInt("id"));
+                reply.setBodyTop(jsonReply.getString("body_top"));
+                reply.setBodyBottom(jsonReply.getString("body_bottom"));
+                reply.setPublicReply(jsonReply.getBoolean("public"));
+                reply.setTimestamp(ReviewboardUtil.marshallDate(jsonReply.getString("timestamp")));
+                reply.setUser(jsonReply.getJSONObject("links").getJSONObject("user").getString("title"));
+                
+                replies.add(reply);
+            }
+            
+            return PagedResult.create(replies, totalResults);
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }

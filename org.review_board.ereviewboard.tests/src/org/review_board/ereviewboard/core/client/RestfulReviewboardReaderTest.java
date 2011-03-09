@@ -59,6 +59,7 @@ import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
+import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.User;
@@ -102,7 +103,12 @@ public class RestfulReviewboardReaderTest {
 
     private String readJsonTestResource(String resourceName) throws IOException {
 
-        InputStream in = getClass().getResourceAsStream("/jsondata/" + resourceName);
+        String fullResourceName = "/jsondata/" + resourceName;
+        
+        InputStream in = getClass().getResourceAsStream(fullResourceName);
+        
+        if ( in == null )
+            throw new IOException("No resource : " + fullResourceName);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
         try {
@@ -227,6 +233,26 @@ public class RestfulReviewboardReaderTest {
         assertThat("reviews[0].timestamp", firstReview.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-28 02:25:31")));
     }
 
+    @Test
+    public void readReviewReplies() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/review-reply-list/
+        PagedResult<ReviewReply> result = reader.readReviewReplies(readJsonTestResource("review_replies.json"));
+        
+        assertThat("totalResults", result.getTotalResults(), is(1));
+        
+        List<ReviewReply> replies = result.getResults();
+        assertThat("replies.size", replies.size(), is(1));
+        
+        ReviewReply reply = replies.get(0);
+        assertThat("replies[0].id", reply.getId(), is(10));
+        assertThat("replies[0].bodyTop", reply.getBodyTop(), is("Excellent point."));
+        assertThat("replies[0].bodyBottom", reply.getBodyBottom(), is(""));
+        assertThat("replies[0].publicReply", reply.isPublicReply(), is(true));
+        assertThat("replies[0].timestamp", reply.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-28 02:26:47")));
+        assertThat("replies[0].user", reply.getUser(), is("admin"));
+    }
+    
     @Test
     public void readDiffComments() throws ReviewboardException, IOException {
         
