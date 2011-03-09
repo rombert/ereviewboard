@@ -56,6 +56,7 @@ import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
+import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.ServerInfo;
@@ -100,6 +101,28 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
         return reviewboardReader.readReviews(httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews", monitor));
+    }
+    
+    public List<ReviewReply> getReviewReplies(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException {
+ 
+        PagedLoader<ReviewReply> loader = new PagedLoader<ReviewReply>(PAGED_RESULT_INCREMENT, monitor, "Retrieving review replies") {
+            
+            @Override
+            protected PagedResult<ReviewReply> doLoadInternal(int start, int maxResults,
+                    IProgressMonitor monitor) throws ReviewboardException {
+                
+                System.out.println("Loading replies "  + start + ", " + maxResults + ".");
+
+                StringBuilder query = new StringBuilder();
+
+                query.append("/api/review-requests/").append(reviewRequestId).append("/reviews/");
+                query.append(reviewId).append("/replies/?start=").append(start).append("&max-results=" + maxResults);
+                
+                return reviewboardReader.readReviewReplies(httpClient.executeGet(query.toString(), monitor));
+            }
+        };
+        
+        return loader.doLoad();
     }
 
     public List<DiffComment> readDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {

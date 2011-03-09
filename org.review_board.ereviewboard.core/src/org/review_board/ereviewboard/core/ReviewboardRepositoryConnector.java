@@ -49,6 +49,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -68,7 +69,6 @@ import org.eclipse.mylyn.tasks.core.data.AbstractTaskDataHandler;
 import org.eclipse.mylyn.tasks.core.data.TaskAttachmentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
-import org.eclipse.mylyn.tasks.core.data.TaskCommentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskDataCollector;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
@@ -79,6 +79,7 @@ import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.Review;
+import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
@@ -200,13 +201,13 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     private void loadReviewsAndDiffsAsComment(ReviewboardClient client, TaskData taskData, List<Diff> diffs, IProgressMonitor monitor)
             throws  ReviewboardException {
 
-        SortedMap<Date, Comment2> sortedComments = new TreeMap<Date, Comment2>();
+        SortedMap<Date, ReviewboardCommentMapper> sortedComments = new TreeMap<Date, ReviewboardCommentMapper>();
 
         for (Diff diff : diffs ) {
 
-            Comment2 comment = new Comment2();
+            ReviewboardCommentMapper comment = new ReviewboardCommentMapper();
             comment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), taskData.getRoot().getAttribute(Attribute.SUBMITTER.toString()).getValue()));
-            comment.setText(Diff.DIFF_REVISION_PREFIX + diff.getRevision());
+            comment.setHeading(Diff.DIFF_REVISION_PREFIX + diff.getRevision());
 
             sortedComments.put(diff.getTimestamp(), comment);
         }
@@ -219,51 +220,45 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         int shipItCount = 0;
         
         IProgressMonitor reviewDiffMonitor = Policy.subMonitorFor(monitor, REVIEW_DIFF_TICKS);
-        reviewDiffMonitor.beginTask("", reviews.size());
+        reviewDiffMonitor.beginTask("", reviews.size() * 2);
         
         try {
             for (Review review : reviews) {
 
                 int reviewId = review.getId();
                 int totalResults = client.readDiffComments(reviewRequestId, reviewId, monitor).size();
+                
+                Policy.advance(reviewDiffMonitor, 1);
+
+                boolean shipit = review.getShipIt();
+                
+                if (shipit)
+                    shipItCount++;
+
+                ReviewboardCommentMapper comment = new ReviewboardCommentMapper();
+                comment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), review.getUser()));
+                comment.setHeading(review.getShipIt() ? "Ship it!" : null);
+                comment.setTop(review.getBodyTop());
+                comment.setBody(totalResults != 0 ? totalResults + " inline comments" : null);
+                comment.setBottom(review.getBodyBottom());
+
+                sortedComments.put(review.getTimestamp(), comment);
+                
+                List<ReviewReply> replies = client.getReviewReplies(reviewRequestId, reviewId, reviewDiffMonitor);
 
                 Policy.advance(reviewDiffMonitor, 1);
 
-                StringBuilder text = new StringBuilder();
-                boolean shipit = review.getShipIt();
-                boolean appendWhiteSpace = false;
-                if (shipit) {
-                    text.append("Ship it!");
-                    shipItCount++;
-                    appendWhiteSpace = true;
+                for ( ReviewReply reviewReply : replies ) {
+                    
+                    ReviewboardCommentMapper replyComment = new ReviewboardCommentMapper();
+                    replyComment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), reviewReply.getUser()));
+                    replyComment.setHeading("In reply to review #" + reviewId + ": ");
+                    replyComment.setTop(reviewReply.getBodyTop());
+                    replyComment.setBody("<unknown> inline comments, <unknown> screenshot comments."); // TODO: get count of comments
+                    replyComment.setBottom(reviewReply.getBodyBottom());
+                    
+                    sortedComments.put(reviewReply.getTimestamp(), replyComment);
                 }
-                if (review.getBodyTop().length() != 0) {
-                    if (appendWhiteSpace)
-                        text.append("\n\n");
-
-                    text.append(review.getBodyTop());
-                    appendWhiteSpace = true;
-                }
-                if (totalResults != 0) {
-                    if (appendWhiteSpace)
-                        text.append("\n\n");
-
-                    text.append(totalResults).append(" inline comments.");
-
-                    appendWhiteSpace = true;
-                }
-                if (review.getBodyBottom().length() != 0) {
-                    if (appendWhiteSpace)
-                        text.append("\n\n");
-
-                    text.append(review.getBodyBottom());
-                }
-
-                Comment2 comment = new Comment2();
-                comment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), review.getUser()));
-                comment.setText(text.toString());
-
-                sortedComments.put(review.getTimestamp(), comment);
 
             }
         } finally {
@@ -277,7 +272,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
         int commentIndex = 1;
         
-        for ( Map.Entry<Date, Comment2>  entry : sortedComments.entrySet() )
+        for ( Map.Entry<Date, ReviewboardCommentMapper>  entry : sortedComments.entrySet() )
             entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
     }
 
@@ -584,34 +579,6 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     public ITaskMapping getTaskMapping(TaskData taskData) {
         
         return new ReviewboardTaskMapper(taskData);
-    }
-
-    private static class Comment2 {
-
-        private IRepositoryPerson author;
-        private String text;
-
-        public void setAuthor(IRepositoryPerson author) {
-            this.author = author;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public void applyTo(TaskData taskData, int index, Date creationDate) {
-
-            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_COMMENT + index);
-
-            TaskCommentMapper mapper = new TaskCommentMapper();
-            mapper.setCommentId(String.valueOf(index));
-            mapper.setCreationDate(creationDate);
-            mapper.setAuthor(author);
-            mapper.setText(text);
-            mapper.setNumber(index);
-
-            mapper.applyTo(attribute);
-        }
     }
 
 
