@@ -144,6 +144,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return reviewboardReader.readDiffComments(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments", monitor));
     }
     
+    public int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {
+        
+        return reviewboardReader.readCount(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments?counts-only=1", monitor));
+    }
+    
 
     private List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
         

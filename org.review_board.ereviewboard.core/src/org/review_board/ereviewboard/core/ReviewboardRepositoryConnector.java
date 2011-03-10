@@ -225,7 +225,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             for (Review review : reviews) {
 
                 int reviewId = review.getId();
-                int totalResults = client.readDiffComments(reviewRequestId, reviewId, monitor).size();
+                int totalResults = client.countDiffComments(reviewRequestId, reviewId, monitor);
                 
                 Policy.advance(reviewDiffMonitor, 1);
 
