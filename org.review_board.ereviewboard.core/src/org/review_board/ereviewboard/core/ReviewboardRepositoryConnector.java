@@ -93,6 +93,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     private static final String CLIENT_LABEL = "Reviewboard (supports 1.5 and later)";
 
     private static final int REVIEW_DIFF_TICKS = 8;
+    private static final int SCREENSHOT_COMMENT_TICKS = 2;
     
     private final static Pattern REVIEW_REQUEST_ID_FROM_TASK_URL = Pattern
             .compile(ReviewboardConstants.REVIEW_REQUEST_URL + "(\\d+)");
@@ -155,7 +156,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
             ReviewboardClient client = getClientManager().getClient(taskRepository);
             
-            monitor.beginTask("Getting task data", 4 + REVIEW_DIFF_TICKS); // 4 known + 8 chunks for loading diff comment count
+            monitor.beginTask("Getting task data", 4 + REVIEW_DIFF_TICKS + SCREENSHOT_COMMENT_TICKS);
 
             try {
                 
@@ -171,9 +172,13 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 
                 Policy.advance(monitor, 1);
                 
-                loadReviewsAndDiffsAsComment(client, taskData, diffs, monitor);
+                List<Screenshot> screenshots = client.loadScreenshots(Integer.parseInt(taskData.getTaskId()), monitor);
                 
-                loadDiffsAndScreenshotsAsAttachments(client, taskData, taskRepository, diffs, monitor);
+                Policy.advance(monitor, 1);
+                
+                createTaskDataComments(client, taskData, diffs, screenshots, monitor);
+                
+                createTaskDataAttachments(client, taskData, taskRepository, diffs, screenshots, monitor);
 
                 return taskData;
             } finally {
@@ -194,10 +199,11 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     }
     
     /**
-     * Advances monitor by one + {@value #REVIEW_DIFF_TICKS}
+     * Advances monitor by one + {@value #REVIEW_DIFF_TICKS} + {@value #SCREENSHOT_COMMENT_TICKS}
+     * @param screenshots 
      * 
      */
-    private void loadReviewsAndDiffsAsComment(ReviewboardClient client, TaskData taskData, List<Diff> diffs, IProgressMonitor monitor)
+    private void createTaskDataComments(ReviewboardClient client, TaskData taskData, List<Diff> diffs, List<Screenshot> screenshots, IProgressMonitor monitor)
             throws  ReviewboardException {
 
         SortedMap<Date, ReviewboardCommentMapper> sortedComments = new TreeMap<Date, ReviewboardCommentMapper>();
@@ -284,6 +290,21 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             reviewDiffMonitor.done();
         }
         
+        IProgressMonitor screenshotCommentMonitor = Policy.subMonitorFor(monitor, SCREENSHOT_COMMENT_TICKS);
+        screenshotCommentMonitor.beginTask("Retrieving screeshot comments", screenshots.size());
+        
+        try {
+            
+            for ( Screenshot screenshot : screenshots ) {
+
+                // TODO: retrieve comments
+                Policy.advance(screenshotCommentMonitor, 1);
+            }
+            
+        } finally {
+            screenshotCommentMonitor.done();
+        }
+        
         TaskAttribute shipItAttribute = taskData.getRoot().createAttribute(Attribute.SHIP_IT.toString());
         shipItAttribute.setValue(String.valueOf(shipItCount));
         shipItAttribute.getMetaData().setLabel(Attribute.SHIP_IT.getDisplayName()).setType(Attribute.SHIP_IT.getAttributeType());
@@ -306,11 +327,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
      * Advances monitor by one
      * @param client 
      */
-    private void loadDiffsAndScreenshotsAsAttachments(ReviewboardClient client, TaskData taskData, TaskRepository taskRepository, List<Diff> diffs, IProgressMonitor monitor) throws ReviewboardException {
-        
-        List<Screenshot> screenshots = client.loadScreenshots(Integer.parseInt(taskData.getTaskId()), monitor);
-        
-        Policy.advance(monitor, 1);
+    private void createTaskDataAttachments(ReviewboardClient client, TaskData taskData, TaskRepository taskRepository, List<Diff> diffs, List<Screenshot> screenshots, IProgressMonitor monitor) throws ReviewboardException {
         
         if ( diffs.isEmpty() && screenshots.isEmpty() )
             return;

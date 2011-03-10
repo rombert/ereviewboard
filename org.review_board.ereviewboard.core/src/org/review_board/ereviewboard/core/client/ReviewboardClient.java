@@ -93,7 +93,4 @@ public interface ReviewboardClient {
     int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException;
 
     List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
-
-    
-
 }
