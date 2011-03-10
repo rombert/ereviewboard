@@ -111,8 +111,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             protected PagedResult<ReviewReply> doLoadInternal(int start, int maxResults,
                     IProgressMonitor monitor) throws ReviewboardException {
                 
-                System.out.println("Loading replies "  + start + ", " + maxResults + ".");
-
                 StringBuilder query = new StringBuilder();
 
                 query.append("/api/review-requests/").append(reviewRequestId).append("/reviews/");
