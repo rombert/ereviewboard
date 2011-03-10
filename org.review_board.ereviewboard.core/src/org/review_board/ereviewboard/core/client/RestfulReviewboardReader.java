@@ -159,10 +159,11 @@ public class RestfulReviewboardReader {
         }
     }
 
-    public List<ReviewRequest> readReviewRequests(String source) throws ReviewboardException {
+    public PagedResult<ReviewRequest> readReviewRequests(String source) throws ReviewboardException {
         try {
 
             JSONObject object = checkedGetJSonRootObject(source);
+            int totalResult= object.getInt("total_results");
             
             JSONArray jsonReviewRequests = object.getJSONArray("review_requests");
             List<ReviewRequest> reviewRequests = new ArrayList<ReviewRequest>();
@@ -170,7 +171,7 @@ public class RestfulReviewboardReader {
             for ( int i = 0 ; i < jsonReviewRequests.length() ; i++ )
                 reviewRequests.add(readReviewRequest(jsonReviewRequests.getJSONObject(i)));
             
-            return reviewRequests;
+            return PagedResult.create(reviewRequests, totalResult);
         } catch (Exception e) {
             throw new ReviewboardException(e.getMessage(), e);
         }

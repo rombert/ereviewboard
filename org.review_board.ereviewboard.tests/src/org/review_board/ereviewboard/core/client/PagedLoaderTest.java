@@ -13,7 +13,7 @@ package org.review_board.ereviewboard.core.client;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,19 +27,35 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
  *
  */
 public class PagedLoaderTest {
+    
+    private static class StubPagedLoader extends PagedLoader<String> {
+
+        public int callCount;
+        private final int stubbedMaxResults;
+        
+        public StubPagedLoader(int increment, IProgressMonitor monitor, String progressMessage, int stubbedMaxResults) {
+            super(increment, monitor, progressMessage);
+            this.stubbedMaxResults = stubbedMaxResults;
+        }
+
+        @Override
+        protected PagedResult<String> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+            
+            List<String> result = new ArrayList<String>();
+            for ( int i = 0 ; i < maxResults; i++ )
+                result.add(callCount+"-"+ i);
+            
+            callCount++;
+            
+            return PagedResult.create(result, stubbedMaxResults);
+        }
+        
+    }
 
     @Test(expected = IllegalStateException.class)
     public void reuseIsRejected() throws ReviewboardException {
         
-        PagedLoader<String> loader = new PagedLoader<String>(1, new NullProgressMonitor(), "Dummy") {
-
-            @Override
-            protected PagedResult<String> doLoadInternal(int start, int maxResults,
-                    IProgressMonitor monitor) throws ReviewboardException {
-                return PagedResult.create(Arrays.asList("asd"), 1);
-            }
-        };
-        
+        PagedLoader<String> loader = new StubPagedLoader(1, new NullProgressMonitor(), "Dummy", 10);        
         loader.doLoad();
         loader.doLoad();
     }
@@ -47,54 +63,78 @@ public class PagedLoaderTest {
     @Test
     public void loadFromSingleGo() throws ReviewboardException {
         
-        final int[] callCount = new int[] { 0 };
-        
-        PagedLoader<String> loader = new PagedLoader<String>(1, new NullProgressMonitor(), "Dummy") {
-
-            @Override
-            protected PagedResult<String> doLoadInternal(int start, int maxResults,
-                    IProgressMonitor monitor) throws ReviewboardException {
-                
-                callCount[0]++;
-                
-                return PagedResult.create(Arrays.asList("asd"), 1);
-            }
-        };
+        StubPagedLoader loader = new StubPagedLoader(10, new NullProgressMonitor(), "Dummy", 10);
         
         List<String> results = loader.doLoad();
         
-        assertThat(callCount[0], is(1));
-        assertThat(results.size(), is(1));
-        assertThat(results.get(0), is("asd"));
+        assertThat(loader.callCount, is(1));
+        assertThat(results.size(), is(10));
+        assertThat(results.get(0), is("0-0"));
+    }
+    
+    @Test
+    public void loadFromSingleGoWithResultsUnderIncrement() throws ReviewboardException {
+        
+        StubPagedLoader loader = new StubPagedLoader(10, new NullProgressMonitor(), "Dummy", 8);
+        
+        List<String> results = loader.doLoad();
+        
+        assertThat(loader.callCount, is(1));
+        assertThat(results.size(), is(8));
+        assertThat(results.get(0), is("0-0"));
     }
     
     @Test
     public void loadFromTwoPasses() throws ReviewboardException {
         
-        final int[] callCount = new int[] { 0 };
-        
-        PagedLoader<String> loader = new PagedLoader<String>(1, new NullProgressMonitor(), "Dummy") {
-
-            @Override
-            protected PagedResult<String> doLoadInternal(int start, int maxResults,
-                    IProgressMonitor monitor) throws ReviewboardException {
-             
-                String element = callCount[0] == 0 ? "asd" : "def";
-
-                assertThat("incorrect start", start, is(callCount[0]));
-                assertThat("incorrect maxResults", maxResults, is(1));
-                
-                callCount[0]++;
-                
-                return PagedResult.create(Arrays.asList(element), 2);
-            }
-        };
+        StubPagedLoader loader = new StubPagedLoader(5, new NullProgressMonitor(), "Dummy", 10);
         
         List<String> results = loader.doLoad();
         
-        assertThat(callCount[0], is(2));
-        assertThat(results.size(), is(2));
-        assertThat(results.get(0), is("asd"));
-        assertThat(results.get(1), is("def"));
+        assertThat(loader.callCount, is(2));
+        assertThat(results.size(), is(10));
+        assertThat(results.get(0), is("0-0"));
+        assertThat(results.get(5), is("1-0"));
+    }
+    
+    @Test
+    public void loadWithLimit() throws ReviewboardException {
+        
+        StubPagedLoader loader = new StubPagedLoader(1, new NullProgressMonitor(), "Dummy", 2);
+        
+        loader.setLimit(1);
+        
+        List<String> results = loader.doLoad();
+        
+        assertThat(loader.callCount, is(1));
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0), is("0-0"));
+    }
+    
+    @Test
+    public void loadWithLimitTwoPasses() throws ReviewboardException {
+        
+        StubPagedLoader loader = new StubPagedLoader(5, new NullProgressMonitor(), "Dummy", 10);
+        
+        loader.setLimit(7);
+        
+        List<String> results = loader.doLoad();
+        
+        assertThat(loader.callCount, is(2));
+        assertThat(results.size(), is(7));
+    }
+    
+    
+    @Test
+    public void loadWithLimitUnderIncrement() throws ReviewboardException {
+        
+        StubPagedLoader loader = new StubPagedLoader(50, new NullProgressMonitor(), "Dummy", 100);
+        
+        loader.setLimit(40);
+        
+        List<String> results = loader.doLoad();
+        
+        assertThat(loader.callCount, is(1));
+        assertThat(results.size(), is(40));
     }
 }

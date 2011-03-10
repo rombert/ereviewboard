@@ -63,7 +63,7 @@ public interface ReviewboardClient {
 
     void refreshRepositorySettings(TaskRepository repository);
 
-    List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor) throws ReviewboardException;
+    List<ReviewRequest> getReviewRequests(String query, int maxResults, IProgressMonitor monitor) throws ReviewboardException;
 
     void updateRepositoryData(boolean force, IProgressMonitor monitor) throws ReviewboardException;
 

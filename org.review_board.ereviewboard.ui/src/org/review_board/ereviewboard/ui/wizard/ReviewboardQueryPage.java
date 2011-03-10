@@ -234,6 +234,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         
         query.setSummary(getQueryTitle());
         query.setUrl(reviewRequestQuery.getQuery());
+        query.setAttribute("maxResults", String.valueOf(((StatusReviewRequestQuery) reviewRequestQuery).getMaxResults())); 
         query.setAttribute("changeNum", changeNum);
     }
 

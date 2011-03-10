@@ -32,6 +32,7 @@ public abstract class PagedLoader<T> {
     private final IProgressMonitor monitor;
     private final String progressMessage;
     private List<T> results = null;
+    private int limit;
     
     public PagedLoader(int increment, IProgressMonitor monitor, String progressMessage) {
         this.increment = increment;
@@ -47,26 +48,59 @@ public abstract class PagedLoader<T> {
             throw new IllegalStateException("Cannot reuse a " + PagedLoader.class.getSimpleName());
         
         int currentPage = 0;
+        int actualLimit = 0;
+        int stillToLoad = 0;
         
         while ( true ) {
-            // we perform the monitor work ourselves, so pass a NPM downstream
-            PagedResult<T> pagedUsers = doLoadInternal(currentPage * increment, increment, new NullProgressMonitor());
+
+
+            int adjustedIncrement = increment;
+
+            // for the last call we typically don't need all the results
+            if ( stillToLoad > 0 && stillToLoad < increment )
+                adjustedIncrement = stillToLoad;
+
+            // we perform the monitor work ourselves, so pass a NPM downstream            
+            PagedResult<T> pagedUsers = doLoadInternal(currentPage * increment, adjustedIncrement, new NullProgressMonitor());
             if ( results == null ) {
                 results = new ArrayList<T>(pagedUsers.getTotalResults());
                 monitor.beginTask(progressMessage, pagedUsers.getTotalResults());
+                if ( limit == 0 )
+                    actualLimit = pagedUsers.getTotalResults();
+                else
+                    actualLimit = Math.min(limit, pagedUsers.getTotalResults());
             }
             
-            Policy.advance(monitor, pagedUsers.getResults().size());
             
+            
+            Policy.advance(monitor, pagedUsers.getResults().size());
             results.addAll(pagedUsers.getResults());
+            
             currentPage++;
             
-            if ( results.size() == pagedUsers.getTotalResults())
+            stillToLoad = actualLimit - results.size();
+            
+            if ( stillToLoad == 0 )
                 break;
+            
+            if ( stillToLoad < 0 ) {
+                results.subList(results.size() + stillToLoad, results.size()).clear();
+                break;
+            }
         }
         
         monitor.done();
         
         return results;
+    }
+
+    public void setLimit(int limit) {
+        
+        
+        if ( limit <= 0 )
+            throw new IllegalArgumentException("limit must be > 0");
+        
+        this.limit = limit;
+        
     }
 }

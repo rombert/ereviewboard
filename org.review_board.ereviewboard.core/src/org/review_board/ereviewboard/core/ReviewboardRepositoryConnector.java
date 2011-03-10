@@ -464,7 +464,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         try {
             client.updateRepositoryData(false, monitor);
                 
-            List<ReviewRequest> reviewRequests = client.getReviewRequests(query.getUrl(), monitor);
+            List<ReviewRequest> reviewRequests = client.getReviewRequests(query.getUrl(), Integer.parseInt(query.getAttribute("maxResults")), monitor);
             
             for (ReviewRequest reviewRequest : reviewRequests) {
                 TaskData taskData = getTaskDataForReviewRequest(repository, reviewRequest, true);

@@ -61,6 +61,7 @@ import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.ScreenshotComment;
 import org.review_board.ereviewboard.core.model.ServerInfo;
+import org.review_board.ereviewboard.core.model.StatusReviewRequestQuery;
 import org.review_board.ereviewboard.core.model.User;
 
 /**
@@ -69,6 +70,11 @@ import org.review_board.ereviewboard.core.model.User;
  * @author Markus Knittig
  */
 public class RestfulReviewboardClient implements ReviewboardClient {
+    
+    public static void main(String[] args) {
+        
+        System.out.println("/api/review-requests/?status=submitted&max-results=1000&to-users=robert.munteanu".replaceFirst("&max-results=[\\d]+", ""));
+    }
     
     private static final int PAGED_RESULT_INCREMENT = 50;
 
@@ -197,10 +203,30 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         }
     }
 
-    public List<ReviewRequest> getReviewRequests(String query, IProgressMonitor monitor)
-            throws ReviewboardException {
+    public List<ReviewRequest> getReviewRequests(final String query, int queryMaxResults, IProgressMonitor monitor) throws ReviewboardException {
+
         
-        return reviewboardReader.readReviewRequests( httpClient.executeGet("/api/review-requests/" + query, monitor));
+        PagedLoader<ReviewRequest> loader = new PagedLoader<ReviewRequest>(PAGED_RESULT_INCREMENT, monitor, "Loading review requests") {
+            
+            @Override
+            protected PagedResult<ReviewRequest> doLoadInternal(int start, int maxResults,
+                    IProgressMonitor monitor) throws ReviewboardException {
+                
+                System.out.println(start + " -> " + maxResults);
+                
+                StringBuilder stringBuilder = new StringBuilder();
+
+                stringBuilder.append("/api/review-requests/");
+                // TODO: move this to a better location
+                stringBuilder.append(query.replaceFirst("&max-results=[\\d]+", ""));
+                stringBuilder.append("&start=").append(start).append("&max-results=").append(maxResults);
+                
+                return reviewboardReader.readReviewRequests(httpClient.executeGet(stringBuilder.toString(), monitor));
+            }
+        };
+        loader.setLimit(queryMaxResults);
+        
+        return loader.doLoad();
     }
     
     public List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {

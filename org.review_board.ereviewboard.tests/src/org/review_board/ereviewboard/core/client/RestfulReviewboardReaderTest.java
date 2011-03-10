@@ -166,7 +166,11 @@ public class RestfulReviewboardReaderTest {
     public void readReviewRequests() throws Exception {
 
         // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/review-request-list/
-        List<ReviewRequest> reviewRequests = reader.readReviewRequests(readJsonTestResource("review_requests.json"));
+        PagedResult<ReviewRequest> pagedReviewRequests = reader.readReviewRequests(readJsonTestResource("review_requests.json"));
+        
+        assertThat("totalResults", pagedReviewRequests.getTotalResults(), is(5));
+        
+        List<ReviewRequest> reviewRequests = pagedReviewRequests.getResults();
 
         assertThat("reviewRequests.size", reviewRequests.size(), is(5));
         
