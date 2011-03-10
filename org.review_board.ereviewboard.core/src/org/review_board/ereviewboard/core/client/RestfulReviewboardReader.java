@@ -412,4 +412,16 @@ public class RestfulReviewboardReader {
         }
     }
 
+    
+    public int readCount(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject root = checkedGetJSonRootObject(source);
+            
+            return root.getInt("count");
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
 }

@@ -124,6 +124,20 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         return loader.doLoad();
     }
+    
+    public int countDiffCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException {
+        
+        String result = httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews/"+reviewId+"/replies/" + reviewReplyId+"/diff-comments?counts-only=1", reviewDiffMonitor);
+        
+        return reviewboardReader.readCount(result);
+    }
+    
+    public int countScreenshotCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException {
+        
+        String result = httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews/"+reviewId+"/replies/" + reviewReplyId+"/screenshot-comments?counts-only=1", reviewDiffMonitor);
+        
+        return reviewboardReader.readCount(result);
+    }
 
     public List<DiffComment> readDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {
         

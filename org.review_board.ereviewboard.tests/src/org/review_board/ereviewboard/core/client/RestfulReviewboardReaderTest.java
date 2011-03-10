@@ -283,4 +283,9 @@ public class RestfulReviewboardReaderTest {
         assertThat("diffs[0].timestamp", firstDiff.getTimestamp(), is (ReviewboardAttributeMapper.parseDateValue("2009-02-25 02:01:21")));
     }
 
+    @Test
+    public void readCount() throws ReviewboardException, IOException {
+
+        assertThat("count", reader.readCount(readJsonTestResource("count.json")), is(6));
+    }
 }

@@ -49,7 +49,6 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -93,7 +92,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     
     private static final String CLIENT_LABEL = "Reviewboard (supports 1.5 and later)";
 
-    private static final int REVIEW_DIFF_TICKS = 6;
+    private static final int REVIEW_DIFF_TICKS = 8;
     
     private final static Pattern REVIEW_REQUEST_ID_FROM_TASK_URL = Pattern
             .compile(ReviewboardConstants.REVIEW_REQUEST_URL + "(\\d+)");
@@ -156,7 +155,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
             ReviewboardClient client = getClientManager().getClient(taskRepository);
             
-            monitor.beginTask("", 4 + REVIEW_DIFF_TICKS); // 4 known + 6 chunks for loading diff comment count
+            monitor.beginTask("Getting task data", 4 + REVIEW_DIFF_TICKS); // 4 known + 8 chunks for loading diff comment count
 
             try {
                 
@@ -220,7 +219,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         int shipItCount = 0;
         
         IProgressMonitor reviewDiffMonitor = Policy.subMonitorFor(monitor, REVIEW_DIFF_TICKS);
-        reviewDiffMonitor.beginTask("", reviews.size() * 2);
+        reviewDiffMonitor.beginTask("Reading reviews", reviews.size() * 3); // 1 for counting comments, 1 for reading the replies, 1 for counting comments for replies
         
         try {
             for (Review review : reviews) {
@@ -247,17 +246,37 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 List<ReviewReply> replies = client.getReviewReplies(reviewRequestId, reviewId, reviewDiffMonitor);
 
                 Policy.advance(reviewDiffMonitor, 1);
+                
+                IProgressMonitor counterMonitor = Policy.subMonitorFor(reviewDiffMonitor, 1);
+                counterMonitor.beginTask("Reading review replies", replies.size() * 2);
 
-                for ( ReviewReply reviewReply : replies ) {
-                    
-                    ReviewboardCommentMapper replyComment = new ReviewboardCommentMapper();
-                    replyComment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), reviewReply.getUser()));
-                    replyComment.setHeading("In reply to review #" + reviewId + ": ");
-                    replyComment.setTop(reviewReply.getBodyTop());
-                    replyComment.setBody("<unknown> inline comments, <unknown> screenshot comments."); // TODO: get count of comments
-                    replyComment.setBottom(reviewReply.getBodyBottom());
-                    
-                    sortedComments.put(reviewReply.getTimestamp(), replyComment);
+                try {
+                    for ( ReviewReply reviewReply : replies ) {
+                        
+                        ReviewboardCommentMapper replyComment = new ReviewboardCommentMapper();
+                        replyComment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), reviewReply.getUser()));
+                        replyComment.setHeading("In reply to review #" + reviewId + ": ");
+                        replyComment.setTop(reviewReply.getBodyTop());
+                        
+                        int diffComments = client.countDiffCommentsForReply(reviewRequestId, reviewId, reviewReply.getId(), reviewDiffMonitor);
+                        Policy.advance(counterMonitor, 1);
+                        
+                        int screenshotComments = client.countScreenshotCommentsForReply(reviewRequestId, reviewId, reviewReply.getId(), reviewDiffMonitor);
+                        Policy.advance(counterMonitor, 1);
+                        
+                        StringBuilder body = new StringBuilder();
+                        if ( diffComments != 0 ) 
+                            body.append(diffComments + " inline comments. ");
+                        if ( screenshotComments != 0 )
+                            body.append(screenshotComments + " screenshot comments.");
+                        
+                        replyComment.setBody(body.toString());
+                        replyComment.setBottom(reviewReply.getBodyBottom());
+                        
+                        sortedComments.put(reviewReply.getTimestamp(), replyComment);
+                    }
+                } finally {
+                    counterMonitor.done();
                 }
 
             }
