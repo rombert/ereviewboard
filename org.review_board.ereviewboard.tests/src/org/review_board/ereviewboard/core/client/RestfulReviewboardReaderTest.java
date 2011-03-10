@@ -62,6 +62,7 @@ import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
+import org.review_board.ereviewboard.core.model.ScreenshotComment;
 import org.review_board.ereviewboard.core.model.User;
 
 /**
@@ -283,6 +284,21 @@ public class RestfulReviewboardReaderTest {
         assertThat("diffs[0].timestamp", firstDiff.getTimestamp(), is (ReviewboardAttributeMapper.parseDateValue("2009-02-25 02:01:21")));
     }
 
+    @Test
+    public void readScreenshotComments() throws ReviewboardException, IOException {
+        
+        List<ScreenshotComment> comments = reader.readScreenshotComments(readJsonTestResource("screenshot_comments.json"));
+
+        assertThat("screenshotComments.size", comments.size(), is(3));
+        
+        ScreenshotComment firstComment = comments.get(0);
+        
+        assertThat("screenshotComments[0].id", firstComment.getId(), is(1));
+        assertThat("screenshotComments[0].username", firstComment.getUsername(), is("admin"));
+        assertThat("screenshotComments[0].text", firstComment.getText(), is("This comment makes an astute observation."));
+        assertThat("screenshotComments[0].timestamp", firstComment.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-28 02:24:31")));
+    }
+    
     @Test
     public void readCount() throws ReviewboardException, IOException {
 

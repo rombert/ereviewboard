@@ -1,0 +1,124 @@
+{
+  "links": {
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/1\/screenshot-comments\/", 
+      "method": "GET"
+    }
+  }, 
+  "screenshot_comments": [
+    {
+      "h": 44, 
+      "id": 1, 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/screenshot-comments\/1\/", 
+          "method": "DELETE"
+        }, 
+        "screenshot": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/1\/", 
+          "method": "GET", 
+          "title": "Example Screenshot (uploaded\/images\/2010\/08\/13\/screenshot1.png)"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/screenshot-comments\/1\/", 
+          "method": "GET"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/screenshot-comments\/1\/", 
+          "method": "PUT"
+        }, 
+        "user": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET", 
+          "title": "admin"
+        }
+      }, 
+      "public": true, 
+      "text": "This comment makes an astute observation.", 
+      "timestamp": "2010-08-28 02:24:31", 
+      "w": 198, 
+      "x": 132, 
+      "y": 109
+    }, 
+    {
+      "h": 44, 
+      "id": 2, 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/replies\/10\/screenshot-comments\/2\/", 
+          "method": "DELETE"
+        }, 
+        "reply_to": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/screenshot-comments\/1\/", 
+          "method": "GET", 
+          "title": "This comment makes an astute observation."
+        }, 
+        "screenshot": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/1\/", 
+          "method": "GET", 
+          "title": "Example Screenshot (uploaded\/images\/2010\/08\/13\/screenshot1.png)"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/replies\/10\/screenshot-comments\/2\/", 
+          "method": "GET"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/replies\/10\/screenshot-comments\/2\/", 
+          "method": "PUT"
+        }, 
+        "user": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET", 
+          "title": "admin"
+        }
+      }, 
+      "public": true, 
+      "text": "A very witty comeback to an astute observation.", 
+      "timestamp": "2010-08-28 02:26:16", 
+      "w": 198, 
+      "x": 132, 
+      "y": 109
+    }, 
+    {
+      "h": 44, 
+      "id": 3, 
+      "links": {
+        "delete": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/replies\/11\/screenshot-comments\/3\/", 
+          "method": "DELETE"
+        }, 
+        "reply_to": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/screenshot-comments\/1\/", 
+          "method": "GET", 
+          "title": "This comment makes an astute observation."
+        }, 
+        "screenshot": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/1\/", 
+          "method": "GET", 
+          "title": "Example Screenshot (uploaded\/images\/2010\/08\/13\/screenshot1.png)"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/replies\/11\/screenshot-comments\/3\/", 
+          "method": "GET"
+        }, 
+        "update": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/reviews\/8\/replies\/11\/screenshot-comments\/3\/", 
+          "method": "PUT"
+        }, 
+        "user": {
+          "href": "http:\/\/reviews.example.com\/api\/users\/admin\/", 
+          "method": "GET", 
+          "title": "admin"
+        }
+      }, 
+      "public": false, 
+      "text": "This font should be in Comic Sans.", 
+      "timestamp": "2010-08-28 23:54:39", 
+      "w": 198, 
+      "x": 132, 
+      "y": 109
+    }
+  ], 
+  "stat": "ok", 
+  "total_results": 3
+}

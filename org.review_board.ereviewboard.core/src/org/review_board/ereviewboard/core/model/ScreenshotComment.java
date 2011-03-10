@@ -14,6 +14,6 @@ package org.review_board.ereviewboard.core.model;
 /**
  * @author Robert Munteanu
  */
-public class DiffComment extends Comment  {
+public class ScreenshotComment extends Comment {
 
 }

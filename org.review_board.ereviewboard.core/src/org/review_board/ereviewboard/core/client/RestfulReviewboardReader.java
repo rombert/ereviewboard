@@ -45,6 +45,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Repository;
@@ -54,6 +55,7 @@ import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
+import org.review_board.ereviewboard.core.model.ScreenshotComment;
 import org.review_board.ereviewboard.core.model.ServerInfo;
 import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
@@ -398,11 +400,11 @@ public class RestfulReviewboardReader {
             List<DiffComment> diffComments = new ArrayList<DiffComment>();
             for ( int i = 0; i < jsonDiffComments.length(); i++ ) {
                 JSONObject jsonDiffComment = jsonDiffComments.getJSONObject(i);
-                int id = jsonDiffComment.getInt("id");
-                String username = jsonDiffComment.getJSONObject("links").getJSONObject("user").getString("title");
-                String text = jsonDiffComment.getString("text");
-                Date timestamp = ReviewboardUtil.marshallDate(jsonDiffComment.getString("timestamp"));
-                diffComments.add(new DiffComment(id, username, text, timestamp));
+                DiffComment comment = new DiffComment();
+                
+                mapComment(jsonDiffComment, comment);
+                
+                diffComments.add(comment);
             }
             
             return diffComments;
@@ -412,6 +414,36 @@ public class RestfulReviewboardReader {
         }
     }
 
+    private void mapComment(JSONObject jsonComment, Comment comment) throws JSONException {
+       
+        comment.setId(jsonComment.getInt("id"));
+        comment.setUsername(jsonComment.getJSONObject("links").getJSONObject("user").getString("title"));
+        comment.setText(jsonComment.getString("text"));
+        comment.setTimestamp(ReviewboardUtil.marshallDate(jsonComment.getString("timestamp")));
+    }
+
+    public List<ScreenshotComment> readScreenshotComments(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject object = checkedGetJSonRootObject(source);
+            JSONArray jsonDiffComments = object.getJSONArray("screenshot_comments");
+            
+            List<ScreenshotComment> diffComments = new ArrayList<ScreenshotComment>();
+            for ( int i = 0; i < jsonDiffComments.length(); i++ ) {
+                JSONObject jsonDiffComment = jsonDiffComments.getJSONObject(i);
+                ScreenshotComment comment = new ScreenshotComment();
+                
+                mapComment(jsonDiffComment, comment);
+                
+                diffComments.add(comment);
+            }
+            
+            return diffComments;
+            
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
     
     public int readCount(String source) throws ReviewboardException {
         
