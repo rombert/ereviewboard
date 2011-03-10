@@ -97,7 +97,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         // Nothing to do yet
     }
 
-
     public List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
         return reviewboardReader.readReviews(httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews", monitor));
@@ -146,7 +145,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         return reviewboardReader.readCount(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments?counts-only=1", monitor));
     }
-    
 
     private List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
         
@@ -247,7 +245,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             monitor.done();
         }
     }
-
 
     public byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException {
         
