@@ -50,6 +50,7 @@ import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.Screenshot;
+import org.review_board.ereviewboard.core.model.ScreenshotComment;
 
 /**
  * Interface for Review Board operations.
@@ -93,4 +94,6 @@ public interface ReviewboardClient {
     int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException;
 
     List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
+
+    List<ScreenshotComment> getScreenshotComments(int reviewRequestId, int id, IProgressMonitor screenshotCommentMonitor) throws ReviewboardException;
 }

@@ -82,6 +82,7 @@ import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
+import org.review_board.ereviewboard.core.model.ScreenshotComment;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -296,9 +297,21 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         try {
             
             for ( Screenshot screenshot : screenshots ) {
-
-                // TODO: retrieve comments
+                
+                List<ScreenshotComment> screenshotComments = client.getScreenshotComments(reviewRequestId, screenshot.getId(), screenshotCommentMonitor);
+                
                 Policy.advance(screenshotCommentMonitor, 1);
+                
+                for ( ScreenshotComment screenshotComment : screenshotComments ) {
+                    
+                    ReviewboardCommentMapper screenshotCommentMapper = new ReviewboardCommentMapper();
+                    screenshotCommentMapper.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), screenshotComment.getUsername()));
+                    screenshotCommentMapper.setHeading("Comment on screenshot '" + screenshot.getCaption() + "': ");
+                    screenshotCommentMapper.setBody(screenshotComment.getText());
+                    
+                    sortedComments.put(screenshotComment.getTimestamp(), screenshotCommentMapper);
+                }
+                
             }
             
         } finally {

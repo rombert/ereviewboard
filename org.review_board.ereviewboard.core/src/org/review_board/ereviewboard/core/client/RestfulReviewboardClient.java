@@ -59,6 +59,7 @@ import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.Screenshot;
+import org.review_board.ereviewboard.core.model.ScreenshotComment;
 import org.review_board.ereviewboard.core.model.ServerInfo;
 import org.review_board.ereviewboard.core.model.User;
 
@@ -210,6 +211,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
         return reviewboardReader.readScreenshots(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/screenshots", monitor));
+    }
+    
+    public List<ScreenshotComment> getScreenshotComments(int reviewRequestId, int screenshotId, IProgressMonitor screenshotCommentMonitor) throws ReviewboardException {
+        
+        return reviewboardReader.readScreenshotComments(httpClient.executeGet("/api/review-requests/"+reviewRequestId+"/screenshots/" + screenshotId+"/screenshot-comments", screenshotCommentMonitor));
     }
     
     private List<Integer> getReviewRequestIds(String query, IProgressMonitor monitor)
