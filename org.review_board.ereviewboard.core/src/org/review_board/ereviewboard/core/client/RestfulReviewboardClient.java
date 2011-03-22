@@ -70,11 +70,6 @@ import org.review_board.ereviewboard.core.model.User;
  */
 public class RestfulReviewboardClient implements ReviewboardClient {
     
-    public static void main(String[] args) {
-        
-        System.out.println("/api/review-requests/?status=submitted&max-results=1000&to-users=robert.munteanu".replaceFirst("&max-results=[\\d]+", ""));
-    }
-    
     private static final int PAGED_RESULT_INCREMENT = 50;
 
     private final RestfulReviewboardReader reviewboardReader;
@@ -210,8 +205,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             @Override
             protected PagedResult<ReviewRequest> doLoadInternal(int start, int maxResults,
                     IProgressMonitor monitor) throws ReviewboardException {
-                
-                System.out.println(start + " -> " + maxResults);
                 
                 StringBuilder stringBuilder = new StringBuilder();
 
