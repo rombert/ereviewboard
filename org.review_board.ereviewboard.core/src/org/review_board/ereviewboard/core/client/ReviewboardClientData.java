@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
@@ -60,6 +61,8 @@ public class ReviewboardClientData implements Serializable {
     
     private List<ReviewGroup> groups = new ArrayList<ReviewGroup>();
     private List<Repository> repositories = new ArrayList<Repository>();
+    
+    private TimeZone timeZone;
 
     long lastupdate = 0;
 
@@ -99,6 +102,14 @@ public class ReviewboardClientData implements Serializable {
 
     public ReviewGroup getGroup(String groupname) {
         return getItem(groups, new ReviewGroup(groupname));
+    }
+    
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
+    }
+    
+    public TimeZone getTimeZone() {
+        return timeZone;
     }
 
     private <T> T getItem(List<T> list, T search) {

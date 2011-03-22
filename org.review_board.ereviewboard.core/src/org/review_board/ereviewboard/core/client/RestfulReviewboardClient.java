@@ -41,6 +41,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -196,6 +197,17 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             monitor.done();
         }
     }
+    
+    private TimeZone getTimeZone(IProgressMonitor monitor) throws ReviewboardException {
+        
+        monitor.beginTask("Retrieving server information", 1);
+        
+        try {
+            return reviewboardReader.readServerInfo(httpClient.executeGet("/api/info", monitor)).getTimeZone();
+        } finally {
+            monitor.done();
+        }
+    }
 
     public List<ReviewRequest> getReviewRequests(final String query, int queryMaxResults, IProgressMonitor monitor) throws ReviewboardException {
 
@@ -262,7 +274,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             
             clientData.setGroups(getReviewGroups(Policy.subMonitorFor(monitor, 5)));
 
-            clientData.setRepositories(getRepositories(Policy.subMonitorFor(monitor, 5)));
+            clientData.setRepositories(getRepositories(Policy.subMonitorFor(monitor, 4)));
+            
+            clientData.setTimeZone(getTimeZone(Policy.subMonitorFor(monitor, 1)));
 
             clientData.lastupdate = new Date().getTime();
         } finally  {
@@ -312,7 +326,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException {
         
         try {
-            
             if ( timestamp == null )
                 throw new IllegalArgumentException("Timestamp may not be null");
             
