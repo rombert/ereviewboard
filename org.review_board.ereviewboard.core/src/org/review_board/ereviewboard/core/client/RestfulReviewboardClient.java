@@ -61,7 +61,6 @@ import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.ScreenshotComment;
 import org.review_board.ereviewboard.core.model.ServerInfo;
-import org.review_board.ereviewboard.core.model.StatusReviewRequestQuery;
 import org.review_board.ereviewboard.core.model.User;
 
 /**
