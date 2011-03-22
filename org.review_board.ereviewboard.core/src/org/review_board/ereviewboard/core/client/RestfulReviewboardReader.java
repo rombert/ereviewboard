@@ -40,6 +40,7 @@ package org.review_board.ereviewboard.core.client;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,7 +79,11 @@ public class RestfulReviewboardReader {
             String packageVersion = jsonProduct.getString("package_version");
             boolean isRelease = jsonProduct.getBoolean("is_release");
             
-            return new ServerInfo(name, version, packageVersion, isRelease);
+            
+            JSONObject jsonSite = jsonServerInfo.getJSONObject("site");
+            TimeZone timeZone = jsonSite.has("time_zone") ? TimeZone.getTimeZone(jsonSite.getString("time_zone")) : null;
+            
+            return new ServerInfo(name, version, packageVersion, isRelease, timeZone);
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }

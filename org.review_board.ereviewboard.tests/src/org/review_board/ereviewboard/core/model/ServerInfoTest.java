@@ -20,7 +20,7 @@ public class ServerInfoTest extends TestCase{
     
     public void testIsVersionAtLeast() {
         
-        ServerInfo info = new ServerInfo("ReviewBoard", "1.5.3.1", "1.5.3.1", true);
+        ServerInfo info = new ServerInfo("ReviewBoard", "1.5.3.1", "1.5.3.1", true, null);
         
         assertTrue(info.isAtLeast(1, 5));
         assertFalse(info.isAtLeast(1, 6));
@@ -30,7 +30,7 @@ public class ServerInfoTest extends TestCase{
     
     public void test16Version() {
         
-        ServerInfo info = new ServerInfo("ReviewBoard", "1.6 alpha 0 (dev)", "1.6alpha0", false);
+        ServerInfo info = new ServerInfo("ReviewBoard", "1.6 alpha 0 (dev)", "1.6alpha0", false, null);
         assertTrue(info.isAtLeast(1, 5));
     }
 

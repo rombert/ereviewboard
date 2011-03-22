@@ -1,0 +1,20 @@
+{
+  "info": {
+    "product": {
+      "is_release": true, 
+      "name": "Review Board", 
+      "package_version": "1.5.4", 
+      "version": "1.5.4"
+    }, 
+    "site": {
+      "administrators": [
+        {
+          "email": "admin@example.com", 
+          "name": "Example Admin"
+        }
+      ], 
+      "url": "http:\/\/example.com\/"
+    }
+  }, 
+  "stat": "ok"
+}

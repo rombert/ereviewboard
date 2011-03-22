@@ -11,6 +11,7 @@
 package org.review_board.ereviewboard.core.model;
 
 import java.io.Serializable;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,13 +28,15 @@ public class ServerInfo implements Serializable {
     private final String productVersion;
     private final String productPackageVersion;
     private final boolean isRelease;
+    private final TimeZone timeZone;
     
     public ServerInfo(String productName, String productVersion, String productPackageVersion,
-            boolean isRelease) {
+            boolean isRelease, TimeZone timeZone) {
         this.productName = productName;
         this.productVersion = productVersion;
         this.productPackageVersion = productPackageVersion;
         this.isRelease = isRelease;
+        this.timeZone = timeZone;
     }
 
     public String getProductName() {
@@ -50,6 +53,13 @@ public class ServerInfo implements Serializable {
 
     public boolean isRelease() {
         return isRelease;
+    }
+    
+    /**
+     * @return the server's TimeZone or <code>null</code> if not supported by the current version
+     */
+    public TimeZone getTimeZone() {
+        return timeZone;
     }
     
     public boolean isAtLeast(int majorVersion, int minorVersion) {

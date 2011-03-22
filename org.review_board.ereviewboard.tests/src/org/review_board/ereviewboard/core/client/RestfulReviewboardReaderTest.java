@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +64,7 @@ import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.ScreenshotComment;
+import org.review_board.ereviewboard.core.model.ServerInfo;
 import org.review_board.ereviewboard.core.model.User;
 
 /**
@@ -80,26 +82,17 @@ public class RestfulReviewboardReaderTest {
     }
 
     @Test
-    public void readUsers() throws Exception {
-
-        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/user-list/
-        PagedResult<User> pagedResult = reader.readUsers(readJsonTestResource("users.json"));
+    public void readServerInfoWithoutTimeZone() throws ReviewboardException, IOException {
         
-        assertThat("total_result", pagedResult.getTotalResults(), is(4));
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/server-info/
+        // adjusted to remove time zone since older releases do not have it
+        ServerInfo serverInfo = reader.readServerInfo(readJsonTestResource("server_info_without_time_zone.json"));
         
-        List<User> users = pagedResult.getResults();
-
-        assertThat("users.size", users.size(), is(4));
-
-        User user = users.get(0);
-
-        assertThat("users[0].email", user.getEmail(), is("admin@example.com"));
-        assertThat("users[0].firstName", user.getFirstName(), is("Admin"));
-        assertThat("users[0].fullName", user.getFullName(), is("Admin User"));
-        assertThat("users[0].id", user.getId(), is(1));
-        assertThat("users[0].lastName", user.getLastName(), is("User"));
-        assertThat("users[0].userName", user.getUsername(), is("admin"));
-        assertThat("users[0].url", user.getUrl(), is("/users/admin/"));
+        assertThat("serverInfo.productName", serverInfo.getProductName(), is("Review Board"));
+        assertThat("serverInfo.productPackageVersion", serverInfo.getProductPackageVersion(), is("1.5.4"));
+        assertThat("serverInfo.productVersion", serverInfo.getProductVersion(), is("1.5.4"));
+        assertThat("serverInfo.release", serverInfo.isRelease(), is(true));
+        assertThat("serverInfo.timeZone", serverInfo.getTimeZone(), is(nullValue()));
     }
 
     private String readJsonTestResource(String resourceName) throws IOException {
@@ -125,7 +118,39 @@ public class RestfulReviewboardReaderTest {
             bufferedReader.close();
         }
     }
+    
+    @Test
+    public void readServerInfoWitTimeZone() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/server-info/
+        ServerInfo serverInfo = reader.readServerInfo(readJsonTestResource("server_info_with_time_zone.json"));
+        
+        assertThat("serverInfo.timeZone", serverInfo.getTimeZone(), is(TimeZone.getTimeZone("US/Pacific")));
+    }    
+    
+    @Test
+    public void readUsers() throws Exception {
 
+        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/user-list/
+        PagedResult<User> pagedResult = reader.readUsers(readJsonTestResource("users.json"));
+        
+        assertThat("total_result", pagedResult.getTotalResults(), is(4));
+        
+        List<User> users = pagedResult.getResults();
+
+        assertThat("users.size", users.size(), is(4));
+
+        User user = users.get(0);
+
+        assertThat("users[0].email", user.getEmail(), is("admin@example.com"));
+        assertThat("users[0].firstName", user.getFirstName(), is("Admin"));
+        assertThat("users[0].fullName", user.getFullName(), is("Admin User"));
+        assertThat("users[0].id", user.getId(), is(1));
+        assertThat("users[0].lastName", user.getLastName(), is("User"));
+        assertThat("users[0].userName", user.getUsername(), is("admin"));
+        assertThat("users[0].url", user.getUrl(), is("/users/admin/"));
+    }
+    
     @Test
     public void readGroups() throws Exception {
 
