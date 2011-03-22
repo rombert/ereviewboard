@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
@@ -73,8 +74,10 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
 
     }
 
-    private Map<String, ReviewboardAttributeMapper.Attribute> taskAttributeToMantisAttributes = new HashMap<String, ReviewboardAttributeMapper.Attribute>();
     private final ReviewboardClientData reviewboardClientData;
+    private TimeZone targetTimeZone;
+    
+    private Map<String, ReviewboardAttributeMapper.Attribute> taskAttributeToMantisAttributes = new HashMap<String, ReviewboardAttributeMapper.Attribute>();
     {
         taskAttributeToMantisAttributes.put(TaskAttribute.PRODUCT, Attribute.REPOSITORY);
         taskAttributeToMantisAttributes.put(TaskAttribute.DESCRIPTION, Attribute.DESCRIPTION);
@@ -113,8 +116,13 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
     }
 
     public ReviewboardAttributeMapper(TaskRepository taskRepository, ReviewboardClientData reviewboardClientData) {
+        this(taskRepository, reviewboardClientData, TimeZone.getDefault());
+    }
+    
+    ReviewboardAttributeMapper(TaskRepository taskRepository, ReviewboardClientData reviewboardClientData, TimeZone targetTimeZone) {
         super(taskRepository);
         this.reviewboardClientData = reviewboardClientData;
+        this.targetTimeZone = targetTimeZone;
     }
 
     @Override
@@ -130,7 +138,22 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
     @Override
     public Date getDateValue(TaskAttribute attribute) {
 
-        return parseDateValue(attribute.getValue());
+        return getDateValueFromString(attribute.getValue());
+    }
+
+    Date getDateValueFromString(String attributeValue) {
+        
+        Date parsedDateValue = parseDateValue(attributeValue);
+        
+        TimeZone siteTimeZone = reviewboardClientData.getTimeZone();
+        
+        if ( parsedDateValue == null || siteTimeZone == null || targetTimeZone.hasSameRules(siteTimeZone))
+            return parsedDateValue;
+
+        long localOffset = this.targetTimeZone.getOffset(parsedDateValue.getTime());
+        long siteOffset = siteTimeZone.getOffset(parsedDateValue.getTime());
+        
+        return new Date(parsedDateValue.getTime() + ( localOffset - siteOffset ));
     }
 
 
