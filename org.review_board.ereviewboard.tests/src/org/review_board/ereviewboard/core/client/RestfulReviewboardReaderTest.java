@@ -326,7 +326,10 @@ public class RestfulReviewboardReaderTest {
     @Test
     public void readScreenshotComments() throws ReviewboardException, IOException {
         
-        List<ScreenshotComment> comments = reader.readScreenshotComments(readJsonTestResource("screenshot_comments.json"));
+        PagedResult<ScreenshotComment> commentResult = reader.readScreenshotComments(readJsonTestResource("screenshot_comments.json"));
+        assertThat(commentResult.getTotalResults(), is(3));
+        
+        List<ScreenshotComment> comments = commentResult.getResults();
 
         assertThat("screenshotComments.size", comments.size(), is(3));
         

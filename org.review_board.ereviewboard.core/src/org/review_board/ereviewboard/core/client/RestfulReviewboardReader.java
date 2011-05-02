@@ -432,10 +432,12 @@ public class RestfulReviewboardReader {
         comment.setTimestamp(ReviewboardUtil.marshallDate(jsonComment.getString("timestamp")));
     }
 
-    public List<ScreenshotComment> readScreenshotComments(String source) throws ReviewboardException {
+    public PagedResult<ScreenshotComment> readScreenshotComments(String source) throws ReviewboardException {
         
         try {
             JSONObject object = checkedGetJSonRootObject(source);
+
+            int totalResults = object.getInt("total_results");
             JSONArray jsonDiffComments = object.getJSONArray("screenshot_comments");
             
             List<ScreenshotComment> diffComments = new ArrayList<ScreenshotComment>();
@@ -448,7 +450,7 @@ public class RestfulReviewboardReader {
                 diffComments.add(comment);
             }
             
-            return diffComments;
+            return PagedResult.create( diffComments, totalResults);
             
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);

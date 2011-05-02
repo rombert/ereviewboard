@@ -279,9 +279,23 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return reviewboardReader.readScreenshots(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/screenshots", monitor));
     }
     
-    public List<ScreenshotComment> getScreenshotComments(int reviewRequestId, int screenshotId, IProgressMonitor screenshotCommentMonitor) throws ReviewboardException {
+    public List<ScreenshotComment> getScreenshotComments(final int reviewRequestId, final int screenshotId, final IProgressMonitor screenshotCommentMonitor) throws ReviewboardException {
         
-        return reviewboardReader.readScreenshotComments(httpClient.executeGet("/api/review-requests/"+reviewRequestId+"/screenshots/" + screenshotId+"/screenshot-comments", screenshotCommentMonitor));
+        PagedLoader<ScreenshotComment> loader = new PagedLoader<ScreenshotComment>(PAGED_RESULT_INCREMENT, screenshotCommentMonitor, "Retrieving screenshot comments") {
+            
+            @Override
+            protected PagedResult<ScreenshotComment> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+                
+                StringBuilder query = new StringBuilder();
+                query.append("/api/review-requests/").append(reviewRequestId);
+                query.append("/screenshots/").append(screenshotId).append("/screenshot-comments");
+                query.append("/?start=").append(start).append("&max-results=" + maxResults);
+                
+                return reviewboardReader.readScreenshotComments(httpClient.executeGet(query.toString(), screenshotCommentMonitor));
+            }
+        };
+        
+        return loader.doLoad();
     }
     
     private List<Integer> getReviewRequestIds(String query, IProgressMonitor monitor)
