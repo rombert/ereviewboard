@@ -99,9 +99,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         // Nothing to do yet
     }
 
-    public List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+    public List<Review> getReviews(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
-        return reviewboardReader.readReviews(httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews", monitor));
+        PagedLoader<Review> loader = new PagedLoader<Review>(PAGED_RESULT_INCREMENT, monitor, "Retrieving reviews") {
+            @Override
+            protected PagedResult<Review> doLoadInternal(int start, int maxResults, IProgressMonitor monitor)
+                    throws ReviewboardException {
+                
+                StringBuilder query = new StringBuilder();
+                query.append("/api/review-requests/").append(reviewRequestId).append("/reviews/");
+                query.append("?start=").append(start).append("&max-results=").append(maxResults);
+               
+                return reviewboardReader.readReviews(httpClient.executeGet(query.toString(), monitor));
+            }
+        };
+        
+        return loader.doLoad();
     }
     
     public List<ReviewReply> getReviewReplies(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException {

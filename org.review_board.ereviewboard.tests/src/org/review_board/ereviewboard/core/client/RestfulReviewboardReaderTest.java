@@ -250,7 +250,10 @@ public class RestfulReviewboardReaderTest {
     public void readReviews() throws Exception {
 
         // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/review-list/
-        List<Review> reviews = reader.readReviews(readJsonTestResource("reviews.json"));
+        PagedResult<Review> reviewsResult = reader.readReviews(readJsonTestResource("reviews.json"));
+        assertThat(reviewsResult.getTotalResults(), is(1));
+        
+        List<Review> reviews = reviewsResult.getResults();
         assertThat("reviews.size", reviews.size(), is(1));
         
         Review firstReview = reviews.get(0);
