@@ -138,10 +138,11 @@ public class RestfulReviewboardReader {
         }
     }
 
-    public List<ReviewGroup> readGroups(String source) throws ReviewboardException {
+    public PagedResult<ReviewGroup> readGroups(String source) throws ReviewboardException {
         try {
             JSONObject rootObject = checkedGetJSonRootObject(source);
             JSONArray jsonGroups = rootObject.getJSONArray("groups");
+            int totalResults = rootObject.getInt("total_results");
             
             List<ReviewGroup> groups = new ArrayList<ReviewGroup>();
             for ( int i = 0; i < jsonGroups.length(); i++ ) {
@@ -158,7 +159,7 @@ public class RestfulReviewboardReader {
                 groups.add(group);
             }
             
-            return groups;
+            return PagedResult.create( groups, totalResults );
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }

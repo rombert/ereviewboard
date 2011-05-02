@@ -217,14 +217,21 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     
     private List<ReviewGroup> getReviewGroups(IProgressMonitor monitor) throws ReviewboardException {
         
-        monitor.beginTask("Retrieving review groups", 1);
+        PagedLoader<ReviewGroup> loader = new PagedLoader<ReviewGroup>(PAGED_RESULT_INCREMENT, monitor, "Retrieving review groups") {
+            
+            @Override
+            protected PagedResult<ReviewGroup> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+                
+                StringBuilder query = new StringBuilder();
+
+                query.append("/api/groups?start=").append(start).append("&max-results=" + maxResults);
+
+                return reviewboardReader.readGroups(httpClient.executeGet(query.toString(),
+                            monitor));
+            }
+        };
         
-        try {
-            return reviewboardReader.readGroups(httpClient.executeGet(
-                    "/api/groups/", monitor));
-        } finally {
-            monitor.done();
-        }
+        return loader.doLoad();
     }
     
     private TimeZone getTimeZone(IProgressMonitor monitor) throws ReviewboardException {

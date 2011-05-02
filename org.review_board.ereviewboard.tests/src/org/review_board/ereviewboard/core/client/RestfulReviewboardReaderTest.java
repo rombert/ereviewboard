@@ -155,7 +155,10 @@ public class RestfulReviewboardReaderTest {
     public void readGroups() throws Exception {
 
         // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/review-group-list/
-        List<ReviewGroup> groups = reader.readGroups(readJsonTestResource("groups.json"));
+        PagedResult<ReviewGroup> groupResult = reader.readGroups(readJsonTestResource("groups.json"));
+        assertThat(groupResult.getTotalResults(), is(4));
+        
+        List<ReviewGroup> groups = groupResult.getResults();
 
         assertThat("groups.size", groups.size(), is(4));
 
