@@ -289,7 +289,11 @@ public class RestfulReviewboardReaderTest {
     @Test
     public void readDiffComments() throws ReviewboardException, IOException {
         
-        List<DiffComment> diffs = reader.readDiffComments(readJsonTestResource("diff_comments.json"));
+        PagedResult<DiffComment> diffResult = reader.readDiffComments(readJsonTestResource("diff_comments.json"));
+        
+        assertThat(diffResult.getTotalResults(), is(2));
+        
+        List<DiffComment> diffs = diffResult.getResults();
 
         assertThat("diffComments.size", diffs.size(), is(2));
         

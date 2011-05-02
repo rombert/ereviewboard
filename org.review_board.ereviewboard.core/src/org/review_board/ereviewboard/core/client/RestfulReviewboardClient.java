@@ -151,9 +151,25 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return reviewboardReader.readCount(result);
     }
 
-    public List<DiffComment> readDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {
+    public List<DiffComment> readDiffComments(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException {
         
-        return reviewboardReader.readDiffComments(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments", monitor));
+        PagedLoader<DiffComment> loader = new PagedLoader<DiffComment>(PAGED_RESULT_INCREMENT, monitor, "Retrieving reviews") {
+            @Override
+            protected PagedResult<DiffComment> doLoadInternal(int start, int maxResults, IProgressMonitor monitor)
+                    throws ReviewboardException {
+                
+                StringBuilder query = new StringBuilder();
+                query.append("/api/review-requests/").append(reviewRequestId).append("/reviews/").append(reviewId);
+                query.append("/diff-comments/").append("?start=").append(start).append("&max=results=").append(maxResults);
+                query.append("?start=").append(start).append("&max-results=").append(maxResults);
+               
+                return reviewboardReader.readDiffComments(httpClient.executeGet(query.toString(), monitor));
+            }
+        };
+        
+        return loader.doLoad();
+        
+       
     }
     
     public int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {

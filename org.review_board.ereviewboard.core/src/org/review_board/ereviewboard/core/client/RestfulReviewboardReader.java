@@ -398,10 +398,12 @@ public class RestfulReviewboardReader {
         }
     }
 
-    public List<DiffComment> readDiffComments(String source) throws ReviewboardException {
+    public PagedResult<DiffComment> readDiffComments(String source) throws ReviewboardException {
         
         try {
             JSONObject object = checkedGetJSonRootObject(source);
+            
+            int totalResults = object.getInt("total_results");
             JSONArray jsonDiffComments = object.getJSONArray("diff_comments");
             
             List<DiffComment> diffComments = new ArrayList<DiffComment>();
@@ -414,7 +416,7 @@ public class RestfulReviewboardReader {
                 diffComments.add(comment);
             }
             
-            return diffComments;
+            return PagedResult.create(diffComments, totalResults);
             
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
