@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.review_board.ereviewboard"
-      label="Mylyn Connector: ReviewBoard"
+      label="Mylyn Reviews Connector: ReviewBoard"
       version="0.8.0.qualifier"
       provider-name="Markus Knittig"
       plugin="org.review_board.ereviewboard.core">
@@ -112,17 +112,18 @@ Inc. in the United States, other countries, or both.
       <import plugin="org.eclipse.mylyn.commons.net" version="3.4.0" match="compatible"/>
       <import plugin="org.eclipse.mylyn.commons.core" version="3.4.0" match="compatible"/>
       <import plugin="org.eclipse.mylyn.tasks.ui" version="3.4.0" match="compatible"/>
-      <import plugin="org.eclipse.jface"/>      
+      <import plugin="org.eclipse.jface"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.ui.forms"/>
    </requires>
-   
-   <plugin id="org.apache.commons.io"
+
+   <plugin
+         id="org.apache.commons.io"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.review_board.ereviewboard.core"
          download-size="0"
