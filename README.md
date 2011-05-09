@@ -21,3 +21,8 @@ Dowloads
 * The connector is available through [the Eclipse marketplace](http://marketplace.eclipse.org/content/ereviewboard)
 * Archived update sites are periodically posted in the [downloads section](ereviewboard/archives/master)
 * A p2 update site is available at [http://rombert.github.com/ereviewboard/update/](http://rombert.github.com/ereviewboard/update/).
+
+Builds
+----------
+
+This project is ![Built and tested on CloudBees](http://static-www.cloudbees.com/images/badges/CBbadge_builton_125.png) . The public CI instance is available at [ereviewboard.ci.cloudbees.com](https://ereviewboard.ci.cloudbees.com/) .
