@@ -40,7 +40,9 @@ package org.review_board.ereviewboard.core.client;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -59,6 +61,7 @@ import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.ScreenshotComment;
 import org.review_board.ereviewboard.core.model.ServerInfo;
@@ -391,5 +394,16 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
 
         return reviewboardReader.readReviewRequest(httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/", monitor));
+    }
+
+    public void updateStatus(int reviewRequestId, ReviewRequestStatus status, IProgressMonitor monitor) throws ReviewboardException {
+
+        if ( status == ReviewRequestStatus.ALL || status == ReviewRequestStatus.NONE  || status == null)
+            throw new ReviewboardException("Invalid status to update to : " + status );
+        
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("status", status.asSubmittableValue());
+        
+        httpClient.executePut("/api/review-requests/"+reviewRequestId+"/", parameters, monitor);
     }
 }

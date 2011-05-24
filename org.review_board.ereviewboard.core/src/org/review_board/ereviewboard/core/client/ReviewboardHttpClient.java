@@ -39,7 +39,10 @@ package org.review_board.ereviewboard.core.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.httpclient.Cookie;
@@ -48,13 +51,20 @@ import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthenticationException;
 import org.apache.commons.httpclient.auth.BasicScheme;
 import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
@@ -221,6 +231,28 @@ public class ReviewboardHttpClient {
             monitor.done();
         }
     }
+    
+    public String executePut(String url, Map<String, String> parameters, IProgressMonitor monitor) throws ReviewboardException {
+        PutMethod putMethod = new PutMethod(stripSlash(location.getUrl()) + url);
+        
+        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+
+        for ( Map.Entry<String, String> entry : parameters.entrySet() )
+            pairs.add(new NameValuePair(entry.getKey(), entry.getValue()));
+
+        putMethod.setQueryString(pairs.toArray(new NameValuePair[0]));
+        String queryString = putMethod.getQueryString();
+        putMethod.setQueryString("");
+        
+        try {
+            putMethod.setRequestEntity(new StringRequestEntity(queryString, null, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+        
+        return executeMethod(putMethod, monitor);
+    }
+
 
     private byte[] executeMethodForBytes(HttpMethodBase request, IProgressMonitor monitor) throws ReviewboardException {
         

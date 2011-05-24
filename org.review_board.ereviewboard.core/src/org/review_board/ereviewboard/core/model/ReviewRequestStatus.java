@@ -37,6 +37,8 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.util.Locale;
+
 /**
  * Enum for the Review Board status.
  *
@@ -80,6 +82,11 @@ public enum ReviewRequestStatus {
 
     public String getDisplayname() {
         return super.toString().substring(0, 1) + super.toString().substring(1).toLowerCase();
+    }
+    
+    public String asSubmittableValue() {
+        
+        return name().toLowerCase(Locale.ENGLISH);
     }
 
 }

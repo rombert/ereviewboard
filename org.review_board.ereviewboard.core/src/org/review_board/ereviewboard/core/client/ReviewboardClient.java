@@ -49,6 +49,7 @@ import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.ScreenshotComment;
 
@@ -96,4 +97,12 @@ public interface ReviewboardClient {
     List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
     List<ScreenshotComment> getScreenshotComments(int reviewRequestId, int id, IProgressMonitor screenshotCommentMonitor) throws ReviewboardException;
+
+    /**
+     * Updates the status of the specified review request
+     * 
+     * @param reviewRequestId the id of the review request
+     * @param status the status to update to, except {@linkplain ReviewRequestStatus#ALL ALL} and {@linkplain ReviewRequestStatus#NONE NONE}
+     */
+    void updateStatus(int reviewRequestId, ReviewRequestStatus status, IProgressMonitor monitor) throws ReviewboardException;
 }
