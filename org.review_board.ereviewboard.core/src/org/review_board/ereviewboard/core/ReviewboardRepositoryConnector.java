@@ -519,6 +519,8 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             mapper.setModificationDate(dateModified);
         }
         
+        mapper.addOperations();
+        
         mapper.complete();
         
         return taskData;

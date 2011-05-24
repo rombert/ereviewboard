@@ -42,8 +42,9 @@ import java.util.List;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
-
-import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
+import org.eclipse.mylyn.tasks.core.data.TaskOperation;
+import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
+import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 
 /**
  * Utility class for mapping between TaskData and Task
@@ -162,5 +163,32 @@ public class ReviewboardTaskMapper extends TaskMapper {
             .setKind(attributeEnum.getAttributeKind());
             
         return attribute;
+    }
+
+    
+    /**
+     * Must be called after the completion date is set, otherwise the operations might be incorrect
+     */
+    public void addOperations() {
+        
+        TaskAttribute operation = getTaskData().getRoot().createAttribute(TaskAttribute.OPERATION);
+        TaskOperation.applyTo(operation, "Operation", "Operation");
+        
+        TaskAttribute leave = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION+"leave");
+        TaskOperation.applyTo(leave, "Operation.LeaveUnchanged", "Leave unchanged");
+
+        if ( getCompletionDate() == null ) {
+            TaskAttribute operationStatusAttribute = createAttribute(Attribute.OPERATION_STATUS);
+            operationStatusAttribute.getMetaData().setReadOnly(false);
+            operationStatusAttribute.putOption(ReviewRequestStatus.SUBMITTED.name(), ReviewRequestStatus.SUBMITTED.getDisplayname());
+            operationStatusAttribute.putOption(ReviewRequestStatus.DISCARDED.name(), ReviewRequestStatus.DISCARDED.getDisplayname());
+            
+            TaskAttribute close = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION+"close");
+            TaskOperation.applyTo(close, "close", "Close as");
+            close.getMetaData().putValue(TaskAttribute.META_ASSOCIATED_ATTRIBUTE_ID, ReviewboardAttributeMapper.Attribute.OPERATION_STATUS.toString());
+        } else {
+            TaskAttribute close = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION+"reopen");
+            TaskOperation.applyTo(close, "reopen", "Reopen");
+        }
     }
 }

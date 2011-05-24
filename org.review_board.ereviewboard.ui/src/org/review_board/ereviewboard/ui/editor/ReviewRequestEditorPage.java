@@ -62,7 +62,6 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
         super(editor, ReviewboardCorePlugin.REPOSITORY_KIND);
         
         setNeedsPrivateSection(true);
-        setNeedsSubmit(false);
     }
     
     @Override
@@ -72,7 +71,7 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
         // we provide our own people part and we submit no data
         for ( Iterator<TaskEditorPartDescriptor> partDescriptorIterator = partDescriptors.iterator(); partDescriptorIterator.hasNext(); ) {
             TaskEditorPartDescriptor partDescriptor = partDescriptorIterator.next();
-            if ( partDescriptor.getId().equals(ID_PART_PEOPLE) || partDescriptor.getId().equals(ID_PART_ACTIONS) )
+            if ( partDescriptor.getId().equals(ID_PART_PEOPLE) )
                 partDescriptorIterator.remove();
         }
         
