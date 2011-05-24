@@ -53,6 +53,10 @@ import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
  */
 public class ReviewboardTaskMapper extends TaskMapper {
 
+    static final String OPERATION_ID_LEAVE = "leave";
+    static final String OPERATION_ID_CLOSE = "close";
+    static final String OPERATION_ID_REOPEN = "reopen";
+    
     public ReviewboardTaskMapper(TaskData taskData) {
         super(taskData);
     }
@@ -165,7 +169,6 @@ public class ReviewboardTaskMapper extends TaskMapper {
         return attribute;
     }
 
-    
     /**
      * Must be called after the completion date is set, otherwise the operations might be incorrect
      */
@@ -175,7 +178,7 @@ public class ReviewboardTaskMapper extends TaskMapper {
         TaskOperation.applyTo(operation, "Operation", "Operation");
         
         TaskAttribute leave = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION+"leave");
-        TaskOperation.applyTo(leave, "Operation.LeaveUnchanged", "Leave unchanged");
+        TaskOperation.applyTo(leave, OPERATION_ID_LEAVE, "Leave unchanged");
 
         if ( getCompletionDate() == null ) {
             TaskAttribute operationStatusAttribute = createAttribute(Attribute.OPERATION_STATUS);
@@ -183,12 +186,12 @@ public class ReviewboardTaskMapper extends TaskMapper {
             operationStatusAttribute.putOption(ReviewRequestStatus.SUBMITTED.name(), ReviewRequestStatus.SUBMITTED.getDisplayname());
             operationStatusAttribute.putOption(ReviewRequestStatus.DISCARDED.name(), ReviewRequestStatus.DISCARDED.getDisplayname());
             
-            TaskAttribute close = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION+"close");
-            TaskOperation.applyTo(close, "close", "Close as");
+            TaskAttribute close = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION + OPERATION_ID_CLOSE );
+            TaskOperation.applyTo(close, OPERATION_ID_CLOSE, "Close as");
             close.getMetaData().putValue(TaskAttribute.META_ASSOCIATED_ATTRIBUTE_ID, ReviewboardAttributeMapper.Attribute.OPERATION_STATUS.toString());
         } else {
-            TaskAttribute close = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION+"reopen");
-            TaskOperation.applyTo(close, "reopen", "Reopen");
+            TaskAttribute close = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION+ OPERATION_ID_REOPEN);
+            TaskOperation.applyTo(close, OPERATION_ID_REOPEN, "Reopen");
         }
     }
 }

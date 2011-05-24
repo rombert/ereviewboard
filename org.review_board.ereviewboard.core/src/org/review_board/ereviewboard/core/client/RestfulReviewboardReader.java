@@ -468,4 +468,8 @@ public class RestfulReviewboardReader {
         }
     }
 
+    public void ensureSuccess(String source) throws ReviewboardException {
+        
+        checkedGetJSonRootObject(source);
+    }
 }

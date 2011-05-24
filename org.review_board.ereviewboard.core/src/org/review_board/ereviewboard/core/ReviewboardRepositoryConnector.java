@@ -61,6 +61,7 @@ import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.ITask;
 import org.eclipse.mylyn.tasks.core.ITaskMapping;
 import org.eclipse.mylyn.tasks.core.RepositoryResponse;
+import org.eclipse.mylyn.tasks.core.RepositoryResponse.ResponseKind;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.TaskRepositoryLocationFactory;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentHandler;
@@ -619,8 +620,32 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             public RepositoryResponse postTaskData(TaskRepository repository, TaskData taskData,
                     Set<TaskAttribute> oldAttributes, IProgressMonitor monitor)
                     throws CoreException {
-                // ignore
-                return null;
+                  
+                TaskAttribute operation = taskData.getRoot().getMappedAttribute(TaskAttribute.OPERATION);
+                
+                if ( operation == null )
+                    return new RepositoryResponse(ResponseKind.TASK_UPDATED, taskData.getTaskId());
+                
+                ReviewRequestStatus status;
+                
+                if ( operation.getValue().equals(ReviewboardTaskMapper.OPERATION_ID_CLOSE) ) {
+                    TaskAttribute newStatus = taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.OPERATION_STATUS.toString());
+                    status = ReviewRequestStatus.valueOf(newStatus.getValue());
+                } else if ( operation.getValue().equals(ReviewboardTaskMapper.OPERATION_ID_REOPEN)) {
+                    status = ReviewRequestStatus.PENDING;
+                } else {
+                    return new RepositoryResponse(ResponseKind.TASK_UPDATED, taskData.getTaskId());
+                }
+                
+                int reviewRequestId = Integer.parseInt(taskData.getTaskId());
+                
+                try {
+                    clientManager.getClient(repository).updateStatus(reviewRequestId, status, monitor);
+                } catch (ReviewboardException e) {
+                    throw new CoreException(new Status(Status.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed updating issue status : " + e.getMessage(), e));
+                }
+                
+                return new RepositoryResponse(ResponseKind.TASK_UPDATED, taskData.getTaskId());
             }
         };
 
@@ -631,6 +656,4 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         
         return new ReviewboardTaskMapper(taskData);
     }
-
-
 }

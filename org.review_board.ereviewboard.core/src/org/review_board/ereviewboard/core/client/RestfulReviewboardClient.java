@@ -404,6 +404,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("status", status.asSubmittableValue());
         
-        httpClient.executePut("/api/review-requests/"+reviewRequestId+"/", parameters, monitor);
+        String result = httpClient.executePut("/api/review-requests/"+reviewRequestId+"/", parameters, monitor);
+        
+        reviewboardReader.ensureSuccess(result);
     }
 }
