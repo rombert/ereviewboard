@@ -91,6 +91,9 @@ public class RestfulReviewboardReader {
     
     private JSONObject checkedGetJSonRootObject(String source) throws ReviewboardException {
         
+        if ( source == null || source.length() == 0 )
+            throw new ReviewboardException("The response is empty.");
+        
         try {
             JSONObject object = new JSONObject(source);
             
@@ -102,7 +105,10 @@ public class RestfulReviewboardReader {
             return object;
 
         } catch (JSONException e) {
-            throw new ReviewboardException("The server has responded with an invalid JSon object : " + e.getMessage(), e);
+            
+            String invalidSnippet = '\n' + source.substring(0, Math.min(200, source.length())) + "...";
+            
+            throw new ReviewboardException("The server has responded with an invalid JSon object : " + e.getMessage() + invalidSnippet, e);
         }
         
     }
