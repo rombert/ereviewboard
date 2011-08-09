@@ -1,0 +1,46 @@
+{
+  "files": [
+    {
+      "dest_detail": "(working copy)", 
+      "dest_file": "\/trunk\/reviewboard\/settings_local.py.tmpl", 
+      "id": 31, 
+      "links": {
+        "diff_comments": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/files\/31\/diff-comments\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/files\/31\/", 
+          "method": "GET"
+        }
+      }, 
+      "source_file": "\/trunk\/reviewboard\/settings_local.py.tmpl", 
+      "source_revision": "1797"
+    }, 
+    {
+      "dest_detail": "(revision 0)", 
+      "dest_file": "\/trunk\/reviewboard\/TESTING", 
+      "id": 36, 
+      "links": {
+        "diff_comments": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/files\/36\/diff-comments\/", 
+          "method": "GET"
+        }, 
+        "self": {
+          "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/files\/36\/", 
+          "method": "GET"
+        }
+      }, 
+      "source_file": "\/trunk\/reviewboard\/TESTING", 
+      "source_revision": "PRE-CREATION"
+    }
+  ], 
+  "links": {
+    "self": {
+      "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/files\/", 
+      "method": "GET"
+    }
+  }, 
+  "stat": "ok", 
+  "total_results": 2
+}

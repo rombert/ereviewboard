@@ -38,7 +38,8 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         TARGET_GROUPS("target_groups", "Groups", TaskAttribute.TYPE_PERSON, TaskAttribute.KIND_PEOPLE),
         LAST_UPDATED("last_updated", "Last updated", TaskAttribute.TYPE_DATETIME, null),
         TIME_ADDED("time_added", "Time added", TaskAttribute.TYPE_DATETIME, null),
-        OPERATION_STATUS("operation_status", "Status", TaskAttribute.TYPE_SINGLE_SELECT, null);
+        OPERATION_STATUS("operation_status", "Status", TaskAttribute.TYPE_SINGLE_SELECT, null),
+        LATEST_PATCHSET("latest_patchset", "Latest patchset", TaskAttribute.TYPE_CONTAINER, null);
 
         private final String jsonAttributeName;
         private final String displayName;

@@ -78,6 +78,7 @@ import org.review_board.ereviewboard.core.client.ReviewboardAttachmentHandler;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Diff;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
@@ -96,6 +97,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
     private static final int REVIEW_DIFF_TICKS = 8;
     private static final int SCREENSHOT_COMMENT_TICKS = 2;
+    private static final int PATCHSET_TICKS = 4;
     
     private final static Pattern REVIEW_REQUEST_ID_FROM_TASK_URL = Pattern
             .compile(ReviewboardConstants.REVIEW_REQUEST_URL + "(\\d+)");
@@ -158,7 +160,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
             ReviewboardClient client = getClientManager().getClient(taskRepository);
             
-            monitor.beginTask("Getting task data", 4 + REVIEW_DIFF_TICKS + SCREENSHOT_COMMENT_TICKS);
+            monitor.beginTask("Getting task data", 4 + REVIEW_DIFF_TICKS + SCREENSHOT_COMMENT_TICKS + PATCHSET_TICKS);
 
             try {
                 
@@ -181,6 +183,8 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 createTaskDataComments(client, taskData, diffs, screenshots, monitor);
                 
                 createTaskDataAttachments(client, taskData, taskRepository, diffs, screenshots, monitor);
+                
+                createTaskDataPatchSet(client, taskData, diffs, monitor);
 
                 return taskData;
             } finally {
@@ -199,7 +203,8 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             throw new CoreException(status);
         }
     }
-    
+
+
     /**
      * Advances monitor by one + {@value #REVIEW_DIFF_TICKS} + {@value #SCREENSHOT_COMMENT_TICKS}
      * @param screenshots 
@@ -328,6 +333,24 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         
         for ( Map.Entry<Date, ReviewboardCommentMapper>  entry : sortedComments.entrySet() )
             entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
+    }
+    
+    private void createTaskDataPatchSet(ReviewboardClient client, TaskData taskData, List<Diff> diffs, IProgressMonitor monitor) throws ReviewboardException {
+        
+        if ( diffs.isEmpty() )
+            return;
+        
+        int latestDiff = 0;
+        for ( Diff diff : diffs )
+            latestDiff = Math.max(latestDiff, diff.getRevision());
+                
+        int reviewRequestId = Integer.parseInt(taskData.getTaskId());
+        List<FileDiff> fileDiffs = client.getFileDiffs(reviewRequestId, latestDiff, monitor);
+        
+        TaskAttribute patchset = taskData.getRoot().createAttribute(ReviewboardAttributeMapper.Attribute.LATEST_PATCHSET.toString());
+        
+        for ( int i = 0; i < fileDiffs.size(); i++ )
+            patchset.createAttribute("file-" + i).setValue(fileDiffs.get(i).getSourceFile());
     }
 
     private IRepositoryPerson newPerson(TaskRepository repository, String username) {

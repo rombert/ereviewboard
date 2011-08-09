@@ -56,6 +56,7 @@ import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
@@ -275,6 +276,12 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     public List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
         return reviewboardReader.readDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs", monitor));
+    }
+    
+    public List<FileDiff> getFileDiffs(int reviewRequestId, int latestDiff, IProgressMonitor monitor) throws ReviewboardException {
+        
+        // TODO - pagination
+        return reviewboardReader.readFileDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs/"+latestDiff+"/files", monitor));
     }
 
     public List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {

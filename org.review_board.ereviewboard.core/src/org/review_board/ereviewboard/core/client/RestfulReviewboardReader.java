@@ -49,6 +49,7 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Comment;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
@@ -381,6 +382,29 @@ public class RestfulReviewboardReader {
         }
     }
    
+    public List<FileDiff> readFileDiffs(String source) throws ReviewboardException {
+        try {
+            JSONObject json = checkedGetJSonRootObject(source);
+            JSONArray jsonDiffs = json.getJSONArray("files");
+            
+            List<FileDiff> diffList = new ArrayList<FileDiff>();
+            for (int i = 0; i < jsonDiffs.length(); i++) {
+
+                JSONObject jsonDiff = jsonDiffs.getJSONObject(i);
+                int id = jsonDiff.getInt("id");
+                String sourceFile = jsonDiff.getString("source_file");
+                String sourceRevision = jsonDiff.getString("source_revision");
+                
+                diffList.add(new FileDiff(id, sourceFile, sourceRevision));
+            }
+            
+            return diffList;
+            
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+    
     public List<Screenshot> readScreenshots(String source) throws ReviewboardException {
         
         try {
@@ -478,4 +502,6 @@ public class RestfulReviewboardReader {
         
         checkedGetJSonRootObject(source);
     }
+
+
 }

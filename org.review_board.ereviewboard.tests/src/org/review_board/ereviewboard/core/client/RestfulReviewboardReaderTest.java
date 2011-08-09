@@ -57,6 +57,7 @@ import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
@@ -321,6 +322,21 @@ public class RestfulReviewboardReaderTest {
         assertThat("diffs[0].id", firstDiff.getId(), is(8));
         assertThat("diffs[0].revision", firstDiff.getRevision(), is(1));
         assertThat("diffs[0].timestamp", firstDiff.getTimestamp(), is (ReviewboardAttributeMapper.parseDateValue("2009-02-25 02:01:21")));
+    }
+
+    @Test
+    public void readFileDiffs() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/diff-list/
+        List<FileDiff> diffs = reader.readFileDiffs(readJsonTestResource("filediffs.json"));
+        
+        assertThat("diffs.size", diffs.size(), is(2));
+        
+        FileDiff firstDiff = diffs.get(0);
+        
+        assertThat("diffs[0].id", firstDiff.getId(), is(31));
+        assertThat("diffs[0].sourceFile", firstDiff.getSourceFile(), is("/trunk/reviewboard/settings_local.py.tmpl"));
+        assertThat("diffs[0].sourceRevision", firstDiff.getSourceRevision(), is("1797"));
     }
 
     @Test

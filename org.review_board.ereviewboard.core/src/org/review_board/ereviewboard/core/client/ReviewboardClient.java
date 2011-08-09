@@ -46,6 +46,7 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
@@ -82,6 +83,8 @@ public interface ReviewboardClient {
 
     List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
+    List<FileDiff> getFileDiffs(int reviewRequestId, int latestDiff, IProgressMonitor monitor) throws ReviewboardException;
+    
     List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
     List<ReviewReply> getReviewReplies(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException;
