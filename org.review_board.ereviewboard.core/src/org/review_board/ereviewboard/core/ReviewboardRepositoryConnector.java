@@ -347,7 +347,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         int reviewRequestId = Integer.parseInt(taskData.getTaskId());
         List<FileDiff> fileDiffs = client.getFileDiffs(reviewRequestId, latestDiff, monitor);
         
-        TaskAttribute patchset = taskData.getRoot().createAttribute(ReviewboardAttributeMapper.Attribute.LATEST_PATCHSET.toString());
+        TaskAttribute patchset = taskData.getRoot().createAttribute(ReviewboardAttributeMapper.Attribute.LATEST_DIFF.toString());
         
         for ( int i = 0; i < fileDiffs.size(); i++ )
             patchset.createAttribute("file-" + i).setValue(fileDiffs.get(i).getSourceFile());

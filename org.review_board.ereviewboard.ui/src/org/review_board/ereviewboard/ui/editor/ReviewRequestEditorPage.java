@@ -43,12 +43,17 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.mylyn.tasks.core.data.TaskData;
+import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPage;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
 import org.eclipse.mylyn.tasks.ui.editors.TaskEditor;
 import org.eclipse.mylyn.tasks.ui.editors.TaskEditorPartDescriptor;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
+import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 
 /**
  * @author Markus Knittig
@@ -57,6 +62,7 @@ import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
 
     private static final String ID_REVIEWBOARD_PART_TESTING_DONE = ReviewRequestEditorPage.class.getName() +".parts.testing_done";
+    private static final String ID_REVIEWBOARD_DIFF = ReviewRequestEditorPage.class.getName() +".parts.diff";
 
     public ReviewRequestEditorPage(TaskEditor editor, String title) {
         super(editor, ReviewboardCorePlugin.REPOSITORY_KIND);
@@ -83,6 +89,27 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
                 return new RichTextPart(ReviewboardAttributeMapper.Attribute.TESTING_DONE, true);
             }
         }.setPath(PATH_COMMENTS), ID_PART_DESCRIPTION);
+        
+        
+        // Latest diff
+        try {
+            TaskData taskData = TasksUi.getTaskDataManager().getTaskData(getTask());
+            
+            if (taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.LATEST_DIFF.toString()) != null) {
+                
+                partDescriptors = insertPart(partDescriptors, new TaskEditorPartDescriptor(ID_REVIEWBOARD_DIFF) {
+                    
+                    @Override
+                    public AbstractTaskEditorPart createPart() {
+                        
+                        return new ReviewboardDiffPart();
+                    }
+                }.setPath(PATH_COMMENTS), ID_PART_ATTRIBUTES);
+            }
+        } catch (CoreException e) {
+            ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.WARNING, ReviewboardUiPlugin.PLUGIN_ID, "Failed retrieving taskData ", e));
+        }
+
         
         // people part
         partDescriptors.add(new TaskEditorPartDescriptor(ID_PART_PEOPLE) {
