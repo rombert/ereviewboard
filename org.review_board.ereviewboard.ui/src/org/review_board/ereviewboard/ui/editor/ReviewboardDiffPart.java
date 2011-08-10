@@ -14,6 +14,7 @@ import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -45,34 +46,41 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         Composite composite = toolkit.createComposite(section);
         composite.setLayout(EditorUtil.createSectionClientLayout());
         
-        TaskAttribute attribute = getTaskData().getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.LATEST_DIFF.toString());
+        final TaskAttribute attribute = getTaskData().getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.LATEST_DIFF.toString());
         
         for ( final TaskAttribute child : attribute.getAttributes().values() ) {
-            Hyperlink link = toolkit.createHyperlink(composite, child.getValue(), SWT.NONE);
+            final String sourcePath = child.getAttribute("sourceFile").getValue();
+            final String sourceRevision = child.getAttribute("sourceRevision").getValue();
+            Hyperlink link = toolkit.createHyperlink(composite, sourcePath + " ( " + sourceRevision + " )", SWT.NONE);
             link.addHyperlinkListener(new HyperlinkAdapter() {
                 @Override
                 public void linkActivated(HyperlinkEvent e) {
                     
+                    List<String> paths = ResourceUtil.getResourcePathPermutations(sourcePath);
+                    
+                    IWorkspace workspace = ResourcesPlugin.getWorkspace();
+                    IResource resource = null;
+                    for ( String path : paths ) {
+                        resource = workspace.getRoot().findMember(path);
+                        if ( resource != null )
+                            break;
+                    }
+                    
+                    if ( resource == null ) {
+                        MessageDialog.openWarning(null, "Unable to find file", "Unable to find a file for " + sourcePath + " in the workspace.");
+                        ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.WARNING, ReviewboardUiPlugin.PLUGIN_ID, "Unable to find a matching file for " + child.getValue() + " tried " + paths ));
+                        return;
+                    }
+                    IFile file = (IFile) resource;
+                    
                     try {
-                        List<String> paths = ResourceUtil.getResourcePathPermutations(child.getValue());
-                        
-                        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-                        IResource resource = null;
-                        for ( String path : paths ) {
-                            resource = workspace.getRoot().findMember(path);
-                            if ( resource != null )
-                                break;
-                        }
-                        
-                        if ( resource == null ) {
-                            MessageDialog.openWarning(null, "Unable to find file", "Unable to find a file for " + child.getValue() + " in the workspace.");
-                            ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.WARNING, ReviewboardUiPlugin.PLUGIN_ID, "Unable to find a matching file for " + child.getValue() + " tried " + paths ));
-                            return;
-                        }
-                        IFile file = (IFile) resource;
-                        
                         IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                        IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName());
+                        IEditorRegistry editorRegistry = PlatformUI.getWorkbench().getEditorRegistry();
+                        
+                        IEditorDescriptor desc = editorRegistry.getDefaultEditor(file.getName());
+                        if ( desc == null )
+                            desc = editorRegistry.findEditor(IEditorRegistry.SYSTEM_EXTERNAL_EDITOR_ID);
+                            
                         page.openEditor(new FileEditorInput(file), desc.getId());
                     } catch (PartInitException e1) {
                         throw new RuntimeException(e1);
@@ -85,5 +93,5 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         section.setClient(composite);
         setSection(toolkit, section);
     }
-
+    
 }

@@ -349,6 +349,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/","text/x-patch", monitor);
     }
     
+    public byte[] getRawFileDiff(int reviewRequestId, int diffRevision, int fileId, IProgressMonitor monitor) throws ReviewboardException {
+        return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/files/" + fileId,"text/x-patch", monitor);
+    }
+    
     public byte[] getScreenshot(String url, IProgressMonitor monitor) throws ReviewboardException {
         return httpClient.executeGetForBytes("/" + url, "image/*", monitor);
     }

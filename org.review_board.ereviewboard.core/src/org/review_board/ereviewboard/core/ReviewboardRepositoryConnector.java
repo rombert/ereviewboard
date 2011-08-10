@@ -348,9 +348,15 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         List<FileDiff> fileDiffs = client.getFileDiffs(reviewRequestId, latestDiff, monitor);
         
         TaskAttribute patchset = taskData.getRoot().createAttribute(ReviewboardAttributeMapper.Attribute.LATEST_DIFF.toString());
+        patchset.setValue(String.valueOf(latestDiff));
         
-        for ( int i = 0; i < fileDiffs.size(); i++ )
-            patchset.createAttribute("file-" + i).setValue(fileDiffs.get(i).getSourceFile());
+        for ( int i = 0; i < fileDiffs.size(); i++ ) {
+            TaskAttribute fileDiffAttribute = patchset.createAttribute("file-" + i);
+            FileDiff fileDiff = fileDiffs.get(i);
+            fileDiffAttribute.setValue(String.valueOf(fileDiff.getId()));
+            fileDiffAttribute.createAttribute("sourceFile").setValue(fileDiffs.get(i).getSourceFile());
+            fileDiffAttribute.createAttribute("sourceRevision").setValue(fileDiffs.get(i).getSourceRevision());
+        }
     }
 
     private IRepositoryPerson newPerson(TaskRepository repository, String username) {

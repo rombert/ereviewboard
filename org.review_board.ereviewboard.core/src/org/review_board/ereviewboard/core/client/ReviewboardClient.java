@@ -83,7 +83,9 @@ public interface ReviewboardClient {
 
     List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
-    List<FileDiff> getFileDiffs(int reviewRequestId, int latestDiff, IProgressMonitor monitor) throws ReviewboardException;
+    List<FileDiff> getFileDiffs(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException;
+    
+    byte[] getRawFileDiff(int reviewRequestId, int diffRevision, int fileId, IProgressMonitor monitor) throws ReviewboardException;
     
     List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
