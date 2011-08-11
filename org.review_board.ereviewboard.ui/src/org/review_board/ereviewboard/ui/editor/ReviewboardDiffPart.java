@@ -1,4 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2004, 2011 Robert Munteanu and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Robert Munteanu - initial API and implementation
+ *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
+
+import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute.SOURCE_FILE;
+import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute.SOURCE_REVISION;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -40,8 +53,8 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.forms.widgets.Section;
-import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
+import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.util.ResourceUtil;
@@ -65,11 +78,11 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         Composite composite = toolkit.createComposite(section);
         composite.setLayout(EditorUtil.createSectionClientLayout());
         
-        final TaskAttribute attribute = getTaskData().getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.LATEST_DIFF.toString());
+        final ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(getTaskData());
         
-        for ( final TaskAttribute child : attribute.getAttributes().values() ) {
-            final String sourcePath = child.getAttribute("sourceFile").getValue();
-            final String sourceRevision = child.getAttribute("sourceRevision").getValue();
+        for ( final TaskAttribute child : diffMapper.getFileDiffs() ) {
+            final String sourcePath = child.getAttribute(SOURCE_FILE.toString()).getValue();
+            final String sourceRevision = child.getAttribute(SOURCE_REVISION.toString()).getValue();
             Hyperlink link = toolkit.createHyperlink(composite, sourcePath + " ( " + sourceRevision + " )", SWT.NONE);
             link.addHyperlinkListener(new HyperlinkAdapter() {
                 @Override
@@ -85,7 +98,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                             break;
                     }
                     
-                    if ( resource == null ) {
+                    if ( resource == null  && ! ReviewboardDiffMapper.REVISION_PRE_CREATION.equals(sourceRevision) ) {
                         MessageDialog.openWarning(null, "Unable to find file", "Unable to find a file for " + sourcePath + " in the workspace.");
                         ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.WARNING, ReviewboardUiPlugin.PLUGIN_ID, "Unable to find a matching file for " + child.getValue() + " tried " + paths ));
                         return;
@@ -98,7 +111,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                     ReviewboardClient client = ReviewboardCorePlugin.getDefault().getConnector().getClientManager().getClient(new TaskRepository(ReviewboardCorePlugin.PLUGIN_ID, getTaskData().getRepositoryUrl()));
                     try {
                         // TODO move to a Job
-                        byte[] rawFileDiff = client.getRawFileDiff(Integer.parseInt(getTaskData().getTaskId()), Integer.parseInt( attribute.getValue()), Integer.parseInt(child.getValue()), new NullProgressMonitor());
+                        byte[] rawFileDiff = client.getRawFileDiff(Integer.parseInt(getTaskData().getTaskId()), diffMapper.getDiffRevision(), Integer.parseInt(child.getValue()), new NullProgressMonitor());
                         patcher.parse(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(rawFileDiff))));
                     } catch (NumberFormatException e1) {
                         ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Failed loading diff ", e1));
