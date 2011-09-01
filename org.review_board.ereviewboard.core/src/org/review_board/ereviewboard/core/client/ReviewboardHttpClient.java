@@ -59,12 +59,8 @@ import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
@@ -73,7 +69,6 @@ import org.eclipse.mylyn.commons.net.AuthenticationType;
 import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.commons.net.WebUtil;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.util.IOUtil;
 
 /**
  * HTTP Client for calling the Review Board API. Handles {@link HttpClient}
@@ -285,25 +280,31 @@ public class ReviewboardHttpClient {
 
         InputStream stream = null;
         try {
-            stream = WebUtil.getResponseBodyAsStream(request, monitor);
+            stream = getResponseBodyAsStream(request, monitor);
             return IOUtils.toString(stream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            IOUtil.closeSilently(stream);
+            IOUtils.closeQuietly(stream);
         }
+    }
+
+    private InputStream getResponseBodyAsStream(HttpMethodBase request, IProgressMonitor monitor)
+            throws IOException {
+        
+        return WebUtil.getResponseBodyAsStream(request, monitor);
     }
 
     private byte[] getResponseBodyAsByteArray(HttpMethodBase request, IProgressMonitor monitor) {
 
         InputStream stream = null;
         try {
-            stream = WebUtil.getResponseBodyAsStream(request, monitor);
+            stream = getResponseBodyAsStream(request, monitor);
             return IOUtils.toByteArray(stream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            IOUtil.closeSilently(stream);
+            IOUtils.closeQuietly(stream);
         }
     }
 
