@@ -85,6 +85,7 @@ import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.ScreenshotComment;
+import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -356,7 +357,11 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     private IRepositoryPerson newPerson(TaskRepository repository, String username) {
         
         IRepositoryPerson person = repository.createPerson(username);
-        person.setName(getClientManager().getClient(repository).getClientData().getUser(username).getFullName());
+        User user = getClientManager().getClient(repository).getClientData().getUser(username);
+        // If a new user comments but the user list is not refreshed from the repository the user's
+        // full name can not be found
+        if ( user != null )
+            person.setName(user.getFullName());
         return person;
     }
     
