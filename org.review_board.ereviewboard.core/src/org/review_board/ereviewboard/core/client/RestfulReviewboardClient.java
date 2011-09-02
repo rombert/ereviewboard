@@ -143,14 +143,14 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     
     public int countDiffCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException {
         
-        String result = httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews/"+reviewId+"/replies/" + reviewReplyId+"/diff-comments?counts-only=1", reviewDiffMonitor);
+        String result = httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews/"+reviewId+"/replies/" + reviewReplyId+"/diff-comments/?counts-only=1", reviewDiffMonitor);
         
         return reviewboardReader.readCount(result);
     }
     
     public int countScreenshotCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException {
         
-        String result = httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews/"+reviewId+"/replies/" + reviewReplyId+"/screenshot-comments?counts-only=1", reviewDiffMonitor);
+        String result = httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews/"+reviewId+"/replies/" + reviewReplyId+"/screenshot-comments/?counts-only=1", reviewDiffMonitor);
         
         return reviewboardReader.readCount(result);
     }
@@ -178,7 +178,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     
     public int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {
         
-        return reviewboardReader.readCount(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments?counts-only=1", monitor));
+        return reviewboardReader.readCount(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments/?counts-only=1", monitor));
     }
 
     private List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
@@ -190,7 +190,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 
                 StringBuilder query = new StringBuilder();
 
-                query.append("/api/repositories?start=").append(start).append("&max-results=" + maxResults);
+                query.append("/api/repositories/?start=").append(start).append("&max-results=" + maxResults);
 
                 return reviewboardReader.readRepositories(httpClient.executeGet(query.toString(),
                             monitor));
@@ -209,7 +209,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 
                 StringBuilder query = new StringBuilder();
                 
-                query.append("/api/users?start=").append(start).append("&max-results="+maxResults);
+                query.append("/api/users/?start=").append(start).append("&max-results="+maxResults);
                 
                 return reviewboardReader.readUsers(httpClient.executeGet(query.toString(), monitor));
             }
@@ -228,7 +228,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 
                 StringBuilder query = new StringBuilder();
 
-                query.append("/api/groups?start=").append(start).append("&max-results=" + maxResults);
+                query.append("/api/groups/?start=").append(start).append("&max-results=" + maxResults);
 
                 return reviewboardReader.readGroups(httpClient.executeGet(query.toString(),
                             monitor));
@@ -243,7 +243,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         monitor.beginTask("Retrieving server information", 1);
         
         try {
-            return reviewboardReader.readServerInfo(httpClient.executeGet("/api/info", monitor)).getTimeZone();
+            return reviewboardReader.readServerInfo(httpClient.executeGet("/api/info/", monitor)).getTimeZone();
         } finally {
             monitor.done();
         }
@@ -275,18 +275,18 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     
     public List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
-        return reviewboardReader.readDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs", monitor));
+        return reviewboardReader.readDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs/", monitor));
     }
     
     public List<FileDiff> getFileDiffs(int reviewRequestId, int latestDiff, IProgressMonitor monitor) throws ReviewboardException {
         
         // TODO - pagination
-        return reviewboardReader.readFileDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs/"+latestDiff+"/files", monitor));
+        return reviewboardReader.readFileDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs/"+latestDiff+"/files/", monitor));
     }
 
     public List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
-        return reviewboardReader.readScreenshots(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/screenshots", monitor));
+        return reviewboardReader.readScreenshots(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/screenshots/", monitor));
     }
     
     public List<ScreenshotComment> getScreenshotComments(final int reviewRequestId, final int screenshotId, final IProgressMonitor screenshotCommentMonitor) throws ReviewboardException {
@@ -298,8 +298,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 
                 StringBuilder query = new StringBuilder();
                 query.append("/api/review-requests/").append(reviewRequestId);
-                query.append("/screenshots/").append(screenshotId).append("/screenshot-comments");
-                query.append("/?start=").append(start).append("&max-results=" + maxResults);
+                query.append("/screenshots/").append(screenshotId).append("/screenshot-comments/");
+                query.append("?start=").append(start).append("&max-results=" + maxResults);
                 
                 return reviewboardReader.readScreenshotComments(httpClient.executeGet(query.toString(), screenshotCommentMonitor));
             }
@@ -350,7 +350,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
     
     public byte[] getRawFileDiff(int reviewRequestId, int diffRevision, int fileId, IProgressMonitor monitor) throws ReviewboardException {
-        return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/files/" + fileId,"text/x-patch", monitor);
+        return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/files/" + fileId + "/","text/x-patch", monitor);
     }
     
     public byte[] getScreenshot(String url, IProgressMonitor monitor) throws ReviewboardException {
@@ -370,7 +370,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             
             Policy.advance(monitor, 1);
             
-            ServerInfo serverInfo = reviewboardReader.readServerInfo(httpClient.executeGet("/api/info", monitor));
+            ServerInfo serverInfo = reviewboardReader.readServerInfo(httpClient.executeGet("/api/info/", monitor));
             
             Policy.advance(monitor, 1);
             

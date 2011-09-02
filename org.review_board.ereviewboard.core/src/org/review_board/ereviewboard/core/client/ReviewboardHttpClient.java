@@ -110,7 +110,7 @@ public class ReviewboardHttpClient {
 
     public String login(String username, String password, IProgressMonitor monitor) throws ReviewboardException {
 
-        GetMethod loginRequest = new GetMethod(location.getUrl() + "/api/info");
+        GetMethod loginRequest = new GetMethod(location.getUrl() + "/api/info/");
         Credentials credentials = new UsernamePasswordCredentials(username, password);
 
         monitor = Policy.monitorFor(monitor);
