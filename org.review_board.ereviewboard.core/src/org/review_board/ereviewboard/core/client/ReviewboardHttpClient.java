@@ -95,7 +95,7 @@ public class ReviewboardHttpClient {
             Protocol.registerProtocol("https",
                     new Protocol("https", new EasySSLProtocolSocketFactory(), 443));
         }
-        HttpClient httpClient = new HttpClient();
+        HttpClient httpClient = new HttpClient(WebUtil.getConnectionManager());
         WebUtil.configureHttpClient(httpClient, "eReviewBoard");
         httpClient.getParams().setContentCharset(characterEncoding);
         return httpClient;
