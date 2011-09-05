@@ -132,9 +132,10 @@ public class RestfulReviewboardReader {
                 user.setId(jsonUser.getInt("id"));
                 user.setUrl(jsonUser.getString("url"));
                 user.setUsername(jsonUser.getString("username"));
-                user.setEmail(jsonUser.getString("email"));
-                user.setFirstName(jsonUser.getString("first_name"));
-                user.setLastName(jsonUser.getString("last_name"));
+                // some fields are not set for private profiles
+                user.setEmail(jsonUser.has("email") ? jsonUser.getString("email") :  "");
+                user.setFirstName(jsonUser.has("first_name") ? jsonUser.getString("first_name") : "");
+                user.setLastName(jsonUser.has("last_name") ? jsonUser.getString("last_name"): "");
                 
                 users.add(user);
             }
