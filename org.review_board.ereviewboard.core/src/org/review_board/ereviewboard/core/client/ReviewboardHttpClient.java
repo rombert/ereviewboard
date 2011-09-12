@@ -178,9 +178,16 @@ public class ReviewboardHttpClient {
 
     public String executeGet(String url, IProgressMonitor monitor) throws ReviewboardException {
         GetMethod getRequest = new GetMethod(stripSlash(location.getUrl()) + url);
-        getRequest.getParams().setParameter("Accept", "application/json");
+        configureRequestForJson(getRequest);
 
         return executeMethod(getRequest, monitor);
+    }
+
+    private void configureRequestForJson(HttpMethodBase request) {
+        
+        request.addRequestHeader("Accept", "application/json");
+        if ( ( request instanceof PostMethod ) || ( request instanceof PutMethod ) )
+            request.addRequestHeader("Content-Type", "application/json");
     }
 
     public byte[] executeGetForBytes(String url, String acceptHeaderValue, IProgressMonitor monitor)
@@ -199,6 +206,7 @@ public class ReviewboardHttpClient {
     public String executePost(String url, Map<String, String> parameters,
             IProgressMonitor monitor) throws ReviewboardException {
         PostMethod postRequest = new PostMethod(stripSlash(location.getUrl()) + url);
+        configureRequestForJson(postRequest);
 
         for (String key : parameters.keySet())
             postRequest.setParameter(key, parameters.get(key));
@@ -228,7 +236,9 @@ public class ReviewboardHttpClient {
     }
     
     public String executePut(String url, Map<String, String> parameters, IProgressMonitor monitor) throws ReviewboardException {
+        
         PutMethod putMethod = new PutMethod(stripSlash(location.getUrl()) + url);
+        configureRequestForJson(putMethod);
         
         List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 
