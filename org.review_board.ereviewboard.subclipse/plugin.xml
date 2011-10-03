@@ -2,12 +2,14 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension point="org.eclipse.ui.popupMenus">
-   	<objectContribution id="org.review_board.ereviewboard.ui.projectContributions"
+   	<objectContribution id="org.review_board.ereviewboard.subclipse.ui.projectContributions"
             objectClass="org.eclipse.core.resources.IProject"
             adaptable="true">
+         <filter name="projectPersistentProperty"
+               value="org.eclipse.team.core.repository=org.tigris.subversion.subclipse.core.svnnature"/>
             <action
-               class="org.review_board.ereviewboard.subclipse.internal.actions.StartReviewAction"
-               id="org.review_board.ereviewboard.ui.actions.StartReview"
+               class="org.review_board.ereviewboard.subclipse.internal.actions.CreateReviewRequestAction"
+               id="org.review_board.ereviewboard.subclipse.ui.actions.StartReview"
                label="Create Review Request"
                icon="icons/reviewboard-icon.png"
                menubarPath="team.main/group1">

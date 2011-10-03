@@ -1,7 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <site associateSitesURL="http://rombert.github.com/ereviewboard/update/associate-sites.xml">
-  <description>eReviewBoard Update Site</description>
-  <feature url="org.review_board.ereviewboard_0.9.0.qualifier" id="org.review_board.ereviewboard" version="0.9.0.qualifier">
-    <category name="eReviewBoard"/>
-  </feature>
-  <category-def name="eReviewBoard" label="eReviewBoard"></category-def>
+   <description>
+      eReviewBoard Update Site
+   </description>
+   <feature url="org.review_board.ereviewboard_0.9.0.qualifier" id="org.review_board.ereviewboard" version="0.9.0.qualifier">
+      <category name="eReviewBoard"/>
+   </feature>
+   <feature url="features/org.review_board.ereviewboard.subclipse-feature_0.9.0.qualifier.jar" id="org.review_board.ereviewboard.subclipse-feature" version="0.9.0.qualifier">
+      <category name="eReviewBoard"/>
+   </feature>
+   <category-def name="eReviewBoard" label="eReviewBoard"/>
 </site>

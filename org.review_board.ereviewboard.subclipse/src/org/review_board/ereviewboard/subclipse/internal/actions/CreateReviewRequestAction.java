@@ -1,6 +1,7 @@
 package org.review_board.ereviewboard.subclipse.internal.actions;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -17,7 +18,7 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 /**
  * @author Robert Munteanu
  */
-public class StartReviewAction implements IActionDelegate {
+public class CreateReviewRequestAction implements IActionDelegate {
 
     private IProject currentProject;
     
@@ -27,20 +28,21 @@ public class StartReviewAction implements IActionDelegate {
             return;
         
         SVNTeamProvider svnProvider = (SVNTeamProvider) RepositoryProvider.getProvider(currentProject, SVNProviderPlugin.getTypeId());
-        if ( svnProvider == null ) {
-            MessageDialog.openWarning(null, "Not supported", "Only subclipse-mapped projects are supported.");
-            return;
-        }
+        
+        Assert.isNotNull(svnProvider, "No " + SVNTeamProvider.class.getSimpleName() + " for " + currentProject);
         
         ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentProject);
         
         try {
             LocalResourceStatus status = localResource.getStatus();
+            
+            Assert.isNotNull(status, "No status for resource " + localResource);
+            
             String projectUrl = String.valueOf(status.getUrl());
             
             MessageDialog.openInformation(null, "Title", "Will create review for " + currentProject.getName() + "\n\nLocation: " + projectUrl);
         } catch (SVNException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

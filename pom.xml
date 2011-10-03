@@ -9,6 +9,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>org.review_board.ereviewboard</module>
+    <module>org.review_board.ereviewboard.subclipse-feature</module>
     <module>org.review_board.ereviewboard.core</module>
     <module>org.review_board.ereviewboard.subclipse</module>
     <module>org.review_board.ereviewboard.tests</module>
