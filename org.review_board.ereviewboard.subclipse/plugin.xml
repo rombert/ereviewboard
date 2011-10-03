@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="org.eclipse.ui.popupMenus">
+   	<objectContribution id="org.review_board.ereviewboard.ui.projectContributions"
+            objectClass="org.eclipse.core.resources.IProject"
+            adaptable="true">
+            <action
+               class="org.review_board.ereviewboard.subclipse.internal.actions.StartReviewAction"
+               id="org.review_board.ereviewboard.ui.actions.StartReview"
+               label="Create Review Request"
+               icon="icons/reviewboard-icon.png"
+               menubarPath="team.main/group1">
+         </action>
+    </objectContribution>
+   </extension>
+</plugin>

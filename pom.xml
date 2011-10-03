@@ -10,6 +10,7 @@
   <modules>
     <module>org.review_board.ereviewboard</module>
     <module>org.review_board.ereviewboard.core</module>
+    <module>org.review_board.ereviewboard.subclipse</module>
     <module>org.review_board.ereviewboard.tests</module>
     <module>org.review_board.ereviewboard.ui</module>
     <module>org.review_board.ereviewboard.update</module>
@@ -34,6 +35,11 @@
       <id>mylyn</id>
       <layout>p2</layout>
 	  <url>http://archive.eclipse.org/mylyn/drops/3.4.3/v20110204-0608/e3.4</url>
+    </repository>
+    <repository>
+      <id>subclipse</id>
+      <layout>p2</layout>
+	  <url>http://subclipse.tigris.org/update_1.6.x</url>
     </repository>
   </repositories>
  
