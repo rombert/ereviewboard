@@ -100,9 +100,9 @@ public class ReviewboardClientManager implements IRepositoryListener {
         return repository;
     }
     
-    public synchronized List<ReviewboardClient> getAllClients() {
+    public synchronized Map<String,ReviewboardClient> getAllClients() {
         
-        return new ArrayList<ReviewboardClient>(clientByUrl.values());
+        return new HashMap<String, ReviewboardClient>(clientByUrl);
     }
 
     public TaskRepositoryLocationFactory getTaskRepositoryLocationFactory() {

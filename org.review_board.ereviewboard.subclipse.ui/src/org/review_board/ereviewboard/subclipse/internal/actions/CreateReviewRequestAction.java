@@ -1,11 +1,13 @@
 package org.review_board.ereviewboard.subclipse.internal.actions;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -21,8 +23,10 @@ import org.eclipse.ui.IActionDelegate;
 import org.review_board.ereviewboard.core.ReviewboardClientManager;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
+import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -34,6 +38,9 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
+
+import org.eclipse.mylyn.tasks.core.TaskRepository;
+import org.eclipse.mylyn.tasks.ui.*;
 
 /**
  * @author Robert Munteanu
@@ -54,11 +61,15 @@ public class CreateReviewRequestAction implements IActionDelegate {
         ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentProject);
         
         ReviewboardClientManager clientManager = ReviewboardCorePlugin.getDefault().getConnector().getClientManager();
+        ReviewboardClient rbClient = null;
         Repository reviewBoardRepository = null;
+        String url = null;
         
         System.out.println("Local repository is " + localResource.getRepository().getRepositoryRoot().toString());
         
-        for ( ReviewboardClient client : clientManager.getAllClients() ) {
+        for ( Map.Entry<String,ReviewboardClient> clientEntry : clientManager.getAllClients().entrySet() ) {
+            
+            ReviewboardClient client = clientEntry.getValue();
             for ( Repository repository : client.getClientData().getRepositories() ) {
                 
                 System.out.println("Considering repository of type " + repository.getTool()  + " and path " + repository.getPath());
@@ -66,8 +77,12 @@ public class CreateReviewRequestAction implements IActionDelegate {
                 if ( repository.getTool() != RepositoryType.Subversion )
                     continue;
                 
-                if ( localResource.getRepository().getRepositoryRoot().toString().equals(repository.getPath()) )
+                if ( localResource.getRepository().getRepositoryRoot().toString().equals(repository.getPath()) ) {
+                    url = clientEntry.getKey();
+                    rbClient = client;
                     reviewBoardRepository = repository;
+                    break;
+                }
             }
         }
 
@@ -110,50 +125,39 @@ public class CreateReviewRequestAction implements IActionDelegate {
             tmpFile = File.createTempFile("ereviewboard", "diff");
             svnClient.diff(all.toArray(new File[all.size()]), tmpFile, true);
             
-            File projectFile = currentProject.getLocation().toFile();
-            StringBuilder text = new StringBuilder();   
+            if ( reviewBoardRepository == null ) {
+                MessageDialog.openError(null, "Failed creating review request", "Unable to find a matching SVN repository for " + localResource.getRepository().getRepositoryRoot() + " .");
+                return;
+            }
             
-            if ( reviewBoardRepository == null )
-                text.append("No matching repository found.\n");
-            else
-                text.append("Repository with name " + reviewBoardRepository.getName() +" and location " + reviewBoardRepository.getPath() + " found.\n");
-            
-            append(added, projectFile, "Added", text);
-            append(modified, projectFile, "Modified", text);
-            append(unversioned, projectFile, "Unversioned - will not be added to the diff", text);
-            
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             reader = new FileReader(tmpFile);
-            List<?> diffLines = IOUtils.readLines(reader);
+            IOUtils.copy(reader, outputStream);
             
-            for ( Object line : diffLines )
-                text.append(line).append('\n');
-            
-            MessageDialog.openInformation(null, "Review request summary for " + currentProject.getName(), text.toString());
+            if ( rbClient != null && reviewBoardRepository != null ) {
+                ReviewRequest reviewRequest = rbClient.createReviewRequest(reviewBoardRepository, new NullProgressMonitor());
+                
+                TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, url);
+                
+                boolean success = TasksUiUtil.openTask(repository, String.valueOf(reviewRequest.getId()));
+                
+                if ( !success ) {
+                    MessageDialog.openWarning(null, "Failed opening task", "Review request with id " + reviewRequest.getId() + " created in repository " + reviewBoardRepository.getName() + " but the task editor could not be opened.");
+                    return;
+                }
+            }
         } catch (SVNException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (SVNClientException e) {
             throw new RuntimeException(e);
+        } catch (ReviewboardException e) {
+            throw new RuntimeException(e);
         } finally {
             FileUtils.deleteQuietly(tmpFile);
             IOUtils.closeQuietly(reader);
         }
-    }
-
-    private void append(List<File> files, File base, String heading, StringBuilder text) {
-
-        if ( files.isEmpty() )
-            return;
-        
-        text.append(heading).append(":\n\n");
-        for ( File file : files ) {
-            
-            String unqualified = file.getAbsolutePath().substring(base.getAbsolutePath().length());
-            
-            text.append(" - ").append(unqualified).append("\n");
-        }
-        text.append("\n");
     }
 
     public void selectionChanged(IAction action, ISelection selection) {
