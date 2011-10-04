@@ -51,6 +51,7 @@ import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewReply;
@@ -273,7 +274,7 @@ public class RestfulReviewboardReader {
                 Repository repository = new Repository();
                 repository.setId(jsonRepository.getInt("id"));
                 repository.setName(jsonRepository.getString("name"));
-                repository.setTool(jsonRepository.getString("tool"));
+                repository.setTool(RepositoryType.valueOf(jsonRepository.getString("tool")));
                 repository.setPath(jsonRepository.getString("path"));
                 
                 repositories.add(repository);

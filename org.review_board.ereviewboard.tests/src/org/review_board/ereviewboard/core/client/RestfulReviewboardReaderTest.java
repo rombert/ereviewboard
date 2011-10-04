@@ -59,6 +59,7 @@ import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewReply;
@@ -188,7 +189,7 @@ public class RestfulReviewboardReaderTest {
         assertThat("repositories[0].name", repository.getName(), is("Review Board SVN"));
         assertThat("repositories[0].path", repository.getPath(),
                 is("http://reviewboard.googlecode.com/svn"));
-        assertThat("repositories[0].tool", repository.getTool(), is("Subversion"));
+        assertThat("repositories[0].tool", repository.getTool(), is(RepositoryType.Subversion));
     }
 
     @Test

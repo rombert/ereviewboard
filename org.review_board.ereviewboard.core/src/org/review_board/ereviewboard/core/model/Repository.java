@@ -46,10 +46,10 @@ import java.io.Serializable;
  * @author Markus Knittig
  */
 public class Repository implements Serializable  {
-
+    
     private int id;
     private String name;
-    private String tool;
+    private RepositoryType tool;
     private String path;
 
     /**
@@ -83,14 +83,14 @@ public class Repository implements Serializable  {
     /**
      * @return the tool
      */
-    public String getTool() {
+    public RepositoryType getTool() {
         return tool;
     }
 
     /**
      * @param tool the tool to set
      */
-    public void setTool(String tool) {
+    public void setTool(RepositoryType tool) {
         this.tool = tool;
     }
 
