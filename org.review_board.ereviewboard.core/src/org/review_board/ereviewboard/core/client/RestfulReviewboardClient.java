@@ -39,6 +39,7 @@ package org.review_board.ereviewboard.core.client;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -418,5 +419,12 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         String result = httpClient.executePut("/api/review-requests/"+reviewRequestId+"/", parameters, monitor);
         
         reviewboardReader.ensureSuccess(result);
+    }
+    
+    public ReviewRequest createReviewRequest(Repository repository, IProgressMonitor monitor) throws ReviewboardException {
+        
+        String result = httpClient.executePost("/api/review-requests/", Collections.singletonMap("repository", String.valueOf(repository.getId())),  monitor);
+        
+        return reviewboardReader.readReviewRequest(result);
     }
 }

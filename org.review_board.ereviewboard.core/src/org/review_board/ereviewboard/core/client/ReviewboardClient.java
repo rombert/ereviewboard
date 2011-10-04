@@ -47,6 +47,7 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.FileDiff;
+import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.Review;
 import org.review_board.ereviewboard.core.model.ReviewReply;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
@@ -110,4 +111,6 @@ public interface ReviewboardClient {
      * @param status the status to update to, except {@linkplain ReviewRequestStatus#ALL ALL} and {@linkplain ReviewRequestStatus#NONE NONE}
      */
     void updateStatus(int reviewRequestId, ReviewRequestStatus status, IProgressMonitor monitor) throws ReviewboardException;
+    
+    ReviewRequest createReviewRequest(Repository repository, IProgressMonitor monitor) throws ReviewboardException;
 }
