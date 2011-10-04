@@ -8,8 +8,7 @@ Bundle-Localization: OSGI-INF/l10n/bundle
 Bundle-Vendor: %Bundle-Vendor
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
-Import-Package: org.apache.commons.io;bundle-version="1.4.0",
- org.eclipse.core.resources,
+Import-Package: org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
  org.eclipse.jface.action,
@@ -27,4 +26,5 @@ Import-Package: org.apache.commons.io;bundle-version="1.4.0",
  org.tigris.subversion.subclipse.core.resources,
  org.tigris.subversion.svnclientadapter
 Require-Bundle: org.eclipse.ui,
- org.review_board.ereviewboard.core
+ org.review_board.ereviewboard.core,
+ org.apache.commons.io;bundle-version="1.4.0"
