@@ -43,7 +43,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -96,6 +98,11 @@ public class ReviewboardClientManager implements IRepositoryListener {
         }
 
         return repository;
+    }
+    
+    public synchronized List<ReviewboardClient> getAllClients() {
+        
+        return new ArrayList<ReviewboardClient>(clientByUrl.values());
     }
 
     public TaskRepositoryLocationFactory getTaskRepositoryLocationFactory() {

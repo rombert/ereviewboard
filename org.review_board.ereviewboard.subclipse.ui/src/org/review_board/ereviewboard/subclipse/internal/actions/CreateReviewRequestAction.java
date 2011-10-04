@@ -18,6 +18,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.ui.IActionDelegate;
+import org.review_board.ereviewboard.core.ReviewboardClientManager;
+import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
+import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -48,12 +53,30 @@ public class CreateReviewRequestAction implements IActionDelegate {
         
         ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentProject);
         
+        ReviewboardClientManager clientManager = ReviewboardCorePlugin.getDefault().getConnector().getClientManager();
+        Repository reviewBoardRepository = null;
+        
+        System.out.println("Local repository is " + localResource.getRepository().getRepositoryRoot().toString());
+        
+        for ( ReviewboardClient client : clientManager.getAllClients() ) {
+            for ( Repository repository : client.getClientData().getRepositories() ) {
+                
+                System.out.println("Considering repository of type " + repository.getTool()  + " and path " + repository.getPath());
+                
+                if ( repository.getTool() != RepositoryType.Subversion )
+                    continue;
+                
+                if ( localResource.getRepository().getRepositoryRoot().toString().equals(repository.getPath()) )
+                    reviewBoardRepository = repository;
+            }
+        }
+
+        
         File tmpFile = null;
         Reader reader = null;
         
         try {
             LocalResourceStatus status = localResource.getStatus();
-            
             
             Assert.isNotNull(status, "No status for resource " + localResource);
             
@@ -89,6 +112,11 @@ public class CreateReviewRequestAction implements IActionDelegate {
             
             File projectFile = currentProject.getLocation().toFile();
             StringBuilder text = new StringBuilder();   
+            
+            if ( reviewBoardRepository == null )
+                text.append("No matching repository found.\n");
+            else
+                text.append("Repository with name " + reviewBoardRepository.getName() +" and location " + reviewBoardRepository.getPath() + " found.\n");
             
             append(added, projectFile, "Added", text);
             append(modified, projectFile, "Modified", text);
