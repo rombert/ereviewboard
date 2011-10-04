@@ -8,6 +8,6 @@
     <version>0.9.0-SNAPSHOT</version>
   </parent>
   <artifactId>org.review_board.ereviewboard.subclipse</artifactId>
-  <name>eReviewBoard : Subclipse Integration</name>
-  <packaging>eclipse-plugin</packaging>
+  <name>eReviewBoard : Subclipse Feature</name>
+  <packaging>eclipse-feature</packaging>
 </project>

@@ -7,7 +7,7 @@
     <groupId>org.review_board.ereviewboard</groupId>
     <version>0.9.0-SNAPSHOT</version>
   </parent>
-  <artifactId>org.review_board.ereviewboard.subclipse-feature</artifactId>
-  <name>eReviewBoard : Subclipse Feature</name>
-  <packaging>eclipse-feature</packaging>
+  <artifactId>org.review_board.ereviewboard.subclipse.ui</artifactId>
+  <name>eReviewBoard : Subclipse Integration</name>
+  <packaging>eclipse-plugin</packaging>
 </project>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.review_board.ereviewboard.subclipse-feature"
+      id="org.review_board.ereviewboard.subclipse"
       label="Mylyn Reviews Connector: ReviewBoard Subclipse Integration (Optional)"
       version="0.9.0.qualifier"
       provider-name="Markus Knittig"
@@ -121,7 +121,7 @@ Inc. in the United States, other countries, or both.
    </requires>
 
    <plugin
-         id="org.review_board.ereviewboard.subclipse"
+         id="org.review_board.ereviewboard.subclipse.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
