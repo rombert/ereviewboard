@@ -1,0 +1,24 @@
+{
+  "diff": {
+    "id": 8, 
+    "links": {
+      "files": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/files\/", 
+        "method": "GET"
+      }, 
+      "repository": {
+        "href": "http:\/\/reviews.example.com\/api\/repositories\/1\/", 
+        "method": "GET", 
+        "title": "Review Board SVN"
+      }, 
+      "self": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/diffs\/1\/", 
+        "method": "GET"
+      }
+    }, 
+    "name": "diff", 
+    "revision": 1, 
+    "timestamp": "2009-02-25 02:01:21"
+  }, 
+  "stat": "ok"
+}

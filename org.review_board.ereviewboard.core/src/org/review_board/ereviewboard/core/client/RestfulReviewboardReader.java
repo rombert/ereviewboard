@@ -46,21 +46,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Comment;
-import org.review_board.ereviewboard.core.model.Diff;
-import org.review_board.ereviewboard.core.model.DiffComment;
-import org.review_board.ereviewboard.core.model.FileDiff;
-import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.model.RepositoryType;
-import org.review_board.ereviewboard.core.model.Review;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.ReviewReply;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
-import org.review_board.ereviewboard.core.model.Screenshot;
-import org.review_board.ereviewboard.core.model.ScreenshotComment;
-import org.review_board.ereviewboard.core.model.ServerInfo;
-import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.core.model.*;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -370,11 +356,8 @@ public class RestfulReviewboardReader {
             for (int i = 0; i < jsonDiffs.length(); i++) {
 
                 JSONObject jsonDiff = jsonDiffs.getJSONObject(i);
-                int revision = jsonDiff.getInt("revision");
-                int id = jsonDiff.getInt("id");
-                Date timestamp = ReviewboardUtil.marshallDate(jsonDiff.getString("timestamp"));
                 
-                diffList.add(new Diff(id, timestamp, revision));
+                diffList.add(parseDiff(jsonDiff));
             }
             
             return diffList;
@@ -384,6 +367,28 @@ public class RestfulReviewboardReader {
         }
     }
    
+    private Diff parseDiff(JSONObject jsonDiff) throws JSONException {
+
+        int revision = jsonDiff.getInt("revision");
+        String name = jsonDiff.getString("name");
+        int id = jsonDiff.getInt("id");
+        Date timestamp = ReviewboardUtil.marshallDate(jsonDiff.getString("timestamp"));
+        
+        return new Diff(id, name, timestamp, revision);
+
+    }
+    
+    public Diff readDiff(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject object = checkedGetJSonRootObject(source);
+            
+            return parseDiff(object.getJSONObject("diff"));
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
     public List<FileDiff> readFileDiffs(String source) throws ReviewboardException {
         try {
             JSONObject json = checkedGetJSonRootObject(source);
@@ -430,7 +435,7 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
-
+    
     public PagedResult<DiffComment> readDiffComments(String source) throws ReviewboardException {
         
         try {
@@ -504,6 +509,4 @@ public class RestfulReviewboardReader {
         
         checkedGetJSonRootObject(source);
     }
-
-
 }

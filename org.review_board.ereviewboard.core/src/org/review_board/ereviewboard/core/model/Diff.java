@@ -26,11 +26,13 @@ public class Diff implements Serializable {
     public static final String DIFF_REVISION_PREFIX = "Diff revision ";
     
     private final int id;
+    private final String name;
     private final Date timestamp;
     private int revision;
     
-    public Diff(int id, Date timestamp, int revision) {
+    public Diff(int id, String name, Date timestamp, int revision) {
         this.id = id;
+        this.name = name;
         this.timestamp = timestamp;
         this.revision = revision;
     }
@@ -48,6 +50,10 @@ public class Diff implements Serializable {
     }
     
     public String getName() {
+        return name;
+    }
+    
+    public String getDisplayName() {
         return DIFF_REVISION_PREFIX + revision;
     }
 

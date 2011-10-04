@@ -44,16 +44,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Diff;
-import org.review_board.ereviewboard.core.model.DiffComment;
-import org.review_board.ereviewboard.core.model.FileDiff;
-import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.model.Review;
-import org.review_board.ereviewboard.core.model.ReviewReply;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
-import org.review_board.ereviewboard.core.model.Screenshot;
-import org.review_board.ereviewboard.core.model.ScreenshotComment;
+import org.review_board.ereviewboard.core.model.*;
 
 /**
  * Interface for Review Board operations.
@@ -114,5 +105,5 @@ public interface ReviewboardClient {
     
     ReviewRequest createReviewRequest(Repository repository, IProgressMonitor monitor) throws ReviewboardException;
     
-    void createDiff(int reviewRequestId, String baseDir, byte[] diffContent, IProgressMonitor monitor ) throws ReviewboardException;
+    Diff createDiff(int reviewRequestId, String baseDir, byte[] diffContent, IProgressMonitor monitor ) throws ReviewboardException;
 }

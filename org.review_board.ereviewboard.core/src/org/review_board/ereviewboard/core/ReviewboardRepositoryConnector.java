@@ -379,8 +379,8 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         for (Diff diff : diffs) {
             TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + diff.getRevision());
             TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
-            mapper.setFileName(diff.getName());
-            mapper.setDescription(diff.getName());
+            mapper.setFileName(diff.getDisplayName());
+            mapper.setDescription(diff.getDisplayName());
             mapper.setAuthor(newPerson(taskRepository, taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
             mapper.setCreationDate(diff.getTimestamp());
             mapper.setAttachmentId(Integer.toString(diff.getId()));

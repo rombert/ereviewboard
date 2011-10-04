@@ -1,10 +1,6 @@
 package org.review_board.ereviewboard.subclipse.internal.actions;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,19 +14,20 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.mylyn.tasks.core.TaskRepository;
+import org.eclipse.mylyn.tasks.ui.TasksUi;
+import org.eclipse.mylyn.tasks.ui.TasksUiUtil;
 import org.eclipse.team.core.RepositoryProvider;
 import org.eclipse.ui.IActionDelegate;
 import org.review_board.ereviewboard.core.ReviewboardClientManager;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.*;
 import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
@@ -38,9 +35,6 @@ import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
-
-import org.eclipse.mylyn.tasks.core.TaskRepository;
-import org.eclipse.mylyn.tasks.ui.*;
 
 /**
  * @author Robert Munteanu
@@ -58,14 +52,16 @@ public class CreateReviewRequestAction implements IActionDelegate {
         
         Assert.isNotNull(svnProvider, "No " + SVNTeamProvider.class.getSimpleName() + " for " + currentProject);
         
-        ISVNLocalResource localResource = SVNWorkspaceRoot.getSVNResourceFor(currentProject);
+        ISVNLocalResource projectSvnResource = SVNWorkspaceRoot.getSVNResourceFor(currentProject);
         
         ReviewboardClientManager clientManager = ReviewboardCorePlugin.getDefault().getConnector().getClientManager();
         ReviewboardClient rbClient = null;
         Repository reviewBoardRepository = null;
-        String url = null;
+        String taskRepositoryUrl = null;
         
-        System.out.println("Local repository is " + localResource.getRepository().getRepositoryRoot().toString());
+        ISVNRepositoryLocation svnRepository = projectSvnResource.getRepository();
+        
+        System.out.println("Local repository is " + svnRepository.getRepositoryRoot().toString());
         
         for ( Map.Entry<String,ReviewboardClient> clientEntry : clientManager.getAllClients().entrySet() ) {
             
@@ -77,8 +73,8 @@ public class CreateReviewRequestAction implements IActionDelegate {
                 if ( repository.getTool() != RepositoryType.Subversion )
                     continue;
                 
-                if ( localResource.getRepository().getRepositoryRoot().toString().equals(repository.getPath()) ) {
-                    url = clientEntry.getKey();
+                if ( svnRepository.getRepositoryRoot().toString().equals(repository.getPath()) ) {
+                    taskRepositoryUrl = clientEntry.getKey();
                     rbClient = client;
                     reviewBoardRepository = repository;
                     break;
@@ -91,11 +87,11 @@ public class CreateReviewRequestAction implements IActionDelegate {
         Reader reader = null;
         
         try {
-            LocalResourceStatus status = localResource.getStatus();
+            LocalResourceStatus status = projectSvnResource.getStatus();
             
-            Assert.isNotNull(status, "No status for resource " + localResource);
+            Assert.isNotNull(status, "No status for resource " + projectSvnResource);
             
-            StatusAndInfoCommand command = new StatusAndInfoCommand(localResource, true, false, false);
+            StatusAndInfoCommand command = new StatusAndInfoCommand(projectSvnResource, true, false, false);
             
             command.run(new NullProgressMonitor());
             
@@ -120,13 +116,13 @@ public class CreateReviewRequestAction implements IActionDelegate {
                 all.add(svnStatus.getFile());
             }
 
-            ISVNClientAdapter svnClient = localResource.getRepository().getSVNClient();
+            ISVNClientAdapter svnClient = svnRepository.getSVNClient();
             
             tmpFile = File.createTempFile("ereviewboard", "diff");
-            svnClient.diff(all.toArray(new File[all.size()]), tmpFile, true);
+            svnClient.createPatch(all.toArray(new File[all.size()]),currentProject.getLocation().toFile().getAbsoluteFile(), tmpFile, true);
             
             if ( reviewBoardRepository == null ) {
-                MessageDialog.openError(null, "Failed creating review request", "Unable to find a matching SVN repository for " + localResource.getRepository().getRepositoryRoot() + " .");
+                MessageDialog.openError(null, "Failed creating review request", "Unable to find a matching SVN repository for " + svnRepository.getRepositoryRoot() + " .");
                 return;
             }
             
@@ -137,7 +133,17 @@ public class CreateReviewRequestAction implements IActionDelegate {
             if ( rbClient != null && reviewBoardRepository != null ) {
                 ReviewRequest reviewRequest = rbClient.createReviewRequest(reviewBoardRepository, new NullProgressMonitor());
                 
-                TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, url);
+                System.out.println("Created review request with id " + reviewRequest.getId());
+                
+                String basePath = projectSvnResource.getUrl().toString().substring(svnRepository.getRepositoryRoot().toString().length());
+                
+                System.out.println("Detected base path " + basePath);
+                
+                TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, taskRepositoryUrl);
+                
+                Diff diff = rbClient.createDiff(reviewRequest.getId(), basePath, outputStream.toByteArray(), new NullProgressMonitor());
+                
+                System.out.println("Diff created.");
                 
                 boolean success = TasksUiUtil.openTask(repository, String.valueOf(reviewRequest.getId()));
                 

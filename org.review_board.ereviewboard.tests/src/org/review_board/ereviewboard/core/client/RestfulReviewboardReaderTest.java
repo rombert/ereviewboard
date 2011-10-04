@@ -55,19 +55,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Diff;
-import org.review_board.ereviewboard.core.model.DiffComment;
-import org.review_board.ereviewboard.core.model.FileDiff;
-import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.model.RepositoryType;
-import org.review_board.ereviewboard.core.model.Review;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.ReviewReply;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
-import org.review_board.ereviewboard.core.model.ScreenshotComment;
-import org.review_board.ereviewboard.core.model.ServerInfo;
-import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.core.model.*;
 
 /**
  * @author Markus Knittig
@@ -323,6 +311,18 @@ public class RestfulReviewboardReaderTest {
         assertThat("diffs[0].id", firstDiff.getId(), is(8));
         assertThat("diffs[0].revision", firstDiff.getRevision(), is(1));
         assertThat("diffs[0].timestamp", firstDiff.getTimestamp(), is (ReviewboardAttributeMapper.parseDateValue("2009-02-25 02:01:21")));
+    }
+    
+    @Test
+    public void readDiff() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/diff/
+        Diff diff = reader.readDiff(readJsonTestResource("diff.json"));
+        
+        assertThat("diff.id", diff.getId(), is(8));
+        assertThat("diff.name", diff.getName(), is("diff"));
+        assertThat("diff.revision", diff.getRevision(), is(1));
+        assertThat("diff.timestamp", diff.getTimestamp(), is (ReviewboardAttributeMapper.parseDateValue("2009-02-25 02:01:21")));
     }
 
     @Test

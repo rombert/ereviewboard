@@ -39,12 +39,7 @@ package org.review_board.ereviewboard.core.client;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -55,19 +50,7 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Diff;
-import org.review_board.ereviewboard.core.model.DiffComment;
-import org.review_board.ereviewboard.core.model.FileDiff;
-import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.model.Review;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.ReviewReply;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
-import org.review_board.ereviewboard.core.model.Screenshot;
-import org.review_board.ereviewboard.core.model.ScreenshotComment;
-import org.review_board.ereviewboard.core.model.ServerInfo;
-import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.core.model.*;
 
 /**
  * RESTful implementation of {@link ReviewboardClient}.
@@ -428,7 +411,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return reviewboardReader.readReviewRequest(result);
     }
     
-    public void createDiff(int reviewRequestId, String baseDir, byte[] diffContent, IProgressMonitor monitor) throws ReviewboardException {
+    public Diff createDiff(int reviewRequestId, String baseDir, byte[] diffContent, IProgressMonitor monitor) throws ReviewboardException {
 
             ReviewboardHttpClient.UploadItem uploadItem = new ReviewboardHttpClient.UploadItem(
                     "path", "main.diff", diffContent);
@@ -440,6 +423,6 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             String result = httpClient.executePost("/api/review-requests/" + reviewRequestId
                     + "/diffs/", parameters, Collections.singletonList(uploadItem), monitor);
 
-            System.out.println("Result of creating diff is " + result);
+            return reviewboardReader.readDiff(result);
     }
 }
