@@ -427,4 +427,19 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         return reviewboardReader.readReviewRequest(result);
     }
+    
+    public void createDiff(int reviewRequestId, String baseDir, byte[] diffContent, IProgressMonitor monitor) throws ReviewboardException {
+
+            ReviewboardHttpClient.UploadItem uploadItem = new ReviewboardHttpClient.UploadItem(
+                    "path", "main.diff", diffContent);
+            
+            Map<String, String> parameters = new HashMap<String, String>(1);
+            if ( baseDir != null )
+                parameters.put("basedir", baseDir);
+
+            String result = httpClient.executePost("/api/review-requests/" + reviewRequestId
+                    + "/diffs/", parameters, Collections.singletonList(uploadItem), monitor);
+
+            System.out.println("Result of creating diff is " + result);
+    }
 }

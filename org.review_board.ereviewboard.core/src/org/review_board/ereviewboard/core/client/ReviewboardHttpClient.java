@@ -60,6 +60,11 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -214,6 +219,29 @@ public class ReviewboardHttpClient {
         return executeMethod(postRequest, monitor);
     }
 
+    public String executePost(String url, Map<String, String> parameters, List<UploadItem> uploadItems, 
+            IProgressMonitor monitor) throws ReviewboardException {
+
+        PostMethod postRequest = new PostMethod(stripSlash(location.getUrl()) + url);
+        configureRequestForJson(postRequest);
+        postRequest.removeRequestHeader("Content-Type"); // allow the MultipartRequestEntity to configure the Content-Type
+        List<Part> parts = new ArrayList<Part>();
+
+        for ( Map.Entry<String, String> paramEntry : parameters.entrySet() )
+            parts.add(new StringPart(paramEntry.getKey(), paramEntry.getValue()));
+        
+        for ( UploadItem uploadItem : uploadItems ) {
+            
+            String partName = uploadItem.getName();
+
+            parts.add(new FilePart(partName, new ByteArrayPartSource(uploadItem.getFileName(), uploadItem.getContent())));
+        }
+        
+        postRequest.setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[parts.size()]), postRequest.getParams()));
+        
+        return executeMethod(postRequest, monitor);
+    }
+
     private String executeMethod(HttpMethodBase request, IProgressMonitor monitor) throws ReviewboardException {
         
         monitor = Policy.monitorFor(monitor);
@@ -318,4 +346,28 @@ public class ReviewboardHttpClient {
         }
     }
 
+    public static class UploadItem {
+        
+        private final String name;
+        private final String fileName;
+        private final byte[] content;
+        
+        public UploadItem(String name, String fileName, byte[] content) {
+            this.name = name;
+            this.fileName = fileName;
+            this.content = content;
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        public String getFileName() {
+            return fileName;
+        }
+        
+        public byte[] getContent() {
+            return content;
+        }
+    }
 }
