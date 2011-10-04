@@ -106,4 +106,6 @@ public interface ReviewboardClient {
     ReviewRequest createReviewRequest(Repository repository, IProgressMonitor monitor) throws ReviewboardException;
     
     Diff createDiff(int reviewRequestId, String baseDir, byte[] diffContent, IProgressMonitor monitor ) throws ReviewboardException;
+
+    void updateReviewRequest(ReviewRequest reviewRequest, boolean publish, IProgressMonitor monitor) throws ReviewboardException;
 }

@@ -425,4 +425,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
             return reviewboardReader.readDiff(result);
     }
+
+    public void updateReviewRequest(ReviewRequest reviewRequest, boolean publish, IProgressMonitor monitor) throws ReviewboardException {
+        
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("branch", reviewRequest.getBranch());
+        parameters.put("bugs_closed", reviewRequest.getBugsClosedText());
+        parameters.put("description", reviewRequest.getDescription());
+        parameters.put("public", String.valueOf(publish));
+        parameters.put("summary", reviewRequest.getSummary());
+        parameters.put("target_groups", reviewRequest.getTargetGroupsText());
+        parameters.put("target_people", reviewRequest.getTargetPeopleText());
+        parameters.put("testing_done", reviewRequest.getTestingDone());
+        
+        String result = httpClient.executePut("/api/review-requests/"+reviewRequest.getId()+"/draft/", parameters, monitor);
+        
+        System.out.println("Draft publish result is " + result);
+
+    }
 }

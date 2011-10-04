@@ -32,6 +32,14 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
+/**
+ * The <tt>DetectLocalChangesPage</tt> shows the local changes
+ * 
+ * <p>It also allows selection of the resources to be included in the review request.</p>
+ * 
+ * @author Robert Munteanu
+ *
+ */
 class DetectLocalChangesPage extends WizardPage {
 
     private final IProject _project;
@@ -84,6 +92,8 @@ class DetectLocalChangesPage extends WizardPage {
         
         populate();
     }
+    
+    
 
     private void populate() {
 
