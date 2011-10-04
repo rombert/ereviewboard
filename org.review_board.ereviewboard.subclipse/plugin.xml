@@ -10,7 +10,7 @@
             <action
                class="org.review_board.ereviewboard.subclipse.internal.actions.CreateReviewRequestAction"
                id="org.review_board.ereviewboard.subclipse.ui.actions.StartReview"
-               label="Create Review Request"
+               label="Create Review Request..."
                icon="icons/reviewboard-icon.png"
                menubarPath="team.main/group1">
          </action>

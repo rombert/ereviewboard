@@ -20,5 +20,8 @@ Import-Package: org.eclipse.core.resources,
  org.eclipse.ui.ide,
  org.tigris.subversion.clientadapter,
  org.tigris.subversion.subclipse.core,
- org.tigris.subversion.subclipse.core.resources
+ org.tigris.subversion.subclipse.core.client,
+ org.tigris.subversion.subclipse.core.resources,
+ org.tigris.subversion.svnclientadapter,
+ org.apache.commons.io;bundle-version="1.4.0"
 Require-Bundle: org.eclipse.ui
