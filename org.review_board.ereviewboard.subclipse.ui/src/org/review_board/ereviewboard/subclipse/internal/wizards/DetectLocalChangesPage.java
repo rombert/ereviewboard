@@ -30,6 +30,7 @@ import org.eclipse.team.core.RepositoryProvider;
 import org.review_board.ereviewboard.core.ReviewboardClientManager;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
@@ -138,6 +139,12 @@ class DetectLocalChangesPage extends WizardPage {
                         
                         TaskRepository repositoryCandidate = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, clientUrl);
                         ReviewboardClient client = clientManager.getClient(repositoryCandidate);
+                        
+                        try {
+                            client.updateRepositoryData(false, monitor);
+                        } catch (ReviewboardException e) {
+                            throw new InvocationTargetException(e, "Failed updating the repository data for the " + repositoryCandidate.getRepositoryLabel());
+                        }
                         
                         for ( Repository repository : client.getClientData().getRepositories() ) {
                             
