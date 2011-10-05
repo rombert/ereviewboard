@@ -19,6 +19,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -91,7 +92,7 @@ class DetectLocalChangesPage extends WizardPage {
         _foundSvnRepositoryLabel = new Label(layout, SWT.NONE);
         _foundSvnRepositoryLabel.setText("Pending...");
         
-        _table = new Table(layout, SWT.BORDER | SWT.VIRTUAL);
+        _table = new Table(layout, SWT.BORDER );
         _table.setLinesVisible (true);
         _table.setHeaderVisible (true);
 
