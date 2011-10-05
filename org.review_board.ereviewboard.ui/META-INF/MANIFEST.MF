@@ -17,4 +17,5 @@ Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.review_board.ereviewboard.ui.ReviewboardUiPlugin
 Bundle-Vendor: %Bundle-Vendor
 Export-Package: org.review_board.ereviewboard.ui,
+ org.review_board.ereviewboard.ui.util,
  org.review_board.ereviewboard.ui.wizard

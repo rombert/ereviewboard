@@ -2,8 +2,8 @@ package org.review_board.ereviewboard.subclipse.internal.wizards;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -19,15 +19,23 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.team.core.RepositoryProvider;
 import org.review_board.ereviewboard.core.ReviewboardClientManager;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
-import org.tigris.subversion.subclipse.core.*;
-import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -57,7 +65,7 @@ class DetectLocalChangesPage extends WizardPage {
 
     public DetectLocalChangesPage(IProject project, CreateReviewRequestWizardContext context) {
 
-        super("Detect local changes");
+        super("Detect local changes", "Detect local changes", null);
         
         setMessage("Select the changes to submit for review. The ReviewBoard instance and the SVN repository have been auto-detected.", IMessageProvider.INFORMATION);
         _project = project;

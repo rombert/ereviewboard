@@ -27,6 +27,7 @@ import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.review_board.ereviewboard.ui.util.*;
 
 public class CreateReviewRequestWizard extends Wizard {
 
@@ -39,6 +40,7 @@ public class CreateReviewRequestWizard extends Wizard {
 
         _project = project;
         setWindowTitle("Create new review request");
+        setDefaultPageImageDescriptor(ReviewboardImages.WIZARD_CREATE_REQUEST);
         setNeedsProgressMonitor(true);
     }
 

@@ -34,7 +34,7 @@ class PublishReviewRequestPage extends WizardPage {
 
     public PublishReviewRequestPage(CreateReviewRequestWizardContext context) {
 
-        super("Publish review request");
+        super("Publish review request", "Publish review request", null);
         
         setMessage("Fill in the review request details. Description, summary and a target person or a target group are required.", IMessageProvider.INFORMATION);
         
