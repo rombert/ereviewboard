@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.fieldassist.AutoCompleteField;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -27,7 +28,6 @@ class PublishReviewRequestPage extends WizardPage {
 
     private AutoCompleteField _toUserComboAutoCompleteField;
     private AutoCompleteField _toGroupComboAutoCompleteField;
-    
     private final ReviewRequest reviewRequest = new ReviewRequest();
     
     private final CreateReviewRequestWizardContext _context;
@@ -35,6 +35,8 @@ class PublishReviewRequestPage extends WizardPage {
     public PublishReviewRequestPage(CreateReviewRequestWizardContext context) {
 
         super("Publish review request");
+        
+        setMessage("Fill in the review request details. Description, summary and a target person or a target group are required.", IMessageProvider.INFORMATION);
         
         _context = context;
     }
@@ -58,6 +60,8 @@ class PublishReviewRequestPage extends WizardPage {
             public void modifyText(ModifyEvent e) {
             
                reviewRequest.setSummary(summary.getText());
+               
+               getContainer().updateButtons();
             }
         });
 
@@ -73,6 +77,8 @@ class PublishReviewRequestPage extends WizardPage {
             public void modifyText(ModifyEvent e) {
                 
                 reviewRequest.setBugsClosed(Collections.singletonList(bugsClosed.getText()));
+                
+                getContainer().updateButtons();
             }
         });
         
@@ -88,6 +94,8 @@ class PublishReviewRequestPage extends WizardPage {
             public void modifyText(ModifyEvent e) {
                 
                 reviewRequest.setBranch(branch.getText());
+                
+                getContainer().updateButtons();
             }
         });
         
@@ -95,7 +103,7 @@ class PublishReviewRequestPage extends WizardPage {
         descriptionLabel.setText("Description");
         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(descriptionLabel);
         
-        final Text description = new Text(layout, SWT.MULTI| SWT.BORDER);
+        final Text description = new Text(layout, SWT.MULTI| SWT.BORDER | SWT.WRAP);
         GridDataFactory.swtDefaults().hint(300, 50).applyTo(description);
         
         description.addModifyListener(new ModifyListener() {
@@ -104,6 +112,8 @@ class PublishReviewRequestPage extends WizardPage {
             public void modifyText(ModifyEvent e) {
             
                reviewRequest.setDescription(description.getText());
+               
+               getContainer().updateButtons();
             }
         });
 
@@ -111,7 +121,7 @@ class PublishReviewRequestPage extends WizardPage {
         testingDoneLabel.setText("Testing done");
         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(testingDoneLabel);
         
-        final Text testingDone = new Text(layout, SWT.MULTI| SWT.BORDER);
+        final Text testingDone = new Text(layout, SWT.MULTI| SWT.BORDER | SWT.WRAP);
         GridDataFactory.swtDefaults().hint(300, 50).applyTo(testingDone);
         
         testingDone.addModifyListener(new ModifyListener() {
@@ -120,6 +130,8 @@ class PublishReviewRequestPage extends WizardPage {
             public void modifyText(ModifyEvent e) {
             
                 reviewRequest.setTestingDone(testingDone.getText());
+                
+                getContainer().updateButtons();
             }
         });
         
@@ -137,6 +149,8 @@ class PublishReviewRequestPage extends WizardPage {
             public void modifyText(ModifyEvent e) {
             
                 reviewRequest.setTargetPeople(Collections.singletonList(toUserText.getText()));
+                
+                getContainer().updateButtons();
             }
         });
 
@@ -154,12 +168,38 @@ class PublishReviewRequestPage extends WizardPage {
             public void modifyText(ModifyEvent e) {
                 
                 reviewRequest.setTargetGroups(Collections.singletonList(toGroupText.getText()));
+                
+                getContainer().updateButtons();
             }
         });
         
         setControl(layout);
     }
     
+    @Override
+    public boolean isPageComplete() {
+    
+        return super.isPageComplete() && checkValid();
+    }
+    
+    private boolean checkValid() {
+
+        if (reviewRequest.getSummary() == null || reviewRequest.getSummary().length() == 0 ) {
+            return false;
+        }
+        
+        if ( reviewRequest.getDescription() == null || reviewRequest.getDescription().length() == 0 ) {
+            return false;
+        }
+        
+        if ( reviewRequest.getTargetGroups().isEmpty() && reviewRequest.getTargetPeople().isEmpty()) {
+            return false;
+        }
+        
+        return true;
+            
+    }
+
     @Override
     public void setVisible(boolean visible) {
     

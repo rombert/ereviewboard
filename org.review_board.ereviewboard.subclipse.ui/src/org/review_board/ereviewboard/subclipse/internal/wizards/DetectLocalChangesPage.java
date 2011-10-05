@@ -58,7 +58,6 @@ class DetectLocalChangesPage extends WizardPage {
         super("Detect local changes");
         
         setMessage("Select the changes to submit for review. The ReviewBoard instance and the SVN repository have been auto-detected.", IMessageProvider.INFORMATION);
-        
         _project = project;
         _context = context;
     }
@@ -68,37 +67,36 @@ class DetectLocalChangesPage extends WizardPage {
 
         Composite layout = new Composite(parent, SWT.NONE);
         
-        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(layout);
+        GridLayoutFactory.swtDefaults().numColumns(2).applyTo(layout);
         
         Label rbRepositoryLabel = new Label(layout, SWT.NONE);
-        rbRepositoryLabel.setText("Reviewboard repository");
+        rbRepositoryLabel.setText("Reviewboard repository :");
         
         _foundRbRepositoryLabel = new Label(layout, SWT.NONE);
         _foundRbRepositoryLabel.setText("Pending...");
         
         Label svnRepositoryLabel = new Label(layout, SWT.NONE);
-        svnRepositoryLabel.setText("SVN repository");
+        svnRepositoryLabel.setText("SVN repository :");
         
         _foundSvnRepositoryLabel = new Label(layout, SWT.NONE);
         _foundSvnRepositoryLabel.setText("Pending...");
         
         _table = new Table(layout, SWT.BORDER | SWT.VIRTUAL);
-        GridDataFactory.fillDefaults().span(2, 1).hint(SWT.DEFAULT, 300).applyTo(_table);
         _table.setLinesVisible (true);
         _table.setHeaderVisible (true);
+
+        GridDataFactory.fillDefaults().span(2, 1).hint(500, SWT.DEFAULT).applyTo(_table);
         TableColumn includeColumn = new TableColumn(_table, SWT.NONE);
         includeColumn.setText("Include");
         
         TableColumn fileColumn = new TableColumn(_table, SWT.NONE);
         fileColumn.setText("File");
-        
+
         setControl(layout);
         
         populate();
     }
     
-    
-
     private void populate() {
 
         try {
@@ -230,7 +228,7 @@ class DetectLocalChangesPage extends WizardPage {
                                 }
                             });
                             checkbox.setSelection(true);
-                            checkbox.pack ();
+                            checkbox.pack();
                             editor.minimumWidth = checkbox.getSize ().x;
                             editor.horizontalAlignment = SWT.LEFT;
                             editor.setEditor(checkbox, item, 0);
