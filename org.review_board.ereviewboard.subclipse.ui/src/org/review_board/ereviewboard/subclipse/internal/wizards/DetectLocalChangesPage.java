@@ -8,6 +8,7 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -55,6 +56,8 @@ class DetectLocalChangesPage extends WizardPage {
     public DetectLocalChangesPage(IProject project, CreateReviewRequestWizardContext context) {
 
         super("Detect local changes");
+        
+        setMessage("Select the changes to submit for review. The ReviewBoard instance and the SVN repository have been auto-detected.", IMessageProvider.INFORMATION);
         
         _project = project;
         _context = context;
@@ -146,12 +149,18 @@ class DetectLocalChangesPage extends WizardPage {
                         _foundRbRepositoryLabel.setText(taskRepository.getRepositoryLabel());
                     } else {
                         _foundRbRepositoryLabel.setText("Not found.");
+                        _foundSvnRepositoryLabel.setText("Not found");
+                        setErrorMessage("No repository found for SVN path " +  getSvnRepositoryLocation().getRepositoryRoot());
+                        return;
                     }
                     
-                    if ( reviewBoardRepository != null )
+                    if ( reviewBoardRepository != null ) {
                         _foundSvnRepositoryLabel.setText(reviewBoardRepository.getName());
-                    else
+                    } else {
                         _foundSvnRepositoryLabel.setText("Not found");
+                        setErrorMessage("No repository found for SVN path " +  getSvnRepositoryLocation().getRepositoryRoot());
+                        return;
+                    }
                     
 
                     try {
@@ -205,6 +214,14 @@ class DetectLocalChangesPage extends WizardPage {
                                     
                                     System.out.println("Now we have " + _selectedFiles.size() + " selected files.");
                                     
+                                    if ( _selectedFiles.isEmpty() ) {
+                                        setErrorMessage("Please select at least one change to submit for review.");
+                                    } else {
+                                        setErrorMessage(null);
+                                    }
+                                    
+                                    getContainer().updateButtons();
+                                    
                                 }
                                 
                                 @Override
@@ -223,6 +240,10 @@ class DetectLocalChangesPage extends WizardPage {
                         for ( int i = 0 ; i < _table.getColumnCount(); i ++ )
                             _table.getColumn(i).pack();
 
+                        if ( _selectedFiles.isEmpty() ) {
+                            setErrorMessage("No changes found in the repository which can be used to create a diff.");
+                            return;
+                        }
                     } catch (SVNException e) {
                         throw new InvocationTargetException(e);
                     }
@@ -236,7 +257,11 @@ class DetectLocalChangesPage extends WizardPage {
         }
     }
     
+    @Override
+    public boolean isPageComplete() {
     
+        return super.isPageComplete() && getTaskRepository() != null && getReviewBoardRepository() != null && getSelectedFiles().size() > 0 ;
+    }
     
     public Set<File> getSelectedFiles() {
         
