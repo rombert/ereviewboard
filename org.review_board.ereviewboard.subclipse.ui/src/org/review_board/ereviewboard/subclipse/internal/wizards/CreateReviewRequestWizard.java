@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
@@ -58,9 +59,14 @@ public class CreateReviewRequestWizard extends Wizard {
 
                 @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+                    
+                    monitor.beginTask("Posting review request", 4);
 
                     File tmpFile = null;
                     FileReader reader = null;
+                    
+                    SubMonitor sub;
+                    
                     try {
                         ISVNRepositoryLocation svnRepository = _detectLocalChangesPage.getSvnRepositoryLocation();
                         ISVNClientAdapter svnClient = svnRepository.getSVNClient();
@@ -70,16 +76,27 @@ public class CreateReviewRequestWizard extends Wizard {
                         ISVNLocalResource projectSvnResource = SVNWorkspaceRoot.getSVNResourceFor(_project);
 
                         tmpFile = File.createTempFile("ereviewboard", "diff");
-                        svnClient.createPatch(_detectLocalChangesPage.getSelectedFiles().toArray(new File[_detectLocalChangesPage.getSelectedFiles().size()]),
-                                _project.getLocation().toFile().getAbsoluteFile(), tmpFile, true);
-
+                        
+                        sub = SubMonitor.convert(monitor, "Creating patch", 1);
+                        
+                        
                         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+                        File[] changes = _detectLocalChangesPage.getSelectedFiles().toArray(new File[_detectLocalChangesPage.getSelectedFiles().size()]);
+                        svnClient.createPatch(changes, _project.getLocation().toFile(), tmpFile, false);
                         reader = new FileReader(tmpFile);
                         IOUtils.copy(reader, outputStream);
 
+                        sub.done();
+                        
                         if (rbClient != null && reviewBoardRepository != null) {
+                            
+                            sub = SubMonitor.convert(monitor, "Creating initial review request", 1);
+                            
                             ReviewRequest reviewRequest = rbClient.createReviewRequest(reviewBoardRepository,
-                                    monitor);
+                                    sub);
+                            
+                            sub.done();
 
                             System.out.println("Created review request with id " + reviewRequest.getId());
 
@@ -90,14 +107,22 @@ public class CreateReviewRequestWizard extends Wizard {
 
                             TaskRepository repository = _detectLocalChangesPage.getTaskRepository();
 
+                            sub = SubMonitor.convert(monitor, "Posting diff patch", 1);
+                            
                             rbClient.createDiff(reviewRequest.getId(), basePath, outputStream.toByteArray(), monitor);
+                            
+                            sub.done();
 
                             System.out.println("Diff created.");
 
                             ReviewRequest reviewRequestForUpdate = _publishReviewRequestPage.getReviewRequest();
                             reviewRequestForUpdate.setId(reviewRequest.getId());
 
+                            sub = SubMonitor.convert(monitor, "Publishing review request", 1);
+                            
                             rbClient.updateReviewRequest(reviewRequestForUpdate, true, monitor);
+                            
+                            sub.done();
 
                             boolean success = TasksUiUtil.openTask(repository, String.valueOf(reviewRequest.getId()));
 
@@ -120,6 +145,7 @@ public class CreateReviewRequestWizard extends Wizard {
                     } finally {
                         FileUtils.deleteQuietly(tmpFile);
                         IOUtils.closeQuietly(reader);
+                        monitor.done();
                     }
                 }
             });
