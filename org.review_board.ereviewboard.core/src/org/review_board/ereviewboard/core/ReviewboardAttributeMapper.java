@@ -169,7 +169,8 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         
         if ( taskAttribute.getId().equals(Attribute.SUBMITTER.toString()) ) {
             User user = reviewboardClientData.getUser(taskAttribute.getValue());
-            person.setName(user.getFullName());
+            if ( user != null )
+                person.setName(user.getFullName());
         }
         
         return person;
