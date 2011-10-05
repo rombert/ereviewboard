@@ -21,13 +21,13 @@ import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.ui.util.ReviewboardImages;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.review_board.ereviewboard.ui.util.*;
 
 public class CreateReviewRequestWizard extends Wizard {
     
@@ -61,7 +61,6 @@ public class CreateReviewRequestWizard extends Wizard {
         try {
             getContainer().run(false, true, new IRunnableWithProgress() {
 
-                @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     
                     monitor.beginTask("Posting review request", 4);

@@ -20,13 +20,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.team.core.RepositoryProvider;
 import org.review_board.ereviewboard.core.ReviewboardClientManager;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
@@ -34,11 +28,7 @@ import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
-import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.*;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
@@ -76,7 +66,6 @@ class DetectLocalChangesPage extends WizardPage {
         _context = context;
     }
 
-    @Override
     public void createControl(Composite parent) {
 
         Composite layout = new Composite(parent, SWT.NONE);
@@ -129,7 +118,6 @@ class DetectLocalChangesPage extends WizardPage {
         try {
             getWizard().getContainer().run(false, true, new IRunnableWithProgress() {
                 
-                @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                 
                     SVNTeamProvider svnProvider = (SVNTeamProvider) RepositoryProvider.getProvider(_project, SVNProviderPlugin.getTypeId());
@@ -229,7 +217,6 @@ class DetectLocalChangesPage extends WizardPage {
                             _selectedFiles.add(svnStatus.getFile());
                             checkbox.addSelectionListener(new SelectionListener() {
                                 
-                                @Override
                                 public void widgetSelected(SelectionEvent e) {
                                 
                                     Button source =  (Button) e.getSource();
@@ -251,7 +238,6 @@ class DetectLocalChangesPage extends WizardPage {
                                     
                                 }
                                 
-                                @Override
                                 public void widgetDefaultSelected(SelectionEvent e) {
                                     widgetSelected(e);
                                 }

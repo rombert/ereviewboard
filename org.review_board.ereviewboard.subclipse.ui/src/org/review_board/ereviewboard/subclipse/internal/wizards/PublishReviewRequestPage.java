@@ -41,7 +41,6 @@ class PublishReviewRequestPage extends WizardPage {
         _context = context;
     }
 
-    @Override
     public void createControl(Composite parent) {
 
         Composite layout = new Composite(parent, SWT.NONE);
@@ -53,7 +52,6 @@ class PublishReviewRequestPage extends WizardPage {
         final Text summary = newText(layout);
         summary.addModifyListener(new ModifyListener() {
             
-            @Override
             public void modifyText(ModifyEvent e) {
             
                reviewRequest.setSummary(summary.getText());
@@ -67,7 +65,6 @@ class PublishReviewRequestPage extends WizardPage {
         final Text bugsClosed = newText(layout);
         bugsClosed.addModifyListener(new ModifyListener() {
             
-            @Override
             public void modifyText(ModifyEvent e) {
                 
                 reviewRequest.setBugsClosed(Collections.singletonList(bugsClosed.getText()));
@@ -81,7 +78,6 @@ class PublishReviewRequestPage extends WizardPage {
         final Text branch = newText(layout);
         branch.addModifyListener(new ModifyListener() {
             
-            @Override
             public void modifyText(ModifyEvent e) {
                 
                 reviewRequest.setBranch(branch.getText());
@@ -96,7 +92,6 @@ class PublishReviewRequestPage extends WizardPage {
         
         description.addModifyListener(new ModifyListener() {
             
-            @Override
             public void modifyText(ModifyEvent e) {
             
                reviewRequest.setDescription(description.getText());
@@ -111,7 +106,6 @@ class PublishReviewRequestPage extends WizardPage {
         
         testingDone.addModifyListener(new ModifyListener() {
             
-            @Override
             public void modifyText(ModifyEvent e) {
             
                 reviewRequest.setTestingDone(testingDone.getText());
@@ -128,7 +122,6 @@ class PublishReviewRequestPage extends WizardPage {
         
         toUserText.addModifyListener(new ModifyListener() {
             
-            @Override
             public void modifyText(ModifyEvent e) {
             
                 reviewRequest.setTargetPeople(Collections.singletonList(toUserText.getText()));
@@ -145,7 +138,6 @@ class PublishReviewRequestPage extends WizardPage {
         
         toGroupText.addModifyListener(new ModifyListener() {
             
-            @Override
             public void modifyText(ModifyEvent e) {
                 
                 reviewRequest.setTargetGroups(Collections.singletonList(toGroupText.getText()));
