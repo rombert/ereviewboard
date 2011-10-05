@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUiUtil;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
@@ -123,6 +124,7 @@ public class CreateReviewRequestWizard extends Wizard {
                 }
             });
         } catch (InvocationTargetException e) {
+            ((WizardPage) getContainer().getCurrentPage()).setErrorMessage("Failed creating new review request : " + e.getCause().getMessage());
             return false;
         } catch (InterruptedException e) {
             return false;

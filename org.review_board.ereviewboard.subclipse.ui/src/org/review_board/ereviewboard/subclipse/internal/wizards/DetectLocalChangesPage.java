@@ -172,25 +172,10 @@ class DetectLocalChangesPage extends WizardPage {
                         
                         ISVNStatus[] statuses = command.getStatuses();
                         
-                        List<File> modified = new ArrayList<File>();
-                        List<File> added = new ArrayList<File>();
-                        List<File> unversioned = new ArrayList<File>();
-                        
-                        List<File> all = new ArrayList<File>();
-                        
                         for ( ISVNStatus svnStatus : statuses ) {
                             
-                            if ( SVNStatusKind.ADDED.equals(svnStatus.getTextStatus()))
-                                added.add(svnStatus.getFile());
-                            else if ( SVNStatusKind.MODIFIED.equals(svnStatus.getTextStatus()))
-                                modified.add(svnStatus.getFile());
-                            else if ( SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()) ) {
-                                unversioned.add(svnStatus.getFile());
+                            if ( SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()) )
                                 continue;
-                            } else
-                                Assert.isTrue(false, "Unhandled " + SVNStatusKind.class.getSimpleName()+ " " + svnStatus.getTextStatus() + " for file " + svnStatus.getFile());
-                            
-                            all.add(svnStatus.getFile());
                             
                             TableItem item = new TableItem (_table, SWT.NONE);
                             
