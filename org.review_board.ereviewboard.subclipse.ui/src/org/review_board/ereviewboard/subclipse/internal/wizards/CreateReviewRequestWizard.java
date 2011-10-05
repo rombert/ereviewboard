@@ -30,6 +30,8 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.review_board.ereviewboard.ui.util.*;
 
 public class CreateReviewRequestWizard extends Wizard {
+    
+    static final int TEXT_WIDTH = 500;
 
     private final IProject _project;
     private DetectLocalChangesPage _detectLocalChangesPage;

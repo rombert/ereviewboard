@@ -48,12 +48,9 @@ class PublishReviewRequestPage extends WizardPage {
         
         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(layout);
         
-        Label summaryLabel = new Label(layout, SWT.NONE);
-        summaryLabel.setText("Summary");
-        GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(summaryLabel);
+        newLabel(layout, "Summary:");
         
-        final Text summary = new Text(layout, SWT.SINGLE | SWT.BORDER);
-        GridDataFactory.swtDefaults().hint(300, SWT.DEFAULT).applyTo(summary);
+        final Text summary = newText(layout);
         summary.addModifyListener(new ModifyListener() {
             
             @Override
@@ -65,12 +62,9 @@ class PublishReviewRequestPage extends WizardPage {
             }
         });
 
-        Label bugsClosedLabel = new Label(layout, SWT.NONE);
-        bugsClosedLabel.setText("Bugs closed");
-        GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(bugsClosedLabel);
+        newLabel(layout, "Bugs closed:");
         
-        final Text bugsClosed = new Text(layout, SWT.SINGLE | SWT.BORDER);
-        GridDataFactory.swtDefaults().hint(300, SWT.DEFAULT).applyTo(bugsClosed);
+        final Text bugsClosed = newText(layout);
         bugsClosed.addModifyListener(new ModifyListener() {
             
             @Override
@@ -82,12 +76,9 @@ class PublishReviewRequestPage extends WizardPage {
             }
         });
         
-        Label branchLabel = new Label(layout, SWT.NONE);
-        branchLabel.setText("Branch");
-        GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(branchLabel);
+        newLabel(layout, "Branch:");
         
-        final Text branch = new Text(layout, SWT.SINGLE | SWT.BORDER);
-        GridDataFactory.swtDefaults().hint(300, SWT.DEFAULT).applyTo(branch);
+        final Text branch = newText(layout);
         branch.addModifyListener(new ModifyListener() {
             
             @Override
@@ -99,12 +90,9 @@ class PublishReviewRequestPage extends WizardPage {
             }
         });
         
-        Label descriptionLabel = new Label(layout, SWT.NONE );
-        descriptionLabel.setText("Description");
-        GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(descriptionLabel);
+        newLabel(layout, "Description:");
         
-        final Text description = new Text(layout, SWT.MULTI| SWT.BORDER | SWT.WRAP);
-        GridDataFactory.swtDefaults().hint(300, 50).applyTo(description);
+        final Text description = newMultilineText(layout);
         
         description.addModifyListener(new ModifyListener() {
             
@@ -117,12 +105,9 @@ class PublishReviewRequestPage extends WizardPage {
             }
         });
 
-        Label testingDoneLabel = new Label(layout, SWT.NONE);
-        testingDoneLabel.setText("Testing done");
-        GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(testingDoneLabel);
+        newLabel(layout, "Testing done:");
         
-        final Text testingDone = new Text(layout, SWT.MULTI| SWT.BORDER | SWT.WRAP);
-        GridDataFactory.swtDefaults().hint(300, 50).applyTo(testingDone);
+        final Text testingDone = newMultilineText(layout);
         
         testingDone.addModifyListener(new ModifyListener() {
             
@@ -135,11 +120,9 @@ class PublishReviewRequestPage extends WizardPage {
             }
         });
         
-        Label toUserLabel = new Label(layout, SWT.NONE);
-        toUserLabel.setText("To user");
+        newLabel(layout, "Target user:");
         
-        final Text toUserText = new Text(layout, SWT.BORDER);
-        GridDataFactory.swtDefaults().hint(300, SWT.DEFAULT).applyTo(toUserText);
+        final Text toUserText = newText(layout);
         
         _toUserComboAutoCompleteField = new AutoCompleteField(toUserText, new TextContentAdapter(), new String[] {});
         
@@ -154,11 +137,9 @@ class PublishReviewRequestPage extends WizardPage {
             }
         });
 
-        Label toGroupLabel = new Label(layout, SWT.NONE);
-        toGroupLabel.setText("To group");
+        newLabel(layout, "Target group:");
         
-        final Text toGroupText = new Text(layout, SWT.BORDER);
-        GridDataFactory.swtDefaults().hint(300, SWT.DEFAULT).applyTo(toGroupText);
+        final Text toGroupText = newText(layout);
         
         _toGroupComboAutoCompleteField = new AutoCompleteField(toGroupText, new TextContentAdapter(), new String[] {});
         
@@ -174,6 +155,27 @@ class PublishReviewRequestPage extends WizardPage {
         });
         
         setControl(layout);
+    }
+
+    private void newLabel(Composite layout, String text) {
+
+        Label descriptionLabel = new Label(layout, SWT.NONE );
+        descriptionLabel.setText(text);
+        GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(descriptionLabel);
+    }
+    
+    private Text newText(Composite layout) {
+
+        final Text toUserText = new Text(layout, SWT.BORDER);
+        GridDataFactory.swtDefaults().hint(CreateReviewRequestWizard.TEXT_WIDTH, SWT.DEFAULT).applyTo(toUserText);
+        return toUserText;
+    }
+    
+    private Text newMultilineText(Composite layout) {
+
+        final Text description = new Text(layout, SWT.MULTI| SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+        GridDataFactory.swtDefaults().hint(CreateReviewRequestWizard.TEXT_WIDTH, 60).applyTo(description);
+        return description;
     }
     
     @Override
