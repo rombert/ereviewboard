@@ -89,6 +89,9 @@ class DetectLocalChangesPage extends WizardPage {
         TableColumn includeColumn = new TableColumn(_table, SWT.NONE);
         includeColumn.setText("Include");
         
+        TableColumn typeColumn = new TableColumn(_table, SWT.NONE);
+        typeColumn.setText("Change type");
+
         TableColumn fileColumn = new TableColumn(_table, SWT.NONE);
         fileColumn.setText("File");
 
@@ -217,7 +220,8 @@ class DetectLocalChangesPage extends WizardPage {
                             editor.minimumWidth = checkbox.getSize ().x;
                             editor.horizontalAlignment = SWT.LEFT;
                             editor.setEditor(checkbox, item, 0);
-                            item.setText(1, svnStatus.getUrlString().substring(projectSvnResource.getUrl().toString().length()));
+                            item.setText(1, svnStatus.getTextStatus().toString());
+                            item.setText(2, svnStatus.getUrlString().substring(projectSvnResource.getUrl().toString().length()));
                         }
                         
                         for ( int i = 0 ; i < _table.getColumnCount(); i ++ )
