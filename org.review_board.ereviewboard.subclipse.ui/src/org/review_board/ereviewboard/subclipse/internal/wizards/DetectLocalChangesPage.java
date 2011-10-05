@@ -30,7 +30,9 @@ import org.tigris.subversion.subclipse.core.*;
 import org.tigris.subversion.subclipse.core.client.StatusAndInfoCommand;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
+import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.ISVNStatus;
+import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 /**
@@ -169,11 +171,9 @@ class DetectLocalChangesPage extends WizardPage {
                         
                         Assert.isNotNull(status, "No status for resource " + projectSvnResource);
                         
-                        StatusAndInfoCommand command = new StatusAndInfoCommand(projectSvnResource, true, false, false);
+                        ISVNClientAdapter svnClient = getSvnRepositoryLocation().getSVNClient();
                         
-                        command.run(monitor);
-                        
-                        ISVNStatus[] statuses = command.getStatuses();
+                        ISVNStatus[] statuses = svnClient.getStatus(_project.getLocation().toFile(), true, false);
                         
                         for ( ISVNStatus svnStatus : statuses ) {
                             
@@ -232,6 +232,8 @@ class DetectLocalChangesPage extends WizardPage {
                             return;
                         }
                     } catch (SVNException e) {
+                        throw new InvocationTargetException(e);
+                    } catch (SVNClientException e) {
                         throw new InvocationTargetException(e);
                     }
                 }
