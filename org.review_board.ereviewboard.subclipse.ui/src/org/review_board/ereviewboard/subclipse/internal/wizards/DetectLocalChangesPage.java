@@ -125,9 +125,11 @@ class DetectLocalChangesPage extends WizardPage {
                     
                     System.out.println("Local repository is " + getSvnRepositoryLocation().getRepositoryRoot().toString());
                     
-                    for ( Map.Entry<String,ReviewboardClient> clientEntry : clientManager.getAllClients().entrySet() ) {
+                    for ( String clientUrl : clientManager.getAllClientUrl() ) {
                         
-                        ReviewboardClient client = clientEntry.getValue();
+                        TaskRepository repositoryCandidate = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, clientUrl);
+                        ReviewboardClient client = clientManager.getClient(repositoryCandidate);
+                        
                         for ( Repository repository : client.getClientData().getRepositories() ) {
                             
                             System.out.println("Considering repository of type " + repository.getTool()  + " and path " + repository.getPath());
@@ -136,9 +138,9 @@ class DetectLocalChangesPage extends WizardPage {
                                 continue;
                             
                             if ( getSvnRepositoryLocation().getRepositoryRoot().toString().equals(repository.getPath()) ) {
-                                rbClient = client;
                                 reviewBoardRepository = repository;
-                                taskRepository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, clientEntry.getKey());
+                                taskRepository = repositoryCandidate;
+                                rbClient = client;
                                 break;
                             }
                         }
