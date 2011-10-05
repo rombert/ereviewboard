@@ -46,17 +46,18 @@ class DetectLocalChangesPage extends WizardPage {
     private Table _table;
     private final Set<File> _selectedFiles = new HashSet<File>();
     private ISVNRepositoryLocation svnRepositoryLocation;
-    private ReviewboardClient _reviewboardClient;
     private Repository _reviewBoardRepository;
     private TaskRepository _taskRepository;
     private Label _foundRbRepositoryLabel;
     private Label _foundSvnRepositoryLabel;
+    private final CreateReviewRequestWizardContext _context;
 
-    public DetectLocalChangesPage(IProject project) {
+    public DetectLocalChangesPage(IProject project, CreateReviewRequestWizardContext context) {
 
         super("Detect local changes");
         
         _project = project;
+        _context = context;
     }
 
     @Override
@@ -247,11 +248,6 @@ class DetectLocalChangesPage extends WizardPage {
         return svnRepositoryLocation;
     }
     
-    public ReviewboardClient getReviewboardClient() {
-
-        return _reviewboardClient;
-    }
-    
     public Repository getReviewBoardRepository() {
 
         return _reviewBoardRepository;
@@ -269,7 +265,7 @@ class DetectLocalChangesPage extends WizardPage {
 
     void setReviewboardClient(ReviewboardClient rbClient) {
         
-        _reviewboardClient = rbClient;
+        _context.setReviewboardClient(rbClient);
     }
     
     void setReviewboardRepository(Repository reviewBoardRepository) {

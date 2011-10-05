@@ -15,7 +15,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.User;
@@ -26,14 +25,18 @@ import org.review_board.ereviewboard.core.model.User;
  */
 class PublishReviewRequestPage extends WizardPage {
 
-    private ReviewboardClient _reviewboardClient;
     private AutoCompleteField _toUserComboAutoCompleteField;
-    private final ReviewRequest reviewRequest = new ReviewRequest();
     private AutoCompleteField _toGroupComboAutoCompleteField;
+    
+    private final ReviewRequest reviewRequest = new ReviewRequest();
+    
+    private final CreateReviewRequestWizardContext _context;
 
-    public PublishReviewRequestPage() {
+    public PublishReviewRequestPage(CreateReviewRequestWizardContext context) {
 
         super("Publish review request");
+        
+        _context = context;
     }
 
     @Override
@@ -157,10 +160,21 @@ class PublishReviewRequestPage extends WizardPage {
         setControl(layout);
     }
     
+    @Override
+    public void setVisible(boolean visible) {
+    
+        if ( visible) {
+            _toUserComboAutoCompleteField.setProposals(getUsernames());
+            _toGroupComboAutoCompleteField.setProposals(getGroupNames());
+        }
+        
+        super.setVisible(visible);
+    }
+    
     private String[] getUsernames() {
 
         List<String> usernames = new ArrayList<String>();
-        for ( User user : _reviewboardClient.getClientData().getUsers() )
+        for ( User user : _context.getReviewboardClient().getClientData().getUsers() )
             usernames.add(user.getUsername());
 
         return usernames.toArray(new String[usernames.size()]);
@@ -169,21 +183,12 @@ class PublishReviewRequestPage extends WizardPage {
     private String[] getGroupNames() {
 
         List<String> groupNames = new ArrayList<String>();
-        for ( ReviewGroup group : _reviewboardClient.getClientData().getGroups() )
+        for ( ReviewGroup group : _context.getReviewboardClient().getClientData().getGroups() )
             groupNames.add(group.getName());
 
         return groupNames.toArray(new String[groupNames.size()]);
     }
 
-    public void setReviewboardClient(ReviewboardClient reviewboardClient) {
-        
-        _reviewboardClient = reviewboardClient;
-        
-        _toUserComboAutoCompleteField.setProposals(getUsernames());
-        _toGroupComboAutoCompleteField.setProposals(getGroupNames());
-        
-    }
-    
     public ReviewRequest getReviewRequest() {
 
         return reviewRequest;

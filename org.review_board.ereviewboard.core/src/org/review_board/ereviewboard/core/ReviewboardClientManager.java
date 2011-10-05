@@ -43,12 +43,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.IOUtils;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.core.StatusHandler;
@@ -75,6 +75,8 @@ public class ReviewboardClientManager implements IRepositoryListener {
     private File cacheFile;
 
     public ReviewboardClientManager(File cacheFile) {
+        
+        Assert.isNotNull(cacheFile, "cacheFile must not be null");
         this.cacheFile = cacheFile;
         readCache();
     }
@@ -125,8 +127,6 @@ public class ReviewboardClientManager implements IRepositoryListener {
 
     public void repositorySettingsChanged(TaskRepository repository) {
         
-        
-        
         ReviewboardClient client = clientByUrl.get(repository.getRepositoryUrl());
 
         if (client != null) {
@@ -140,7 +140,7 @@ public class ReviewboardClientManager implements IRepositoryListener {
     }
 
     private void readCache() {
-        if (cacheFile == null || !cacheFile.exists()) {
+        if ( !cacheFile.exists() ) {
             return;
         }
 
@@ -149,26 +149,30 @@ public class ReviewboardClientManager implements IRepositoryListener {
             in = new ObjectInputStream(new FileInputStream(cacheFile));
 
             for (int count = in.readInt(); count > 0; count--) {
-                dataByUrl.put(in.readObject().toString(), (ReviewboardClientData) in.readObject());
-            }
-        } catch (Throwable e) {
-            StatusHandler.log(new Status(IStatus.WARNING, ReviewboardCorePlugin.PLUGIN_ID,
-                    "The Reviewboard respository data cache could not be read", e));
-        } finally {
-            if (in != null) {
+                String clientUrl = null;
                 try {
-                    in.close();
-                } catch (IOException e1) {
-                    // ignore
+                    clientUrl = in.readObject().toString();
+                    dataByUrl.put(clientUrl, (ReviewboardClientData) in.readObject());
+                } catch ( IOException e) {
+                    logWarning("Could not read data for client with url " + clientUrl, e);
+                } catch ( ClassNotFoundException e) {
+                    logWarning("Could not read data for client with url " + clientUrl, e);
                 }
             }
+        } catch (IOException e) {
+            logWarning("The Reviewboard respository data cache could not be read ", e);
+        } catch (RuntimeException e) {
+            logWarning("The Reviewboard respository data cache could not be read ", e);
+        } finally {
+            IOUtils.closeQuietly(in);
         }
     }
 
+    private void logWarning(String string, Throwable e) {
+        StatusHandler.log(new Status(IStatus.WARNING, ReviewboardCorePlugin.PLUGIN_ID, string, e));
+    }
+
     void writeCache() {
-        if (cacheFile == null) {
-            return;
-        }
 
         ObjectOutputStream out = null;
         try {
@@ -181,17 +185,12 @@ public class ReviewboardClientManager implements IRepositoryListener {
             }
 
             out.flush();
-        } catch (Throwable e) {
-            StatusHandler.log(new Status(IStatus.WARNING, ReviewboardCorePlugin.PLUGIN_ID,
-                    "The Reviewboard respository data cache could not be written", e));
+        } catch (IOException e) {
+            logWarning("The Reviewboard respository data cache could not be written", e);
+        } catch (RuntimeException e) {
+            logWarning("The Reviewboard respository data cache could not be written", e);
         } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e1) {
-                    // ignore
-                }
-            }
+            IOUtils.closeQuietly(out);
         }
     }
 

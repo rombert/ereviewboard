@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUiUtil;
@@ -32,6 +31,7 @@ public class CreateReviewRequestWizard extends Wizard {
     private final IProject _project;
     private DetectLocalChangesPage _detectLocalChangesPage;
     private PublishReviewRequestPage _publishReviewRequestPage;
+    private final CreateReviewRequestWizardContext _context = new CreateReviewRequestWizardContext();
 
     public CreateReviewRequestWizard(IProject project) {
 
@@ -39,22 +39,13 @@ public class CreateReviewRequestWizard extends Wizard {
         setWindowTitle("Create new review request");
         setNeedsProgressMonitor(true);
     }
-    
-    @Override
-    public IWizardPage getNextPage(IWizardPage page) {
-
-        if ( page == _detectLocalChangesPage )
-            _publishReviewRequestPage.setReviewboardClient(_detectLocalChangesPage.getReviewboardClient());
-        
-        return super.getNextPage(page);
-    }
 
     @Override
     public void addPages() {
 
-        _detectLocalChangesPage = new DetectLocalChangesPage(_project);
+        _detectLocalChangesPage = new DetectLocalChangesPage(_project, _context);
         addPage(_detectLocalChangesPage);
-        _publishReviewRequestPage = new PublishReviewRequestPage();
+        _publishReviewRequestPage = new PublishReviewRequestPage(_context);
         addPage(_publishReviewRequestPage);
     }
 
@@ -72,9 +63,9 @@ public class CreateReviewRequestWizard extends Wizard {
                     try {
                         ISVNRepositoryLocation svnRepository = _detectLocalChangesPage.getSvnRepositoryLocation();
                         ISVNClientAdapter svnClient = svnRepository.getSVNClient();
-                        ReviewboardClient rbClient = _detectLocalChangesPage.getReviewboardClient();
+                        ReviewboardClient rbClient = _context.getReviewboardClient();
                         Repository reviewBoardRepository = _detectLocalChangesPage.getReviewBoardRepository();
-                        
+
                         ISVNLocalResource projectSvnResource = SVNWorkspaceRoot.getSVNResourceFor(_project);
 
                         tmpFile = File.createTempFile("ereviewboard", "diff");
@@ -101,10 +92,10 @@ public class CreateReviewRequestWizard extends Wizard {
                             rbClient.createDiff(reviewRequest.getId(), basePath, outputStream.toByteArray(), monitor);
 
                             System.out.println("Diff created.");
-                            
+
                             ReviewRequest reviewRequestForUpdate = _publishReviewRequestPage.getReviewRequest();
                             reviewRequestForUpdate.setId(reviewRequest.getId());
-                            
+
                             rbClient.updateReviewRequest(reviewRequestForUpdate, true, monitor);
 
                             boolean success = TasksUiUtil.openTask(repository, String.valueOf(reviewRequest.getId()));
