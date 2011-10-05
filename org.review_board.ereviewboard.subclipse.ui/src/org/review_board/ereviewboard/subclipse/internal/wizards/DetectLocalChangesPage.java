@@ -3,6 +3,7 @@ package org.review_board.ereviewboard.subclipse.internal.wizards;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -64,6 +65,7 @@ class DetectLocalChangesPage extends WizardPage {
     private Label _foundRbRepositoryLabel;
     private Label _foundSvnRepositoryLabel;
     private final CreateReviewRequestWizardContext _context;
+    private boolean _alreadyPopulated;
 
     public DetectLocalChangesPage(IProject project, CreateReviewRequestWizardContext context) {
 
@@ -85,13 +87,13 @@ class DetectLocalChangesPage extends WizardPage {
         rbRepositoryLabel.setText("Reviewboard repository :");
         
         _foundRbRepositoryLabel = new Label(layout, SWT.NONE);
-        _foundRbRepositoryLabel.setText("Pending...");
+        _foundRbRepositoryLabel.setText("Unknown");
         
         Label svnRepositoryLabel = new Label(layout, SWT.NONE);
         svnRepositoryLabel.setText("SVN repository :");
         
         _foundSvnRepositoryLabel = new Label(layout, SWT.NONE);
-        _foundSvnRepositoryLabel.setText("Pending...");
+        _foundSvnRepositoryLabel.setText("Unknown");
         
         _table = new Table(layout, SWT.BORDER );
         _table.setLinesVisible (true);
@@ -108,11 +110,21 @@ class DetectLocalChangesPage extends WizardPage {
         fileColumn.setText("File");
 
         setControl(layout);
+    }
+    
+    @Override
+    public void setVisible(boolean visible) {
+    
+        super.setVisible(visible);
         
-        populate();
+        if ( visible )
+            populate();
     }
     
     private void populate() {
+        
+        if ( _alreadyPopulated )
+            return;
 
         try {
             getWizard().getContainer().run(false, true, new IRunnableWithProgress() {
@@ -135,7 +147,15 @@ class DetectLocalChangesPage extends WizardPage {
                     
                     System.out.println("Local repository is " + getSvnRepositoryLocation().getRepositoryRoot().toString());
                     
-                    for ( String clientUrl : clientManager.getAllClientUrl() ) {
+                    List<String> clientUrls = clientManager.getAllClientUrl();
+                    if ( clientUrls.isEmpty() ) {
+                        setMessage("No Reviewboard repositories are defined. Please add one using the Task Repositories view.", IMessageProvider.WARNING);
+                        return;
+                    }
+                    
+                    boolean hasSvnRepos = false;
+                    
+                    for ( String clientUrl : clientUrls ) {
                         
                         TaskRepository repositoryCandidate = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, clientUrl);
                         ReviewboardClient client = clientManager.getClient(repositoryCandidate);
@@ -143,7 +163,9 @@ class DetectLocalChangesPage extends WizardPage {
                         try {
                             client.updateRepositoryData(false, monitor);
                         } catch (ReviewboardException e) {
-                            throw new InvocationTargetException(e, "Failed updating the repository data for the " + repositoryCandidate.getRepositoryLabel());
+                            throw new InvocationTargetException(e, "Failed updating the repository data for " + repositoryCandidate.getRepositoryLabel() + " : " + e.getMessage());
+                        } catch (RuntimeException e) {
+                            throw new InvocationTargetException(e, "Failed updating the repository data for " + repositoryCandidate.getRepositoryLabel() + " : " + e.getMessage());
                         }
                         
                         for ( Repository repository : client.getClientData().getRepositories() ) {
@@ -152,6 +174,8 @@ class DetectLocalChangesPage extends WizardPage {
                             
                             if ( repository.getTool() != RepositoryType.Subversion )
                                 continue;
+                            
+                            hasSvnRepos = true;
                             
                             if ( getSvnRepositoryLocation().getRepositoryRoot().toString().equals(repository.getPath()) ) {
                                 reviewBoardRepository = repository;
@@ -162,30 +186,27 @@ class DetectLocalChangesPage extends WizardPage {
                         }
                     }
                     
+                    if ( !hasSvnRepos ) {
+                        setMessage("No Subversion repositories are defined in the configured ReviewBoard servers. Please add the correspoding repositories to ReviewBoard.");
+                        return;
+                    }
+                    
                     setReviewboardClient(rbClient);
                     setReviewboardRepository(reviewBoardRepository);
                     setTaskRepository(taskRepository);
                     
-                    if ( taskRepository != null ) {
+                    if ( taskRepository != null && reviewBoardRepository != null) {
                         _foundRbRepositoryLabel.setText(taskRepository.getRepositoryLabel());
                         _foundRbRepositoryLabel.setToolTipText(taskRepository.getUrl());
-                    } else {
-                        _foundRbRepositoryLabel.setText("Not found.");
-                        _foundSvnRepositoryLabel.setText("Not found");
-                        setErrorMessage("No repository found for SVN path " +  getSvnRepositoryLocation().getRepositoryRoot());
-                        return;
-                    }
-                    
-                    if ( reviewBoardRepository != null ) {
+                        
                         _foundSvnRepositoryLabel.setText(reviewBoardRepository.getName());
                         _foundSvnRepositoryLabel.setToolTipText(reviewBoardRepository.getPath());
+
                     } else {
-                        _foundSvnRepositoryLabel.setText("Not found");
-                        setErrorMessage("No repository found for SVN path " +  getSvnRepositoryLocation().getRepositoryRoot());
+                        setErrorMessage("No SVN repository defined in ReviewBoard for path " +  getSvnRepositoryLocation().getRepositoryRoot() + ". Please ensure that the repository URL from Eclipse matches the one from ReviewBoard.");
                         return;
                     }
                     
-
                     try {
                         LocalResourceStatus status = projectSvnResource.getStatus();
                         
@@ -263,6 +284,8 @@ class DetectLocalChangesPage extends WizardPage {
             setErrorMessage(e.getMessage());
         } catch (InterruptedException e) {
             setErrorMessage(e.getMessage());
+        } finally {
+            _alreadyPopulated = true;
         }
     }
     
