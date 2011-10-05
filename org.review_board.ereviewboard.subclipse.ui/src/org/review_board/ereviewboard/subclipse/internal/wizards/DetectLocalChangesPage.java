@@ -152,6 +152,7 @@ class DetectLocalChangesPage extends WizardPage {
                     
                     if ( taskRepository != null ) {
                         _foundRbRepositoryLabel.setText(taskRepository.getRepositoryLabel());
+                        _foundRbRepositoryLabel.setToolTipText(taskRepository.getUrl());
                     } else {
                         _foundRbRepositoryLabel.setText("Not found.");
                         _foundSvnRepositoryLabel.setText("Not found");
@@ -161,6 +162,7 @@ class DetectLocalChangesPage extends WizardPage {
                     
                     if ( reviewBoardRepository != null ) {
                         _foundSvnRepositoryLabel.setText(reviewBoardRepository.getName());
+                        _foundSvnRepositoryLabel.setToolTipText(reviewBoardRepository.getPath());
                     } else {
                         _foundSvnRepositoryLabel.setText("Not found");
                         setErrorMessage("No repository found for SVN path " +  getSvnRepositoryLocation().getRepositoryRoot());
