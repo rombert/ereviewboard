@@ -2,15 +2,15 @@ package org.review_board.ereviewboard.subclipse.internal.wizards;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -68,9 +68,6 @@ public class CreateReviewRequestWizard extends Wizard {
                     
                     monitor.beginTask("Posting review request", 4);
 
-                    File tmpFile = null;
-                    FileReader reader = null;
-                    
                     SubMonitor sub;
                     
                     try {
@@ -80,22 +77,13 @@ public class CreateReviewRequestWizard extends Wizard {
                         Repository reviewBoardRepository = _detectLocalChangesPage.getReviewBoardRepository();
 
                         ISVNLocalResource projectSvnResource = SVNWorkspaceRoot.getSVNResourceFor(_project);
-
-                        tmpFile = File.createTempFile("ereviewboard", "diff");
                         
                         sub = SubMonitor.convert(monitor, "Creating patch", 1);
                         
-                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        DiffCreator diffCreator = new DiffCreator();
                         
-                        Set<ChangedFile> selectedFiles = _detectLocalChangesPage.getSelectedFiles();
-                        List<File> changes = new ArrayList<File>(selectedFiles.size());
-                        for ( ChangedFile changedFile : selectedFiles )
-                            changes.add(changedFile.getFile());
+                        byte[] diffContent = diffCreator.createDiff(_detectLocalChangesPage.getSelectedFiles(), _project.getLocation().toFile(), svnClient);
                         
-                        svnClient.createPatch(changes.toArray(new File[changes.size()]), _project.getLocation().toFile(), tmpFile, false);
-                        reader = new FileReader(tmpFile);
-                        IOUtils.copy(reader, outputStream);
-
                         sub.done();
                         
                         if (rbClient != null && reviewBoardRepository != null) {
@@ -118,7 +106,7 @@ public class CreateReviewRequestWizard extends Wizard {
 
                             sub = SubMonitor.convert(monitor, "Posting diff patch", 1);
                             
-                            rbClient.createDiff(reviewRequest.getId(), basePath, outputStream.toByteArray(), monitor);
+                            rbClient.createDiff(reviewRequest.getId(), basePath, diffContent, monitor);
                             
                             sub.done();
 
@@ -152,8 +140,6 @@ public class CreateReviewRequestWizard extends Wizard {
                     } catch (ReviewboardException e) {
                         throw new InvocationTargetException(e);
                     } finally {
-                        FileUtils.deleteQuietly(tmpFile);
-                        IOUtils.closeQuietly(reader);
                         monitor.done();
                     }
                 }

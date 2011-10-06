@@ -47,12 +47,12 @@ public class ChangedFileFinder {
                 continue;
 
             boolean copied = svnStatus.isCopied();
-            String relativePath = svnStatus.getUrlString().substring(_baseUrl.toString().length());
+            String relativePath = svnStatus.getUrlString().substring(_baseUrl.toString().length() + 1);
             if (!copied) {
                 changedFiles.add(new ChangedFile(svnStatus.getFile(), svnStatus.getTextStatus(), relativePath));
             } else {
                 ISVNInfo info = _svnClient.getInfoFromWorkingCopy(svnStatus.getFile());
-                String copiedFromRelativePath = info.getCopyUrl().toString().substring(_baseUrl.toString().length());
+                String copiedFromRelativePath = info.getCopyUrl().toString().substring(_baseUrl.toString().length() + 1);
                 changedFiles.add(new ChangedFile(svnStatus.getFile(), svnStatus.getTextStatus(), relativePath, copiedFromRelativePath));
             }
         }

@@ -47,7 +47,7 @@ class ChangedFile {
      * 
      * <p>For instance, if the project is located at <tt>http://svn.example.com/project</tt> and the 
      * resource at <tt>http://svn.example.com/project/dir/file.txt</tt> , the relativePath is 
-     * <tt>/dir/file.txt</tt>.</p>
+     * <tt>dir/file.txt</tt>. Note that there are not leading slashes</p>
      * 
      * @return the path of the changed file relative to the parent project's location in the SVN repository
      */
