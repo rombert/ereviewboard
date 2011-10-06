@@ -24,7 +24,8 @@ Import-Package: org.eclipse.core.resources,
  org.tigris.subversion.subclipse.core,
  org.tigris.subversion.subclipse.core.client,
  org.tigris.subversion.subclipse.core.resources,
- org.tigris.subversion.svnclientadapter
+ org.tigris.subversion.svnclientadapter,
+ org.tigris.subversion.svnclientadapter.utils
 Require-Bundle: org.eclipse.ui,
  org.review_board.ereviewboard.core,
  org.review_board.ereviewboard.ui,

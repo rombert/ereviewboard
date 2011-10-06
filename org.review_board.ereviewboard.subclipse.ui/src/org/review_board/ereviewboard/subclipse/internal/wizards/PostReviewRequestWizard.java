@@ -1,16 +1,8 @@
 package org.review_board.ereviewboard.subclipse.internal.wizards;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -32,7 +24,11 @@ import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
-public class CreateReviewRequestWizard extends Wizard {
+/**
+ * @author Robert Munteanu
+ *
+ */
+public class PostReviewRequestWizard extends Wizard {
     
     static final int TEXT_WIDTH = 500;
 
@@ -41,10 +37,23 @@ public class CreateReviewRequestWizard extends Wizard {
     private PublishReviewRequestPage _publishReviewRequestPage;
     private final CreateReviewRequestWizardContext _context = new CreateReviewRequestWizardContext();
 
-    public CreateReviewRequestWizard(IProject project) {
+    private UpdateReviewRequestPage _updateReviewRequestPage;
+
+    private ReviewRequest _reviewRequest;
+
+    public PostReviewRequestWizard(IProject project) {
 
         _project = project;
         setWindowTitle("Create new review request");
+        setDefaultPageImageDescriptor(ReviewboardImages.WIZARD_CREATE_REQUEST);
+        setNeedsProgressMonitor(true);
+    }
+    
+    public PostReviewRequestWizard(IProject project, ReviewRequest reviewRequest) {
+        
+        _project = project;
+        _reviewRequest = reviewRequest;
+        setWindowTitle("Update review request");
         setDefaultPageImageDescriptor(ReviewboardImages.WIZARD_CREATE_REQUEST);
         setNeedsProgressMonitor(true);
     }
@@ -52,12 +61,17 @@ public class CreateReviewRequestWizard extends Wizard {
     @Override
     public void addPages() {
 
-        _detectLocalChangesPage = new DetectLocalChangesPage(_project, _context);
+        _detectLocalChangesPage = new DetectLocalChangesPage(_project, _context, _reviewRequest);
         addPage(_detectLocalChangesPage);
-        _publishReviewRequestPage = new PublishReviewRequestPage(_context);
-        addPage(_publishReviewRequestPage);
+        if ( _reviewRequest == null ) {
+            _publishReviewRequestPage = new PublishReviewRequestPage(_context);
+            addPage(_publishReviewRequestPage);
+        } else {
+            _updateReviewRequestPage = new UpdateReviewRequestPage(_context);
+            addPage(_updateReviewRequestPage);
+        }
     }
-
+    
     @Override
     public boolean performFinish() {
 

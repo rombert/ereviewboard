@@ -159,14 +159,14 @@ class PublishReviewRequestPage extends WizardPage {
     private Text newText(Composite layout) {
 
         final Text toUserText = new Text(layout, SWT.BORDER);
-        GridDataFactory.swtDefaults().hint(CreateReviewRequestWizard.TEXT_WIDTH, SWT.DEFAULT).applyTo(toUserText);
+        GridDataFactory.swtDefaults().hint(PostReviewRequestWizard.TEXT_WIDTH, SWT.DEFAULT).applyTo(toUserText);
         return toUserText;
     }
     
     private Text newMultilineText(Composite layout) {
 
         final Text description = new Text(layout, SWT.MULTI| SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-        GridDataFactory.swtDefaults().hint(CreateReviewRequestWizard.TEXT_WIDTH, 60).applyTo(description);
+        GridDataFactory.swtDefaults().hint(PostReviewRequestWizard.TEXT_WIDTH, 60).applyTo(description);
         return description;
     }
     

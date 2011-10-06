@@ -32,6 +32,7 @@ import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
+import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -62,14 +63,16 @@ class DetectLocalChangesPage extends WizardPage {
     private Label _foundSvnRepositoryLabel;
     private final CreateReviewRequestWizardContext _context;
     private boolean _alreadyPopulated;
+    private final ReviewRequest _reviewRequest;
 
-    public DetectLocalChangesPage(IProject project, CreateReviewRequestWizardContext context) {
+    public DetectLocalChangesPage(IProject project, CreateReviewRequestWizardContext context, ReviewRequest reviewRequest) {
 
         super("Detect local changes", "Detect local changes", null);
         
         setMessage("Select the changes to submit for review. The ReviewBoard instance and the SVN repository have been auto-detected.", IMessageProvider.INFORMATION);
         _project = project;
         _context = context;
+        _reviewRequest = reviewRequest;
     }
 
     public void createControl(Composite parent) {
@@ -89,6 +92,14 @@ class DetectLocalChangesPage extends WizardPage {
         
         _foundSvnRepositoryLabel = new Label(layout, SWT.NONE);
         _foundSvnRepositoryLabel.setText("Unknown");
+        
+        if ( _reviewRequest != null ) {
+            Label reviewRequestLabel = new Label(layout, SWT.NONE);
+            reviewRequestLabel.setText("Review request :");
+            
+            Label reviewRequestName = new Label(layout, SWT.NONE);
+            reviewRequestName.setText(_reviewRequest.getSummary());
+        }
         
         _table = new Table(layout, SWT.BORDER | SWT.V_SCROLL);
         _table.setLinesVisible (true);

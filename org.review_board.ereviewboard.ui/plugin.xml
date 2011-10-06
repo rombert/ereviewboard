@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="org.review_board.ereviewboard.ui.taskDiffActions" name="taskDiffActions" schema="schema/org.review_board.ereviewboard.ui.taskDiffActions.exsd"/>
    <extension
          point="org.eclipse.mylyn.tasks.ui.repositories">
       <connectorCore
