@@ -4,10 +4,10 @@
    <description>
       eReviewBoard Update Site
    </description>
-   <feature url="org.review_board.ereviewboard_0.9.0.qualifier" id="org.review_board.ereviewboard" version="0.9.0.qualifier">
+   <feature url="org.review_board.ereviewboard_0.10.0.qualifier" id="org.review_board.ereviewboard" version="0.10.0.qualifier">
       <category name="eReviewBoard"/>
    </feature>
-   <feature url="features/org.review_board.ereviewboard.subclipse_0.9.0.qualifier.jar" id="org.review_board.ereviewboard.subclipse" version="0.9.0.qualifier">
+   <feature url="features/org.review_board.ereviewboard.subclipse_0.10.0.qualifier.jar" id="org.review_board.ereviewboard.subclipse" version="0.10.0.qualifier">
       <category name="eReviewBoard"/>
    </feature>
    <category-def name="eReviewBoard" label="eReviewBoard"/>
