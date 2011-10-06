@@ -90,11 +90,11 @@ class DetectLocalChangesPage extends WizardPage {
         _foundSvnRepositoryLabel = new Label(layout, SWT.NONE);
         _foundSvnRepositoryLabel.setText("Unknown");
         
-        _table = new Table(layout, SWT.BORDER );
+        _table = new Table(layout, SWT.BORDER | SWT.V_SCROLL);
         _table.setLinesVisible (true);
         _table.setHeaderVisible (true);
 
-        GridDataFactory.fillDefaults().span(2, 1).hint(500, SWT.DEFAULT).applyTo(_table);
+        GridDataFactory.fillDefaults().span(2, 1).hint(500, 300).grab(true, true).applyTo(_table);
         TableColumn includeColumn = new TableColumn(_table, SWT.NONE);
         includeColumn.setText("Include");
         
