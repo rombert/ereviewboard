@@ -1,6 +1,5 @@
 package org.review_board.ereviewboard.subclipse.internal.wizards;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +19,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.team.core.RepositoryProvider;
 import org.review_board.ereviewboard.core.ReviewboardClientManager;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
@@ -28,13 +32,15 @@ import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
-import org.tigris.subversion.subclipse.core.*;
+import org.tigris.subversion.subclipse.core.ISVNLocalResource;
+import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
+import org.tigris.subversion.subclipse.core.SVNException;
+import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
+import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.ISVNStatus;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.SVNStatusKind;
 
 /**
  * The <tt>DetectLocalChangesPage</tt> shows the local changes
@@ -48,7 +54,7 @@ class DetectLocalChangesPage extends WizardPage {
 
     private final IProject _project;
     private Table _table;
-    private final Set<File> _selectedFiles = new HashSet<File>();
+    private final Set<ChangedFile> _selectedFiles = new HashSet<ChangedFile>();
     private ISVNRepositoryLocation svnRepositoryLocation;
     private Repository _reviewBoardRepository;
     private TaskRepository _taskRepository;
@@ -202,19 +208,18 @@ class DetectLocalChangesPage extends WizardPage {
                         
                         ISVNClientAdapter svnClient = getSvnRepositoryLocation().getSVNClient();
                         
-                        ISVNStatus[] statuses = svnClient.getStatus(_project.getLocation().toFile(), true, false);
+                        ChangedFileFinder changedFileFinder = new ChangedFileFinder(projectSvnResource, svnClient);
                         
-                        for ( ISVNStatus svnStatus : statuses ) {
-                            
-                            if ( SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()) )
-                                continue;
+                        List<ChangedFile> changedFiles = changedFileFinder.findChangedFiles();
+                        
+                        for ( ChangedFile changedFile : changedFiles ) {
                             
                             TableItem item = new TableItem (_table, SWT.NONE);
                             
                             TableEditor editor = new TableEditor(_table);
                             Button checkbox = new Button(_table, SWT.CHECK);
-                            checkbox.setData(svnStatus.getFile());
-                            _selectedFiles.add(svnStatus.getFile());
+                            checkbox.setData(changedFile);
+                            _selectedFiles.add(changedFile);
                             checkbox.addSelectionListener(new SelectionListener() {
                                 
                                 public void widgetSelected(SelectionEvent e) {
@@ -222,7 +227,7 @@ class DetectLocalChangesPage extends WizardPage {
                                     Button source =  (Button) e.getSource();
                                     
                                     if ( source.getSelection() )
-                                        _selectedFiles.add((File) source.getData());
+                                        _selectedFiles.add((ChangedFile) source.getData());
                                     else
                                         _selectedFiles.remove(source.getData());
                                     
@@ -247,8 +252,8 @@ class DetectLocalChangesPage extends WizardPage {
                             editor.minimumWidth = checkbox.getSize ().x;
                             editor.horizontalAlignment = SWT.LEFT;
                             editor.setEditor(checkbox, item, 0);
-                            item.setText(1, svnStatus.getTextStatus().toString());
-                            item.setText(2, svnStatus.getUrlString().substring(projectSvnResource.getUrl().toString().length()));
+                            item.setText(1, changedFile.getStatusKind().toString());
+                            item.setText(2, changedFile.getPathRelativeToProject());
                         }
                         
                         for ( int i = 0 ; i < _table.getColumnCount(); i ++ )
@@ -281,7 +286,7 @@ class DetectLocalChangesPage extends WizardPage {
         return super.isPageComplete() && getTaskRepository() != null && getReviewBoardRepository() != null && getSelectedFiles().size() > 0 ;
     }
     
-    public Set<File> getSelectedFiles() {
+    public Set<ChangedFile> getSelectedFiles() {
         
         return _selectedFiles;
     }

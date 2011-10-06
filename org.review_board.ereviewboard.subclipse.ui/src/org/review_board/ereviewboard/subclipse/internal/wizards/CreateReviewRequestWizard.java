@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -82,11 +85,14 @@ public class CreateReviewRequestWizard extends Wizard {
                         
                         sub = SubMonitor.convert(monitor, "Creating patch", 1);
                         
-                        
                         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-                        File[] changes = _detectLocalChangesPage.getSelectedFiles().toArray(new File[_detectLocalChangesPage.getSelectedFiles().size()]);
-                        svnClient.createPatch(changes, _project.getLocation().toFile(), tmpFile, false);
+                        
+                        Set<ChangedFile> selectedFiles = _detectLocalChangesPage.getSelectedFiles();
+                        List<File> changes = new ArrayList<File>(selectedFiles.size());
+                        for ( ChangedFile changedFile : selectedFiles )
+                            changes.add(changedFile.getFile());
+                        
+                        svnClient.createPatch(changes.toArray(new File[changes.size()]), _project.getLocation().toFile(), tmpFile, false);
                         reader = new FileReader(tmpFile);
                         IOUtils.copy(reader, outputStream);
 
