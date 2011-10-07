@@ -163,7 +163,17 @@ class DetectLocalChangesPage extends WizardPage {
                     for ( String clientUrl : clientUrls ) {
                         
                         TaskRepository repositoryCandidate = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, clientUrl);
+                        
+                        if ( repositoryCandidate == null) {
+                            System.out.println("No repository for clientUrl " + clientUrl +" skipping.");
+                            continue;
+                        }
+                        
+                        System.out.println("Checking repository candidate " + repositoryCandidate.getRepositoryLabel());
+                        
                         ReviewboardClient client = clientManager.getClient(repositoryCandidate);
+                        
+                        System.out.println("Got reviewboardClient " + client);
                         
                         try {
                             client.updateRepositoryData(false, monitor);
@@ -172,6 +182,8 @@ class DetectLocalChangesPage extends WizardPage {
                         } catch (RuntimeException e) {
                             throw new InvocationTargetException(e, "Failed updating the repository data for " + repositoryCandidate.getRepositoryLabel() + " : " + e.getMessage());
                         }
+                        
+                        System.out.println("Refreshed repository data , got " + client.getClientData().getRepositories().size() + " repositories.");
                         
                         for ( Repository repository : client.getClientData().getRepositories() ) {
                             
@@ -215,6 +227,8 @@ class DetectLocalChangesPage extends WizardPage {
                     try {
                         LocalResourceStatus status = projectSvnResource.getStatus();
                         
+                        System.out.println("SVN repository status is " + status);
+                        
                         Assert.isNotNull(status, "No status for resource " + projectSvnResource);
                         
                         ISVNClientAdapter svnClient = getSvnRepositoryLocation().getSVNClient();
@@ -222,6 +236,8 @@ class DetectLocalChangesPage extends WizardPage {
                         ChangedFileFinder changedFileFinder = new ChangedFileFinder(projectSvnResource, svnClient);
                         
                         List<ChangedFile> changedFiles = changedFileFinder.findChangedFiles();
+                        
+                        System.out.println("Found " + changedFiles.size() + " changed files.");
                         
                         for ( ChangedFile changedFile : changedFiles ) {
                             
@@ -286,6 +302,8 @@ class DetectLocalChangesPage extends WizardPage {
             setErrorMessage(e.getMessage());
         } catch (InterruptedException e) {
             setErrorMessage(e.getMessage());
+        } catch ( RuntimeException e ) {
+            setErrorMessage(getErrorMessage());
         } finally {
             _alreadyPopulated = true;
         }
