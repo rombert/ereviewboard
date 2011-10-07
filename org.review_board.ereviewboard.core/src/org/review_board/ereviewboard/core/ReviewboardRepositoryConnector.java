@@ -203,7 +203,6 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         }
     }
 
-
     /**
      * Advances monitor by one + {@value #REVIEW_DIFF_TICKS} + {@value #SCREENSHOT_COMMENT_TICKS}
      * @param screenshots 
