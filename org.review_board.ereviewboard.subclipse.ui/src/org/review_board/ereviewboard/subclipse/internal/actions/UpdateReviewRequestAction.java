@@ -38,14 +38,12 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
 
     private TaskRepository repository;
     private int reviewRequestId;
-    private int diffId;
     private List<DiffResource> diffResources;
 
     public void init(TaskRepository repository, int reviewRequestId, int diffId, List<DiffResource> diffResources) {
         
         this.repository = repository;
         this.reviewRequestId = reviewRequestId;
-        this.diffId = diffId;
         this.diffResources = diffResources;
     }
 

@@ -107,5 +107,16 @@ public interface ReviewboardClient {
     
     Diff createDiff(int reviewRequestId, String baseDir, byte[] diffContent, IProgressMonitor monitor ) throws ReviewboardException;
 
-    void updateReviewRequest(ReviewRequest reviewRequest, boolean publish, IProgressMonitor monitor) throws ReviewboardException;
+    /**
+     * Updates the specified review request
+     * 
+     * <p>The id of the review request must point to an existing review request</p>
+     * 
+     * @param reviewRequest
+     * @param publish true if the changes should be published, otherwise a draft is created
+     * @param changedescription the optional description of the changes being made
+     * @param monitor
+     * @throws ReviewboardException
+     */
+    void updateReviewRequest(ReviewRequest reviewRequest, boolean publish, String changedescription, IProgressMonitor monitor) throws ReviewboardException;
 }

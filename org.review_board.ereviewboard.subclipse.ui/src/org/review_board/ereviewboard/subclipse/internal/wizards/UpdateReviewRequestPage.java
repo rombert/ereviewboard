@@ -1,10 +1,12 @@
 package org.review_board.ereviewboard.subclipse.internal.wizards;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 
 /**
@@ -13,31 +15,32 @@ import org.eclipse.swt.widgets.Label;
  */
 class UpdateReviewRequestPage extends WizardPage {
 
-    private CreateReviewRequestWizardContext _context;
+    private Text _text;
 
-    public UpdateReviewRequestPage(CreateReviewRequestWizardContext context) {
+    public UpdateReviewRequestPage() {
 
         super("Update Review Request", "Update Review Request", null);
         setMessage("Provide an optional description for the changes you are about to publish.");
-        
-        _context = context;
     }
     
     public void createControl(Composite parent) {
         
         Composite control = new Composite(parent, SWT.NONE);
 
-        GridLayoutFactory.fillDefaults().applyTo(control);
+        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(control);
         
-        Label label = new Label(control, SWT.NONE);
-        label.setText("Updating review requests is not yet implemented.");
+        Label label = new Label( control, SWT.WRAP);
+        GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(label);
+        label.setText("Change description\n(optional)");
         
+        _text= new Text(control, SWT.MULTI| SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+        GridDataFactory.swtDefaults().hint(PostReviewRequestWizard.TEXT_WIDTH, 60).applyTo(_text);
+
         setControl(control);
     }
-
-    @Override
-    public boolean isPageComplete() {
     
-        return false;
+    public String getChangeDescription() {
+        
+        return _text.getText();
     }
 }

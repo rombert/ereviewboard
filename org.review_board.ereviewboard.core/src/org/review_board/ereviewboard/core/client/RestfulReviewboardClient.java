@@ -51,6 +51,7 @@ import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
  * RESTful implementation of {@link ReviewboardClient}.
@@ -426,11 +427,13 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             return reviewboardReader.readDiff(result);
     }
 
-    public void updateReviewRequest(ReviewRequest reviewRequest, boolean publish, IProgressMonitor monitor) throws ReviewboardException {
+    public void updateReviewRequest(ReviewRequest reviewRequest, boolean publish, String changeDescription, IProgressMonitor monitor) throws ReviewboardException {
         
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("branch", reviewRequest.getBranch());
         parameters.put("bugs_closed", reviewRequest.getBugsClosedText());
+        if ( changeDescription != null )
+            parameters.put("changedescription", changeDescription);
         parameters.put("description", reviewRequest.getDescription());
         parameters.put("public", String.valueOf(publish));
         parameters.put("summary", reviewRequest.getSummary());

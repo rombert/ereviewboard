@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
@@ -67,7 +66,7 @@ public class PostReviewRequestWizard extends Wizard {
             _publishReviewRequestPage = new PublishReviewRequestPage(_context);
             addPage(_publishReviewRequestPage);
         } else {
-            _updateReviewRequestPage = new UpdateReviewRequestPage(_context);
+            _updateReviewRequestPage = new UpdateReviewRequestPage();
             addPage(_updateReviewRequestPage);
         }
     }
@@ -89,6 +88,7 @@ public class PostReviewRequestWizard extends Wizard {
                         ISVNClientAdapter svnClient = svnRepository.getSVNClient();
                         ReviewboardClient rbClient = _context.getReviewboardClient();
                         Repository reviewBoardRepository = _detectLocalChangesPage.getReviewBoardRepository();
+                        TaskRepository repository = _detectLocalChangesPage.getTaskRepository();
 
                         ISVNLocalResource projectSvnResource = SVNWorkspaceRoot.getSVNResourceFor(_project);
                         
@@ -100,51 +100,53 @@ public class PostReviewRequestWizard extends Wizard {
                         
                         sub.done();
                         
-                        if (rbClient != null && reviewBoardRepository != null) {
-                            
+                        ReviewRequest reviewRequest;
+
+                        if ( _reviewRequest == null ) {
                             sub = SubMonitor.convert(monitor, "Creating initial review request", 1);
                             
-                            ReviewRequest reviewRequest = rbClient.createReviewRequest(reviewBoardRepository,
-                                    sub);
+                            reviewRequest = rbClient.createReviewRequest(reviewBoardRepository, sub);
                             
                             sub.done();
-
+    
                             System.out.println("Created review request with id " + reviewRequest.getId());
-
-                            String basePath = projectSvnResource.getUrl().toString()
-                                    .substring(svnRepository.getRepositoryRoot().toString().length());
-
-                            System.out.println("Detected base path " + basePath);
-
-                            TaskRepository repository = _detectLocalChangesPage.getTaskRepository();
-
-                            sub = SubMonitor.convert(monitor, "Posting diff patch", 1);
-                            
-                            rbClient.createDiff(reviewRequest.getId(), basePath, diffContent, monitor);
-                            
-                            sub.done();
-
-                            System.out.println("Diff created.");
-
-                            ReviewRequest reviewRequestForUpdate = _publishReviewRequestPage.getReviewRequest();
-                            reviewRequestForUpdate.setId(reviewRequest.getId());
-
-                            sub = SubMonitor.convert(monitor, "Publishing review request", 1);
-                            
-                            rbClient.updateReviewRequest(reviewRequestForUpdate, true, monitor);
-                            
-                            sub.done();
-
-                            boolean success = TasksUiUtil.openTask(repository, String.valueOf(reviewRequest.getId()));
-
-                            if (!success) {
-                                MessageDialog.openWarning(null, "Failed opening task",
-                                        "Review request with id " + reviewRequest.getId() + " created in repository "
-                                                + reviewBoardRepository.getName()
-                                                + " but the task editor could not be opened.");
-                                return;
-                            }
+                        } else {
+                            reviewRequest = _reviewRequest;
                         }
+
+                        String basePath = projectSvnResource.getUrl().toString()
+                                .substring(svnRepository.getRepositoryRoot().toString().length());
+
+                        System.out.println("Detected base path " + basePath);
+                        
+                        sub = SubMonitor.convert(monitor, "Posting diff patch", 1);
+                        
+                        rbClient.createDiff(reviewRequest.getId(), basePath, diffContent, monitor);
+                        
+                        sub.done();
+
+                        System.out.println("Diff created.");
+
+                        ReviewRequest reviewRequestForUpdate;
+                        if ( _reviewRequest == null ) {
+                            reviewRequestForUpdate = _publishReviewRequestPage.getReviewRequest();
+                            reviewRequestForUpdate.setId(reviewRequest.getId());
+                        } else {
+                            reviewRequestForUpdate = _reviewRequest;
+                        }
+
+                        sub = SubMonitor.convert(monitor, "Publishing review request", 1);
+                        
+                        String changeDescription = null;
+                        if ( _reviewRequest != null ) {
+                            changeDescription = _updateReviewRequestPage.getChangeDescription();
+                        }
+                        
+                        rbClient.updateReviewRequest(reviewRequestForUpdate, true, changeDescription, monitor);
+                        
+                        sub.done();
+
+                        TasksUiUtil.openTask(repository, String.valueOf(reviewRequest.getId()));
                     } catch (SVNException e) {
                         throw new InvocationTargetException(e);
                     } catch (IOException e) {
@@ -160,6 +162,7 @@ public class PostReviewRequestWizard extends Wizard {
             });
         } catch (InvocationTargetException e) {
             ((WizardPage) getContainer().getCurrentPage()).setErrorMessage("Failed creating new review request : " + e.getCause().getMessage());
+            e.getCause().printStackTrace();
             return false;
         } catch (InterruptedException e) {
             return false;
