@@ -20,3 +20,4 @@ Export-Package: org.review_board.ereviewboard.ui,
  org.review_board.ereviewboard.ui.editor.ext,
  org.review_board.ereviewboard.ui.util,
  org.review_board.ereviewboard.ui.wizard
+Import-Package: org.eclipse.mylyn.internal.provisional.commons.ui
