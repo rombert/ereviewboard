@@ -51,7 +51,6 @@ import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.*;
-import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
  * RESTful implementation of {@link ReviewboardClient}.

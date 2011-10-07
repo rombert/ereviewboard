@@ -37,47 +37,27 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
  * Domain class for review requests.
  *
  * @author Markus Knittig
  */
-public class ReviewRequest {
+public class ReviewRequest extends ReviewRequestBase {
 
-    private int id;
     private String submitter;
     private Date timeAdded;
     private Date lastUpdated;
     private ReviewRequestStatus status;
-    private boolean publicReviewRequest;
     private Integer changeNumber;
-    private String summary = "";
-    private String description = "";
-    private String testingDone = "";
-    private List<String> bugsClosed = new ArrayList<String>();
-    private String branch = "";
-    private List<String> targetGroups = new ArrayList<String>();
-    private List<String> targetPeople = new ArrayList<String>();
     private String repository;;
 
     // TODO Add Diffs
     // TODO Add Screenshots
     // TODO Add Inactive screenshots
     // TODO Add Change descriptions
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getSubmitter() {
         return submitter;
@@ -111,14 +91,6 @@ public class ReviewRequest {
         this.status = status;
     }
 
-    public boolean isPublic() {
-        return publicReviewRequest;
-    }
-
-    public void setPublic(boolean isPublic) {
-        this.publicReviewRequest = isPublic;
-    }
-
     public Integer getChangeNumber() {
         return changeNumber;
     }
@@ -134,74 +106,6 @@ public class ReviewRequest {
         this.changeNumber = changeNumber;
     }
 
-    public String getSummary() {
-        return summary;
-    }
-
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTestingDone() {
-        return testingDone;
-    }
-
-    public void setTestingDone(String testingDone) {
-        this.testingDone = testingDone;
-    }
-
-    public List<String> getBugsClosed() {
-        return bugsClosed;
-    }
-
-    public String getBugsClosedText() {
-        return ReviewboardUtil.joinList(bugsClosed);
-    }
-
-    public void setBugsClosed(List<String> bugsClosed) {
-        this.bugsClosed = bugsClosed;
-    }
-
-    public String getBranch() {
-        return branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
-
-    public List<String> getTargetGroups() {
-        return targetGroups;
-    }
-
-    public String getTargetGroupsText() {
-        return ReviewboardUtil.joinList(targetGroups);
-    }
-
-    public void setTargetGroups(List<String> targetGroups) {
-        this.targetGroups = targetGroups;
-    }
-
-    public List<String> getTargetPeople() {
-        return targetPeople;
-    }
-
-    public String getTargetPeopleText() {
-        return ReviewboardUtil.joinList(targetPeople);
-    }
-
-    public void setTargetPeople(List<String> targetUsers) {
-        this.targetPeople = targetUsers;
-    }
-    
     public String getRepository() {
         return repository;
     }
