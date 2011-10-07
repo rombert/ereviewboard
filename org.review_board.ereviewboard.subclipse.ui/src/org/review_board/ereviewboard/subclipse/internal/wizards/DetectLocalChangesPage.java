@@ -22,7 +22,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -104,7 +106,7 @@ class DetectLocalChangesPage extends WizardPage {
             reviewRequestName.setText(_reviewRequest.getSummary());
         }
         
-        _table = new Table(layout, SWT.BORDER | SWT.V_SCROLL);
+        _table = new Table(layout, SWT.BORDER | SWT.V_SCROLL | SWT.CHECK);
         _table.setLinesVisible (true);
         _table.setHeaderVisible (true);
 
@@ -117,6 +119,31 @@ class DetectLocalChangesPage extends WizardPage {
 
         TableColumn fileColumn = new TableColumn(_table, SWT.NONE);
         fileColumn.setText("File");
+        
+        _table.addListener(SWT.Selection, new Listener() {
+            
+            public void handleEvent(Event event) {
+                
+                if ( event.detail == SWT.CHECK ) {
+                    
+                    ChangedFile eventData = (ChangedFile) event.item.getData();
+                    
+                    if ( _selectedFiles.contains(eventData) )
+                        _selectedFiles.remove(eventData);
+                    else
+                        _selectedFiles.add(eventData);
+                    
+                    Activator.getDefault().trace(TraceLocation.MAIN, "Number of selected files is " + _selectedFiles.size()); 
+                    
+                    if ( _selectedFiles.isEmpty() )
+                        setErrorMessage("Please select at least one change to submit for review.");
+                    else
+                        setErrorMessage(null);
+                    
+                    getContainer().updateButtons();
+                }
+            }
+        });
 
         setControl(layout);
     }
@@ -246,7 +273,7 @@ class DetectLocalChangesPage extends WizardPage {
                             
                             TableItem item = new TableItem (_table, SWT.NONE);
                             
-                            TableEditor editor = new TableEditor(_table);
+                            /*       TableEditor editor = new TableEditor(_table);
                             Button checkbox = new Button(_table, SWT.CHECK);
                             checkbox.setData(changedFile);
                             _selectedFiles.add(changedFile);
@@ -281,14 +308,20 @@ class DetectLocalChangesPage extends WizardPage {
                             checkbox.pack();
                             editor.minimumWidth = checkbox.getSize ().x;
                             editor.horizontalAlignment = SWT.LEFT;
-                            editor.setEditor(checkbox, item, 0);
+                            editor.setEditor(checkbox, item, 0);*/
+                            item.setData(changedFile);
+                            item.setText(0, "");
                             item.setText(1, changedFile.getStatusKind().toString());
                             item.setText(2, changedFile.getPathRelativeToProject());
+                            
+                            item.setChecked(true);
+                            
+                            _selectedFiles.add(changedFile);
                         }
                         
                         for ( int i = 0 ; i < _table.getColumnCount(); i ++ )
                             _table.getColumn(i).pack();
-
+                        
                         if ( _selectedFiles.isEmpty() ) {
                             setErrorMessage("No changes found in the repository which can be used to create a diff.");
                             return;
