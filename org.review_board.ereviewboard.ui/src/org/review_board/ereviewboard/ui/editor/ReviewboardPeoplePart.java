@@ -74,7 +74,4 @@ class ReviewboardPeoplePart extends AbstractTaskEditorPart {
         getTaskEditorPage().getAttributeEditorToolkit().adapt(editor);
         GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.TOP).hint(130, SWT.DEFAULT).applyTo(editor.getControl());
     }
-    
-
-
 }
