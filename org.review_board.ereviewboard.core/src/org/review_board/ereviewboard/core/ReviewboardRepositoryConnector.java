@@ -56,7 +56,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.tasks.core.AbstractRepositoryConnector;
-import org.eclipse.mylyn.tasks.core.IRepositoryPerson;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
 import org.eclipse.mylyn.tasks.core.ITask;
 import org.eclipse.mylyn.tasks.core.ITaskMapping;
@@ -85,7 +84,6 @@ import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 import org.review_board.ereviewboard.core.model.Screenshot;
 import org.review_board.ereviewboard.core.model.ScreenshotComment;
-import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -216,10 +214,12 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
         SortedMap<Date, ReviewboardCommentMapper> sortedComments = new TreeMap<Date, ReviewboardCommentMapper>();
 
+        ReviewboardAttributeMapper attributeMapper = (ReviewboardAttributeMapper) taskData.getAttributeMapper();
+        
         for (Diff diff : diffs ) {
 
             ReviewboardCommentMapper comment = new ReviewboardCommentMapper();
-            comment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), taskData.getRoot().getAttribute(Attribute.SUBMITTER.toString()).getValue()));
+            comment.setAuthor(attributeMapper.getRepositoryPerson(taskData.getRoot().getAttribute(Attribute.SUBMITTER.toString())));
             comment.setHeading(Diff.DIFF_REVISION_PREFIX + diff.getRevision());
 
             sortedComments.put(diff.getTimestamp(), comment);
@@ -249,7 +249,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                     shipItCount++;
 
                 ReviewboardCommentMapper comment = new ReviewboardCommentMapper();
-                comment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), review.getUser()));
+                comment.setAuthor(attributeMapper.getRepositoryPerson(attributeMapper.getTaskRepository(), review.getUser()));
                 comment.setHeading(review.getShipIt() ? "Ship it!" : null);
                 comment.setTop(review.getBodyTop());
                 comment.setBody(totalResults != 0 ? totalResults + " inline comments" : null);
@@ -268,7 +268,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                     for ( ReviewReply reviewReply : replies ) {
                         
                         ReviewboardCommentMapper replyComment = new ReviewboardCommentMapper();
-                        replyComment.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), reviewReply.getUser()));
+                        replyComment.setAuthor(attributeMapper.getRepositoryPerson(attributeMapper.getTaskRepository(), reviewReply.getUser()));
                         replyComment.setHeading("In reply to review #" + reviewId + ": ");
                         replyComment.setTop(reviewReply.getBodyTop());
                         
@@ -312,7 +312,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 for ( ScreenshotComment screenshotComment : screenshotComments ) {
                     
                     ReviewboardCommentMapper screenshotCommentMapper = new ReviewboardCommentMapper();
-                    screenshotCommentMapper.setAuthor(newPerson(taskData.getAttributeMapper().getTaskRepository(), screenshotComment.getUsername()));
+                    screenshotCommentMapper.setAuthor(attributeMapper.getRepositoryPerson(attributeMapper.getTaskRepository(), screenshotComment.getUsername()));
                     screenshotCommentMapper.setHeading("Comment on screenshot '" + screenshot.getCaption() + "': ");
                     screenshotCommentMapper.setBody(screenshotComment.getText());
                     
@@ -353,17 +353,6 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         for ( FileDiff fileDiff : fileDiffs )
             diffMapper.addFileDiff(fileDiff.getId(), fileDiff.getSourceFile(), fileDiff.getSourceRevision());
     }
-
-    private IRepositoryPerson newPerson(TaskRepository repository, String username) {
-        
-        IRepositoryPerson person = repository.createPerson(username);
-        User user = getClientManager().getClient(repository).getClientData().getUser(username);
-        // If a new user comments but the user list is not refreshed from the repository the user's
-        // full name can not be found
-        if ( user != null )
-            person.setName(user.getFullName());
-        return person;
-    }
     
     /**
      * Advances monitor by one
@@ -373,15 +362,18 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         
         if ( diffs.isEmpty() && screenshots.isEmpty() )
             return;
+
+        TaskAttributeMapper attributeMapper = taskData.getAttributeMapper();
         
         int mostRecentRevision = diffs.size();
 
+        TaskAttribute root = taskData.getRoot();
         for (Diff diff : diffs) {
-            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + diff.getRevision());
+            TaskAttribute attribute = root.createAttribute(TaskAttribute.PREFIX_ATTACHMENT + diff.getRevision());
             TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
             mapper.setFileName(diff.getDisplayName());
             mapper.setDescription(diff.getDisplayName());
-            mapper.setAuthor(newPerson(taskRepository, taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString()).getValue()));
+            mapper.setAuthor(attributeMapper.getRepositoryPerson(root.getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString())));
             mapper.setCreationDate(diff.getTimestamp());
             mapper.setAttachmentId(Integer.toString(diff.getId()));
             mapper.setPatch(Boolean.TRUE);
@@ -396,7 +388,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         
         for ( Screenshot screenshot : screenshots ) {
   
-            TaskAttribute attribute = taskData.getRoot().createAttribute(TaskAttribute.PREFIX_ATTACHMENT + ++ attachmentIndex);
+            TaskAttribute attribute = root.createAttribute(TaskAttribute.PREFIX_ATTACHMENT + ++ attachmentIndex);
             TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
             mapper.setFileName(screenshot.getFileName());
             mapper.setDescription(screenshot.getCaption());

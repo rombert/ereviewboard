@@ -151,7 +151,7 @@ public class User implements Serializable {
      * @return the fullName
      */
     public String getFullName() {
-        return firstName + " " + lastName;
+        return (firstName + " " + lastName).trim();
     }
 
     @Override

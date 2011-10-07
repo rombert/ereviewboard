@@ -167,11 +167,25 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         
         IRepositoryPerson person = super.getRepositoryPerson(taskAttribute);
         
-        if ( taskAttribute.getId().equals(Attribute.SUBMITTER.toString()) ) {
-            User user = reviewboardClientData.getUser(taskAttribute.getValue());
-            if ( user != null )
-                person.setName(user.getFullName());
-        }
+        setFullName(person);
+        
+        return person;
+    }
+    
+    private void setFullName(IRepositoryPerson person) {
+
+        // If a new user comments but the user list is not refreshed from the repository the user's
+        // full name can not be found ; also handle users with no declared full name
+        User user = reviewboardClientData.getUser(person.getPersonId());
+        if ( user != null && user.getFullName().length() > 0 )
+            person.setName(user.getFullName());
+    }
+
+    public IRepositoryPerson getRepositoryPerson(TaskRepository repository, String userName) {
+        
+        IRepositoryPerson person = repository.createPerson(userName);
+
+        setFullName(person);
         
         return person;
     }
