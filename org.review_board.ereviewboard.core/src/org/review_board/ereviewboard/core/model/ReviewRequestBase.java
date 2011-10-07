@@ -5,6 +5,10 @@ import java.util.List;
 
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
+/**
+ * @author Robert Munteanu
+ *
+ */
 public class ReviewRequestBase {
 
     private int id;

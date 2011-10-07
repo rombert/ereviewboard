@@ -426,7 +426,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             return reviewboardReader.readDiff(result);
     }
 
-    public void updateReviewRequest(ReviewRequest reviewRequest, boolean publish, String changeDescription, IProgressMonitor monitor) throws ReviewboardException {
+    public ReviewRequestDraft updateReviewRequest(ReviewRequest reviewRequest, boolean publish, String changeDescription, IProgressMonitor monitor) throws ReviewboardException {
         
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("branch", reviewRequest.getBranch());
@@ -442,7 +442,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         String result = httpClient.executePut("/api/review-requests/"+reviewRequest.getId()+"/draft/", parameters, monitor);
         
-        System.out.println("Draft publish result is " + result);
+        return reviewboardReader.readReviewRequestDraft(result);
 
     }
 }

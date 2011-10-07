@@ -118,5 +118,5 @@ public interface ReviewboardClient {
      * @param monitor
      * @throws ReviewboardException
      */
-    void updateReviewRequest(ReviewRequest reviewRequest, boolean publish, String changedescription, IProgressMonitor monitor) throws ReviewboardException;
+    ReviewRequestDraft updateReviewRequest(ReviewRequest reviewRequest, boolean publish, String changedescription, IProgressMonitor monitor) throws ReviewboardException;
 }

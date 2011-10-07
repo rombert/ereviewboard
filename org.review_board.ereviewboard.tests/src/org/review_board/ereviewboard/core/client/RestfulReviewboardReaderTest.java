@@ -47,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
@@ -239,6 +240,28 @@ public class RestfulReviewboardReaderTest {
         assertEquals(1, reviewRequest.getTargetPeople().size());
     }
 
+    @Test
+    public void readReviewRequestDraft() throws Exception {
+
+        // http://www.reviewboard.org/docs/manual/1.6/webapi/2.0/resources/review-request-draft/
+        ReviewRequestDraft draft = reader.readReviewRequestDraft(readJsonTestResource("review_request_draft.json"));
+        
+        // first review request, most fields are set
+        assertThat("draft.id", draft.getId(), is(1));
+        assertThat("draft.summary", draft.getSummary(), is("This is the new summary"));
+        assertThat("draft.description", draft.getDescription(), is("This is the new description."));
+        assertThat("draft.public", draft.isPublic(), is(false));
+        assertThat("draft.branch", draft.getBranch(), is("master"));
+        assertThat("draft.bugsClosed", draft.getBugsClosed(), is(Arrays.asList("12", "34")));
+        assertThat("draft.testingDone", draft.getTestingDone(), is("This is the new testing that was done."));
+        
+        List<String> targetPeople = draft.getTargetPeople();
+        assertThat("draft.targetPeople.size", targetPeople.size(), is(1));
+        assertThat("draft.targetPeople[0]", targetPeople.get(0), is("grumpy"));
+        
+        assertThat("draft.targetGroups.size", draft.getTargetGroups().size(), is(0));
+    }
+    
     @Test
     public void readReviews() throws Exception {
 

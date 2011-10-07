@@ -180,20 +180,14 @@ public class RestfulReviewboardReader {
 
     private ReviewRequest readReviewRequest(JSONObject jsonReviewRequest) throws JSONException {
         
-        ReviewRequest reviewRequest = new ReviewRequest();
+        ReviewRequest reviewRequest = fillReviewRequestBase(new ReviewRequest(),jsonReviewRequest);
         
         JSONObject links = jsonReviewRequest.getJSONObject("links");
         
-        reviewRequest.setId(jsonReviewRequest.getInt("id"));
         reviewRequest.setSubmitter(links.getJSONObject("submitter").getString("title"));
         reviewRequest.setStatus(ReviewRequestStatus.parseStatus(jsonReviewRequest.getString("status")));
-        reviewRequest.setSummary(jsonReviewRequest.getString("summary"));
-        reviewRequest.setTestingDone(jsonReviewRequest.getString("testing_done"));
-        reviewRequest.setDescription(jsonReviewRequest.getString("description"));
-        reviewRequest.setPublic(jsonReviewRequest.getBoolean("public"));
         reviewRequest.setLastUpdated(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("last_updated")));
         reviewRequest.setTimeAdded(ReviewboardUtil.marshallDate(jsonReviewRequest.getString("time_added")));
-        reviewRequest.setBranch(jsonReviewRequest.getString("branch"));
         if ( links.has("repository") )
             reviewRequest.setRepository(links.getJSONObject("repository").getString("title"));
         
@@ -202,26 +196,6 @@ public class RestfulReviewboardReader {
         Integer changeNum = changeNumString.equals("null") ? null : Integer.valueOf(changeNumString);
         reviewRequest.setChangeNumber(changeNum);
         
-        // bugs
-        JSONArray jsonBugs = jsonReviewRequest.getJSONArray("bugs_closed");
-        List<String> bugs = new ArrayList<String>();
-        for (int j = 0; j < jsonBugs.length(); j++)
-            bugs.add(jsonBugs.getString(j));
-        reviewRequest.setBugsClosed(bugs);
-        
-        // target people
-        JSONArray jsonTargetPeople = jsonReviewRequest.getJSONArray("target_people");
-        List<String> targetPeople = new ArrayList<String>();
-        for ( int j = 0 ; j < jsonTargetPeople.length(); j++ )
-            targetPeople.add(jsonTargetPeople.getJSONObject(j).getString("title"));
-        reviewRequest.setTargetPeople(targetPeople);
-
-        // target groups
-        JSONArray jsonTargetGroups = jsonReviewRequest.getJSONArray("target_groups");
-        List<String> targetGroups = new ArrayList<String>();
-        for ( int j = 0 ; j < jsonTargetGroups.length(); j++ )
-            targetGroups.add(jsonTargetGroups.getJSONObject(j).getString("title"));
-        reviewRequest.setTargetGroups(targetGroups);
         return reviewRequest;
     }
     
@@ -279,6 +253,52 @@ public class RestfulReviewboardReader {
             JSONObject jsonObject = checkedGetJSonRootObject(source);
             
             return readReviewRequest(jsonObject.getJSONObject("review_request"));
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+    
+    
+    private <T extends ReviewRequestBase> T fillReviewRequestBase(T reviewRequest, JSONObject jsonReviewRequest) throws JSONException {
+        
+        reviewRequest.setId(jsonReviewRequest.getInt("id"));
+        reviewRequest.setSummary(jsonReviewRequest.getString("summary"));
+        reviewRequest.setTestingDone(jsonReviewRequest.getString("testing_done"));
+        reviewRequest.setDescription(jsonReviewRequest.getString("description"));
+        reviewRequest.setPublic(jsonReviewRequest.getBoolean("public"));
+        reviewRequest.setBranch(jsonReviewRequest.getString("branch"));
+        
+        // bugs
+        JSONArray jsonBugs = jsonReviewRequest.getJSONArray("bugs_closed");
+        List<String> bugs = new ArrayList<String>();
+        for (int j = 0; j < jsonBugs.length(); j++)
+            bugs.add(jsonBugs.getString(j));
+        reviewRequest.setBugsClosed(bugs);
+        
+        // target people
+        JSONArray jsonTargetPeople = jsonReviewRequest.getJSONArray("target_people");
+        List<String> targetPeople = new ArrayList<String>();
+        for ( int j = 0 ; j < jsonTargetPeople.length(); j++ )
+            targetPeople.add(jsonTargetPeople.getJSONObject(j).getString("title"));
+        reviewRequest.setTargetPeople(targetPeople);
+
+        // target groups
+        JSONArray jsonTargetGroups = jsonReviewRequest.getJSONArray("target_groups");
+        List<String> targetGroups = new ArrayList<String>();
+        for ( int j = 0 ; j < jsonTargetGroups.length(); j++ )
+            targetGroups.add(jsonTargetGroups.getJSONObject(j).getString("title"));
+        reviewRequest.setTargetGroups(targetGroups);
+        
+        return reviewRequest;
+    }
+
+    public ReviewRequestDraft readReviewRequestDraft(String source) throws ReviewboardException {
+
+        try {
+            
+            JSONObject jsonObject = checkedGetJSonRootObject(source);
+            
+            return fillReviewRequestBase(new ReviewRequestDraft(), jsonObject.getJSONObject("draft"));
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
@@ -509,4 +529,5 @@ public class RestfulReviewboardReader {
         
         checkedGetJSonRootObject(source);
     }
+
 }

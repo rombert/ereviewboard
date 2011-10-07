@@ -1,0 +1,52 @@
+{
+  "draft": {
+    "branch": "master", 
+    "bugs_closed": [
+      "12", 
+      "34"
+    ], 
+    "changedescription": "", 
+    "description": "This is the new description.", 
+    "id": 1, 
+    "last_updated": "2010-08-16 00:47:29", 
+    "links": {
+      "delete": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/draft\/", 
+        "method": "DELETE"
+      }, 
+      "draft_file_attachments": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/draft\/file-attachments\/", 
+        "method": "GET"
+      }, 
+      "draft_screenshots": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/draft\/screenshots\/", 
+        "method": "GET"
+      }, 
+      "review_request": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/", 
+        "method": "GET", 
+        "title": "Interdiff Revision Test"
+      }, 
+      "self": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/draft\/", 
+        "method": "GET"
+      }, 
+      "update": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/draft\/", 
+        "method": "PUT"
+      }
+    }, 
+    "public": false, 
+    "summary": "This is the new summary", 
+    "target_groups": [], 
+    "target_people": [
+      {
+        "href": "http:\/\/reviews.example.com\/api\/users\/grumpy\/", 
+        "method": "GET", 
+        "title": "grumpy"
+      }
+    ], 
+    "testing_done": "This is the new testing that was done."
+  }, 
+  "stat": "ok"
+}
