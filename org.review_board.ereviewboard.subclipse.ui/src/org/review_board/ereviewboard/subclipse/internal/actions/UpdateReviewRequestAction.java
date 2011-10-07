@@ -22,6 +22,8 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.subclipse.Activator;
+import org.review_board.ereviewboard.subclipse.TraceLocation;
 import org.review_board.ereviewboard.subclipse.internal.wizards.PostReviewRequestWizard;
 import org.review_board.ereviewboard.ui.editor.ext.DiffResource;
 import org.review_board.ereviewboard.ui.editor.ext.TaskDiffAction;
@@ -108,7 +110,8 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
                 break;
             }
 
-            System.out.println("Matched with project " + matchingProject);
+            Activator.getDefault().trace(TraceLocation.MAIN, "Matched with project " + matchingProject);
+            
             if( matchingProject != null ) {
                 IWorkbench wb = PlatformUI.getWorkbench();
                 

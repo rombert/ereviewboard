@@ -15,6 +15,8 @@ import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.subclipse.Activator;
+import org.review_board.ereviewboard.subclipse.TraceLocation;
 import org.review_board.ereviewboard.ui.util.ReviewboardImages;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
@@ -109,7 +111,7 @@ public class PostReviewRequestWizard extends Wizard {
                             
                             sub.done();
     
-                            System.out.println("Created review request with id " + reviewRequest.getId());
+                            Activator.getDefault().trace(TraceLocation.MAIN, "Created review request with id " + reviewRequest.getId());
                         } else {
                             reviewRequest = _reviewRequest;
                         }
@@ -117,7 +119,7 @@ public class PostReviewRequestWizard extends Wizard {
                         String basePath = projectSvnResource.getUrl().toString()
                                 .substring(svnRepository.getRepositoryRoot().toString().length());
 
-                        System.out.println("Detected base path " + basePath);
+                        Activator.getDefault().trace(TraceLocation.MAIN, "Detected base path " + basePath);
                         
                         sub = SubMonitor.convert(monitor, "Posting diff patch", 1);
                         
@@ -125,7 +127,7 @@ public class PostReviewRequestWizard extends Wizard {
                         
                         sub.done();
 
-                        System.out.println("Diff created.");
+                        Activator.getDefault().trace(TraceLocation.MAIN, "Diff created.");
 
                         ReviewRequest reviewRequestForUpdate;
                         if ( _reviewRequest == null ) {

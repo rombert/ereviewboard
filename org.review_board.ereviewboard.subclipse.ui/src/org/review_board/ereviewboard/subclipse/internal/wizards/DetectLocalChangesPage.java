@@ -8,6 +8,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -33,6 +34,8 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.subclipse.Activator;
+import org.review_board.ereviewboard.subclipse.TraceLocation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
 import org.tigris.subversion.subclipse.core.SVNException;
@@ -150,7 +153,7 @@ class DetectLocalChangesPage extends WizardPage {
                     
                     setSvnRepositoryLocation(projectSvnResource.getRepository());
                     
-                    System.out.println("Local repository is " + getSvnRepositoryLocation().getRepositoryRoot().toString());
+                    Activator.getDefault().trace(TraceLocation.MAIN, "Local repository is " + getSvnRepositoryLocation().getRepositoryRoot().toString());
                     
                     List<String> clientUrls = clientManager.getAllClientUrl();
                     if ( clientUrls.isEmpty() ) {
@@ -165,15 +168,15 @@ class DetectLocalChangesPage extends WizardPage {
                         TaskRepository repositoryCandidate = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, clientUrl);
                         
                         if ( repositoryCandidate == null) {
-                            System.out.println("No repository for clientUrl " + clientUrl +" skipping.");
+                            Activator.getDefault().log(IStatus.WARNING, "No repository for clientUrl " + clientUrl +" skipping.");
                             continue;
                         }
                         
-                        System.out.println("Checking repository candidate " + repositoryCandidate.getRepositoryLabel());
+                        Activator.getDefault().trace(TraceLocation.MAIN, "Checking repository candidate " + repositoryCandidate.getRepositoryLabel());
                         
                         ReviewboardClient client = clientManager.getClient(repositoryCandidate);
                         
-                        System.out.println("Got reviewboardClient " + client);
+                        Activator.getDefault().trace(TraceLocation.MAIN, "Got reviewboardClient " + client);
                         
                         try {
                             client.updateRepositoryData(false, monitor);
@@ -183,11 +186,11 @@ class DetectLocalChangesPage extends WizardPage {
                             throw new InvocationTargetException(e, "Failed updating the repository data for " + repositoryCandidate.getRepositoryLabel() + " : " + e.getMessage());
                         }
                         
-                        System.out.println("Refreshed repository data , got " + client.getClientData().getRepositories().size() + " repositories.");
+                        Activator.getDefault().trace(TraceLocation.MAIN, "Refreshed repository data , got " + client.getClientData().getRepositories().size() + " repositories.");
                         
                         for ( Repository repository : client.getClientData().getRepositories() ) {
                             
-                            System.out.println("Considering repository of type " + repository.getTool()  + " and path " + repository.getPath());
+                            Activator.getDefault().trace(TraceLocation.MAIN, "Considering repository of type " + repository.getTool()  + " and path " + repository.getPath());
                             
                             if ( repository.getTool() != RepositoryType.Subversion )
                                 continue;
@@ -227,7 +230,7 @@ class DetectLocalChangesPage extends WizardPage {
                     try {
                         LocalResourceStatus status = projectSvnResource.getStatus();
                         
-                        System.out.println("SVN repository status is " + status);
+                        Activator.getDefault().trace(TraceLocation.MAIN, "SVN repository status is " + status);
                         
                         Assert.isNotNull(status, "No status for resource " + projectSvnResource);
                         
@@ -237,7 +240,7 @@ class DetectLocalChangesPage extends WizardPage {
                         
                         List<ChangedFile> changedFiles = changedFileFinder.findChangedFiles();
                         
-                        System.out.println("Found " + changedFiles.size() + " changed files.");
+                        Activator.getDefault().trace(TraceLocation.MAIN, "Found " + changedFiles.size() + " changed files.");
                         
                         for ( ChangedFile changedFile : changedFiles ) {
                             
@@ -258,7 +261,7 @@ class DetectLocalChangesPage extends WizardPage {
                                     else
                                         _selectedFiles.remove(source.getData());
                                     
-                                    System.out.println("Now we have " + _selectedFiles.size() + " selected files.");
+                                    Activator.getDefault().trace(TraceLocation.MAIN, "Now we have " + _selectedFiles.size() + " selected files.");
                                     
                                     if ( _selectedFiles.isEmpty() ) {
                                         setErrorMessage("Please select at least one change to submit for review.");
@@ -304,6 +307,7 @@ class DetectLocalChangesPage extends WizardPage {
             setErrorMessage(e.getMessage());
         } catch ( RuntimeException e ) {
             setErrorMessage(getErrorMessage());
+            Activator.getDefault().log(IStatus.ERROR, e.getMessage(), e);
         } finally {
             _alreadyPopulated = true;
         }

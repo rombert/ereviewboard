@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.review_board.ereviewboard.subclipse.Activator;
+import org.review_board.ereviewboard.subclipse.TraceLocation;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
@@ -59,7 +61,7 @@ public class DiffCreator {
 
                     String copiedTo = copies.get(file);
                     if (copiedTo != null) {
-                        System.out.println("File " + file + " is copied to " + copiedTo + " .");
+                        Activator.getDefault().trace(TraceLocation.DIFF, "File " + file + " is copied to " + copiedTo + " .");
                         replaceIndex = i + 2;
                         replaceFrom = file;
                         replaceTo = copiedTo;
