@@ -16,6 +16,8 @@ import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attr
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.sampled.ReverbType;
+
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IFile;
@@ -25,6 +27,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -139,15 +142,30 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 if ( !taskDiffAction.isEnabled() )
                     continue;
                 
-                String name = element.getAttribute("label");
+                final String label = element.getAttribute("label");
                 
                 Button button = new Button(composite, SWT.NONE);
-                button.setText(name);
+                button.setText(label);
                 button.addSelectionListener(new SelectionListener() {
                     
                     public void widgetSelected(SelectionEvent e) {
                         
-                        taskDiffAction.execute(new NullProgressMonitor());
+                        IStatus status;
+                        try {
+                            status = taskDiffAction.execute(new NullProgressMonitor());
+                        } catch (Exception e1) {
+                            status = new Status(IStatus.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Internal error while executing action '" + label+"' : " + e1.getMessage());
+                            ReviewboardUiPlugin.getDefault().getLog().log(status);
+                        }
+                        
+                        if ( !status.isOK() ) {
+                            
+                            int kind = MessageDialog.ERROR;
+                            if ( status.getCode() == IStatus.WARNING )
+                                kind = MessageDialog.WARNING;
+                            
+                            MessageDialog.open(kind, null, "Error performing action", status.getMessage(), SWT.SHEET);
+                        }
                     }
                     
                     public void widgetDefaultSelected(SelectionEvent e) {
