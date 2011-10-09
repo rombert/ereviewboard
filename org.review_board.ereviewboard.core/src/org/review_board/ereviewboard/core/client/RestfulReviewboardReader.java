@@ -37,15 +37,14 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.review_board.ereviewboard.core.exception.ReviewboardApiException;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
 import org.review_board.ereviewboard.core.model.*;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
@@ -87,7 +86,13 @@ public class RestfulReviewboardReader {
             
             if (object.getString("stat").equals("fail")) {
                 JSONObject jsonError = object.getJSONObject("err");
-                throw new ReviewboardException(jsonError.getString("msg"));
+                String message = jsonError.getString("msg");
+                int code = jsonError.getInt("code");
+                
+                if ( ErrorCode.INVALID_FORM_DATA.is(code) )
+                    throw new ReviewboardInvalidFormDataException(gatherFieldErrors(object));
+                
+                throw new ReviewboardApiException(message, code);
             }
             
             return object;
@@ -99,6 +104,25 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException("The server has responded with an invalid JSon object : " + e.getMessage() + invalidSnippet, e);
         }
         
+    }
+
+    private Map<String, List<String>> gatherFieldErrors(JSONObject object) throws JSONException {
+        
+        Map<String, List<String>> allErrors = new LinkedHashMap<String, List<String>>();
+        
+        JSONObject jsonFields = object.getJSONObject("fields");
+        
+        for ( String fieldName : JSONObject.getNames(jsonFields) ) {
+            
+            JSONArray jsonErrorsForField = jsonFields.getJSONArray(fieldName);
+            List<String> errorsForField = new ArrayList<String>(jsonErrorsForField.length());
+            for ( int  i = 0 ; i < jsonErrorsForField.length(); i++ )
+                errorsForField.add(jsonErrorsForField.getString(i));
+            
+            allErrors.put(fieldName, errorsForField);
+        }
+        
+        return allErrors;
     }
     
     public PagedResult<User> readUsers(String source) throws ReviewboardException {
