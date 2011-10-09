@@ -7,8 +7,12 @@ Status
 ------
 
 The connector maps all of the current attributes and allows for patches to be downloaded.
-There is no support for sending data back to the ReviewBoard server. Please see
-[the project wiki](ereviewboard/wiki) for more details.
+There is basic support for editing data:
+
+1. Closing and reopening review requests;
+1. Posting and updating diffs for selected [SCM integrations](ereviewboard/wiki/SCM-Integrations)
+
+Please see [the project wiki](ereviewboard/wiki) for more details.
 
 Roadmap
 -------
