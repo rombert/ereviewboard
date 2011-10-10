@@ -190,7 +190,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 
                 double elapsed = ( System.currentTimeMillis() - start) / 1000.0;
                 
-                System.out.println("Review request with id  " + taskId + " synchronized in " + NumberFormat.getNumberInstance().format(elapsed) + " seconds.");
+                ReviewboardCorePlugin.getDefault().trace(TraceLocation.SYNC, "Review request with id  " + taskId + " synchronized in " + NumberFormat.getNumberInstance().format(elapsed) + " seconds.");
                 
                 monitor.done();
             }

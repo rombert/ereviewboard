@@ -38,8 +38,10 @@
 package org.review_board.ereviewboard.core;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -95,4 +97,39 @@ public class ReviewboardCorePlugin extends Plugin {
         return cacheFile;
     }
 
+    public void trace(TraceLocation location, String message) {
+
+        if (!Platform.inDebugMode())
+            return;
+
+        String debugOption = Platform.getDebugOption(PLUGIN_ID + "/debug" + location.getPrefix());
+        
+        if ( !Boolean.parseBoolean(debugOption) ) 
+            return;
+
+        getLog().log(new Status(IStatus.INFO, PLUGIN_ID, message));
+    }
+
+    /**
+     * 
+     * @param severity one of the {@link IStatus} severity constants
+     * @param message
+     * @param cause the cause, can be <code>null</code>
+     * 
+     * @see #log(int, String)
+     */
+    public void log(int severity, String message, Throwable cause) {
+        
+        getLog().log(new Status(severity, PLUGIN_ID, message, cause));
+    }
+    
+    /**
+     * 
+     * @param severity one of the {@link IStatus} severity constants
+     * @param message 
+     */
+    public void log(int severity, String message) {
+        
+        log(severity, message, null);
+    }
 }
