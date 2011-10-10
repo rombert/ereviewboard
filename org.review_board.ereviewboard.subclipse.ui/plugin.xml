@@ -21,7 +21,7 @@
          point="org.review_board.ereviewboard.ui.taskDiffActions">
          <taskDiffAction
                id="org.review_board.ereviewboard.subclipse.ui.updateDiff"
-               label="Update Diff"
+               label="Update Diff..."
                class="org.review_board.ereviewboard.subclipse.internal.actions.UpdateReviewRequestAction"/>
    </extension>
 </plugin>
