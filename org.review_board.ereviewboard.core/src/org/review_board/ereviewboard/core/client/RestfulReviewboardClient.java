@@ -66,6 +66,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     private ReviewboardClientData clientData;
 
     private ReviewboardHttpClient httpClient;
+    
+    private static String asBooleanParameter(boolean parameter) {
+        
+        return parameter ? "1" : "0";
+    }
 
     public RestfulReviewboardClient(AbstractWebLocation location, ReviewboardClientData clientData,
             TaskRepository repository) {
@@ -434,7 +439,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         if ( changeDescription != null )
             parameters.put("changedescription", changeDescription);
         parameters.put("description", reviewRequest.getDescription());
-        parameters.put("public", String.valueOf(publish));
+        parameters.put("public", asBooleanParameter(publish));
         parameters.put("summary", reviewRequest.getSummary());
         parameters.put("target_groups", reviewRequest.getTargetGroupsText());
         parameters.put("target_people", reviewRequest.getTargetPeopleText());
@@ -444,5 +449,20 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         return reviewboardReader.readReviewRequestDraft(result);
 
+    }
+
+    public Review createReview(int reviewRequestId, Review review, IProgressMonitor monitor) throws ReviewboardException {
+        
+        Map<String, String> parameters = new HashMap<String, String>();
+        if ( review.getBodyTop() != null )
+            parameters.put("body_top", review.getBodyTop());
+        if ( review.getBodyBottom() != null )
+            parameters.put("body_bottom", review.getBodyBottom());
+        parameters.put("public", asBooleanParameter(review.isPublicReview()));
+        parameters.put("ship_it", asBooleanParameter(review.getShipIt()));
+        
+        String result = httpClient.executePost("/api/review-requests/" + reviewRequestId+"/reviews/", parameters, monitor);
+        
+        return reviewboardReader.readReview(result);
     }
 }

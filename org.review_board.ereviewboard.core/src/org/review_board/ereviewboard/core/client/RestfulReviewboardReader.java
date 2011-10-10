@@ -340,16 +340,7 @@ public class RestfulReviewboardReader {
                 
                 JSONObject jsonReview = jsonReviews.getJSONObject(i);
                 
-                Review review = new Review();
-                review.setId(jsonReview.getInt("id"));
-                review.setBodyTop(jsonReview.getString("body_top"));
-                review.setBodyBottom(jsonReview.getString("body_bottom"));
-                review.setUser(jsonReview.getJSONObject("links").getJSONObject("user").getString("title"));
-                review.setPublicReview(jsonReview.getBoolean("public"));
-                review.setShipIt(jsonReview.getBoolean("ship_it"));
-                review.setTimestamp(ReviewboardUtil.marshallDate(jsonReview.getString("timestamp")));
-                
-                reviews.add(review);
+                reviews.add(getReview(jsonReview));
             }
             
             return PagedResult.create(reviews, totalResults);
@@ -357,6 +348,33 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
+    
+    public Review readReview(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject rootObject = checkedGetJSonRootObject(source);
+            JSONObject jsonReview = rootObject.getJSONObject("review");
+            
+            return getReview(jsonReview);
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+        
+    }
+
+    private Review getReview(JSONObject jsonReview) throws JSONException {
+        
+        Review review = new Review();
+        review.setId(jsonReview.getInt("id"));
+        review.setBodyTop(jsonReview.getString("body_top"));
+        review.setBodyBottom(jsonReview.getString("body_bottom"));
+        review.setUser(jsonReview.getJSONObject("links").getJSONObject("user").getString("title"));
+        review.setPublicReview(jsonReview.getBoolean("public"));
+        review.setShipIt(jsonReview.getBoolean("ship_it"));
+        review.setTimestamp(ReviewboardUtil.marshallDate(jsonReview.getString("timestamp")));
+        return review;
+    }
+
     
     public PagedResult<ReviewReply> readReviewReplies(String source) throws ReviewboardException {
         
@@ -553,5 +571,6 @@ public class RestfulReviewboardReader {
         
         checkedGetJSonRootObject(source);
     }
+
 
 }

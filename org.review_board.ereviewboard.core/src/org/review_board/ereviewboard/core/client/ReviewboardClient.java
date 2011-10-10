@@ -119,4 +119,6 @@ public interface ReviewboardClient {
      * @throws ReviewboardException
      */
     ReviewRequestDraft updateReviewRequest(ReviewRequest reviewRequest, boolean publish, String changedescription, IProgressMonitor monitor) throws ReviewboardException;
+
+    Review createReview(int reviewRequestId, Review review, IProgressMonitor monitor) throws ReviewboardException;
 }

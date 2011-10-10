@@ -49,6 +49,7 @@ import java.util.Locale;
 public class Review implements Serializable {
     
     private static final String SHIP_IT_PREFIX = "ship it";
+
     private int id;
     private String bodyTop;
     private String bodyBottom;
@@ -56,6 +57,16 @@ public class Review implements Serializable {
     private Date timestamp;
     private String user;
     private boolean publicReview;
+    
+    public static Review newShipItReview() {
+        
+        Review review = new Review();
+        review.setShipIt(true);
+        review.setBodyTop("Ship It!");
+        review.setPublicReview(true);
+        
+        return review;
+    }
 
     public int getId() {
         return id;

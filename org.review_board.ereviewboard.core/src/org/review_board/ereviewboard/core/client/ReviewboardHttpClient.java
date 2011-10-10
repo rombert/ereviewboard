@@ -191,8 +191,6 @@ public class ReviewboardHttpClient {
     private void configureRequestForJson(HttpMethodBase request) {
         
         request.addRequestHeader("Accept", "application/json");
-        if ( ( request instanceof PostMethod ) || ( request instanceof PutMethod ) )
-            request.addRequestHeader("Content-Type", "application/json");
     }
 
     public byte[] executeGetForBytes(String url, String acceptHeaderValue, IProgressMonitor monitor)
@@ -224,7 +222,6 @@ public class ReviewboardHttpClient {
 
         PostMethod postRequest = new PostMethod(stripSlash(location.getUrl()) + url);
         configureRequestForJson(postRequest);
-        postRequest.removeRequestHeader("Content-Type"); // allow the MultipartRequestEntity to configure the Content-Type
         List<Part> parts = new ArrayList<Part>();
 
         for ( Map.Entry<String, String> paramEntry : parameters.entrySet() )

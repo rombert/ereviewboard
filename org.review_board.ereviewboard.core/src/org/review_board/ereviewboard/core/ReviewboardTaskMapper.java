@@ -56,6 +56,7 @@ public class ReviewboardTaskMapper extends TaskMapper {
     static final String OPERATION_ID_LEAVE = "leave";
     static final String OPERATION_ID_CLOSE = "close";
     static final String OPERATION_ID_REOPEN = "reopen";
+    static final String OPERATION_ID_SHIP_IT = "shipit";
     
     public ReviewboardTaskMapper(TaskData taskData) {
         super(taskData);
@@ -189,6 +190,9 @@ public class ReviewboardTaskMapper extends TaskMapper {
             TaskAttribute close = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION + OPERATION_ID_CLOSE );
             TaskOperation.applyTo(close, OPERATION_ID_CLOSE, "Close as");
             close.getMetaData().putValue(TaskAttribute.META_ASSOCIATED_ATTRIBUTE_ID, ReviewboardAttributeMapper.Attribute.OPERATION_STATUS.toString());
+
+            TaskAttribute shipit = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION + OPERATION_ID_SHIP_IT);
+            TaskOperation.applyTo(shipit, OPERATION_ID_SHIP_IT, "Ship it!");
         } else {
             TaskAttribute close = getTaskData().getRoot().createAttribute(TaskAttribute.PREFIX_OPERATION+ OPERATION_ID_REOPEN);
             TaskOperation.applyTo(close, OPERATION_ID_REOPEN, "Reopen");

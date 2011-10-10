@@ -624,15 +624,25 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 } else if ( operation.getValue().equals(ReviewboardTaskMapper.OPERATION_ID_REOPEN)) {
                     status = ReviewRequestStatus.PENDING;
                 } else {
-                    return new RepositoryResponse(ResponseKind.TASK_UPDATED, taskData.getTaskId());
+                    status = null;
                 }
                 
                 int reviewRequestId = Integer.parseInt(taskData.getTaskId());
                 
                 try {
-                    clientManager.getClient(repository).updateStatus(reviewRequestId, status, monitor);
+                    if ( status != null )
+                        clientManager.getClient(repository).updateStatus(reviewRequestId, status, monitor);
                 } catch (ReviewboardException e) {
                     throw new CoreException(new Status(Status.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed updating issue status : " + e.getMessage(), e));
+                }
+                
+                if ( operation.getValue().equals(ReviewboardTaskMapper.OPERATION_ID_SHIP_IT) ) {
+                    
+                    try {
+                        clientManager.getClient(repository).createReview(reviewRequestId, Review.newShipItReview(), monitor);
+                    } catch ( ReviewboardException e) {
+                        throw new CoreException(new Status(Status.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed adding ship-it review : " + e.getMessage(), e));
+                    }
                 }
                 
                 return new RepositoryResponse(ResponseKind.TASK_UPDATED, taskData.getTaskId());
