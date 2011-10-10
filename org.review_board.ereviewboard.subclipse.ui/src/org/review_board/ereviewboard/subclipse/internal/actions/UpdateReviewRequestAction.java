@@ -8,7 +8,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.team.core.RepositoryProvider;
@@ -41,48 +40,31 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
     private TaskRepository repository;
     private int reviewRequestId;
     private List<DiffResource> diffResources;
+    private Repository codeRepository;
 
-    public void init(TaskRepository repository, int reviewRequestId, int diffId, List<DiffResource> diffResources) {
+    public void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, List<DiffResource> diffResources) {
         
         this.repository = repository;
         this.reviewRequestId = reviewRequestId;
+        this.codeRepository = codeRepository;
         this.diffResources = diffResources;
     }
 
+
     public boolean isEnabled() {
 
-        return true;
+        return codeRepository != null && codeRepository.getTool() == RepositoryType.Subversion;
     }
 
     public IStatus execute(IProgressMonitor monitor) {
         
         try {
+            
             ReviewboardRepositoryConnector connector = ReviewboardCorePlugin.getDefault().getConnector();
             
             ReviewboardClient client = connector.getClientManager().getClient(repository);
             
             ReviewRequest reviewRequest = client.getReviewRequest(reviewRequestId, monitor);
-            
-            String repositoryName = reviewRequest.getRepository();
-            
-            Repository foundRepository = null;
-            
-            for ( Repository repository : client.getClientData().getRepositories() ) {
-
-                if  ( repository.getTool() != RepositoryType.Subversion)
-                    continue;
-                
-                if ( repository.getName().equals(repositoryName) ) {
-
-                    foundRepository = repository;
-                    break;
-                }
-            }
-            
-            if ( foundRepository == null ) {
-                MessageDialog.openInformation(null, "No matching repo found", "No matching repository found");
-                return Status.OK_STATUS;
-            }
             
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
@@ -110,10 +92,10 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
                 break;
             }
 
-            Activator.getDefault().trace(TraceLocation.MAIN, "Matched with project " + matchingProject);
+            Activator.getDefault().trace(TraceLocation.MAIN, "Matched review request with id " + reviewRequestId + " with project " + matchingProject);
             
             if ( matchingProject == null )
-                return new Status(IStatus.WARNING, Activator.PLUGIN_ID, "Could not find a matching project");
+                return new Status(IStatus.WARNING, Activator.PLUGIN_ID, "Could not find a matching project for the resources in the review request.");
             
             IWorkbench wb = PlatformUI.getWorkbench();
             
@@ -123,7 +105,7 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
 
             return Status.OK_STATUS;
         } catch (ReviewboardException e) {
-            return Status.OK_STATUS;
+            return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Failed updating the diff : " + e.getMessage(), e);
         }
     }
 }

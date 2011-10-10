@@ -35,6 +35,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
+import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
 import org.eclipse.swt.SWT;
@@ -50,7 +51,9 @@ import org.eclipse.ui.forms.widgets.Section;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
+import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.util.ResourceUtil;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 import org.review_board.ereviewboard.ui.editor.ext.DiffResource;
@@ -119,7 +122,9 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
             });
         }
         
-        installExtensions(composite, diffMapper, diffResources);
+        ReviewboardTaskMapper taskMapper = new ReviewboardTaskMapper(getTaskData());
+        
+        installExtensions(composite, taskMapper.getRepository(), diffMapper, diffResources);
 
         
         toolkit.paintBordersFor(composite);
@@ -127,18 +132,17 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         setSection(toolkit, section);
     }
 
-    private void installExtensions(Composite composite, ReviewboardDiffMapper diffMapper, List<DiffResource> diffResources) {
+    private void installExtensions(Composite composite, Repository codeRepository, ReviewboardDiffMapper diffMapper, List<DiffResource> diffResources) {
         
         IConfigurationElement[] configurationElements = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_TASK_DIFF_ACTIONS);
         
         int reviewRequestId = Integer.parseInt(getTaskData().getTaskId());
-        int diffId = diffMapper.getDiffRevision();
         TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, getTaskData().getRepositoryUrl());
         
         for ( IConfigurationElement element : configurationElements ) {
             try {
                 final TaskDiffAction taskDiffAction = (TaskDiffAction) element.createExecutableExtension("class");
-                taskDiffAction.init(repository, reviewRequestId, diffId, diffResources);
+                taskDiffAction.init(repository, reviewRequestId, codeRepository, diffResources);
                 if ( !taskDiffAction.isEnabled() )
                     continue;
                 
@@ -154,7 +158,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                         try {
                             status = taskDiffAction.execute(new NullProgressMonitor());
                         } catch (Exception e1) {
-                            status = new Status(IStatus.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Internal error while executing action '" + label+"' : " + e1.getMessage());
+                            status = new Status(IStatus.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Internal error while executing action '" + label+"' : " + e1.getMessage(), e1);
                             ReviewboardUiPlugin.getDefault().getLog().log(status);
                         }
                         

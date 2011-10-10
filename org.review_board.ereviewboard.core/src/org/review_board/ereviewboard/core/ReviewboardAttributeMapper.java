@@ -24,6 +24,10 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
 
         ID("id", "Id", TaskAttribute.TYPE_INTEGER, null),
         REPOSITORY("repository.title", "Repository", TaskAttribute.TYPE_SHORT_RICH_TEXT, TaskAttribute.KIND_DEFAULT),
+        // repository sub-attributes
+        REPOSITORY_TOOL("repository.tool", "Repository Tool", TaskAttribute.TYPE_SHORT_TEXT, null),
+        REPOSITORY_PATH("repository.path", "Repository Path", TaskAttribute.TYPE_SHORT_TEXT, null),
+        REPOSITORY_ID("repository.id", "Repository Id", TaskAttribute.TYPE_SHORT_TEXT, null),
         SUBMITTER("submitter.title", "Submitter", TaskAttribute.TYPE_PERSON, null),
         SUMMARY("summary", "Summary", TaskAttribute.TYPE_SHORT_RICH_TEXT, null),
         DESCRIPTION("description", "Description", TaskAttribute.TYPE_LONG_RICH_TEXT, null),

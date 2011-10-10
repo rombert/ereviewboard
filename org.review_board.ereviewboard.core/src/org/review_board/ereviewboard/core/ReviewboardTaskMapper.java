@@ -44,6 +44,8 @@ import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.core.data.TaskMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskOperation;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
+import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
 
 /**
@@ -69,7 +71,7 @@ public class ReviewboardTaskMapper extends TaskMapper {
     
     public void setTestingDone(String testingDone) {
 
-        setAttributeValue(Attribute.TESTING_DONE, testingDone);
+        setAttributeValue(Attribute.TESTING_DONE, getTaskData().getRoot(), testingDone);
     }
     
     public String getTestingDone() {
@@ -77,39 +79,57 @@ public class ReviewboardTaskMapper extends TaskMapper {
         return getAttributeValue(Attribute.TESTING_DONE);
     }
     
-    public void setRepository(String repository) {
+    public void setRepository(Repository repository) {
         
-        setAttributeValue(Attribute.REPOSITORY, repository);
+        TaskAttribute repositoryAttribute = setAttributeValue(Attribute.REPOSITORY, getTaskData().getRoot(), repository.getName());
+        setAttributeValue(Attribute.REPOSITORY_TOOL, repositoryAttribute, repository.getTool().toString());
+        setAttributeValue(Attribute.REPOSITORY_PATH, repositoryAttribute, repository.getPath().toString());
+        setAttributeValue(Attribute.REPOSITORY_ID, repositoryAttribute, String.valueOf(repository.getId()));
+    }
+    
+    public Repository getRepository() {
+        
+        TaskAttribute repositoryAttribute = getTaskData().getRoot().getAttribute(Attribute.REPOSITORY.toString());
+        if ( repositoryAttribute == null )
+            return null;
+        
+        Repository repository = new Repository();
+        repository.setName(repositoryAttribute.getValue());
+        repository.setId(Integer.parseInt(repositoryAttribute.getAttribute(Attribute.REPOSITORY_ID.toString()).getValue()));
+        repository.setPath(repositoryAttribute.getAttribute(Attribute.REPOSITORY_PATH.toString()).getValue());
+        repository.setTool(RepositoryType.valueOf(repositoryAttribute.getAttribute(Attribute.REPOSITORY_TOOL.toString()).getValue()));
+        
+        return repository;
     }
 
     public void setBranch(String branch) {
         
-        setAttributeValue(Attribute.BRANCH, branch);
+        setAttributeValue(Attribute.BRANCH, getTaskData().getRoot(), branch);
     }
 
     public void setChangeNum(Integer changeNumber) {
 
-        setAttributeValue(Attribute.CHANGENUM, changeNumber == null ? "" : changeNumber.toString());
+        setAttributeValue(Attribute.CHANGENUM, getTaskData().getRoot(), changeNumber == null ? "" : changeNumber.toString());
     }
     
     public void setBugsClosed(List<String> bugsClosed) {
      
-        setAttributeValues(Attribute.BUGS_CLOSED, bugsClosed);
+        setAttributeValues(Attribute.BUGS_CLOSED, getTaskData().getRoot(),  bugsClosed);
     }
     
     public void setPublic(boolean isPublic) {
 
-        setAttributeValue(Attribute.PUBLIC, Boolean.toString(isPublic));
+        setAttributeValue(Attribute.PUBLIC, getTaskData().getRoot(), Boolean.toString(isPublic));
     }
 
     public void setTargetPeople(List<String> targetPeople) {
         
-        setAttributeValues(Attribute.TARGET_PEOPLE, targetPeople);
+        setAttributeValues(Attribute.TARGET_PEOPLE, getTaskData().getRoot(), targetPeople);
     }
     
     public void setTargetGroups(List<String> targetGroups) {
         
-        setAttributeValues(Attribute.TARGET_GROUPS, targetGroups);
+        setAttributeValues(Attribute.TARGET_GROUPS, getTaskData().getRoot(), targetGroups);
     }
     
     /**
@@ -131,38 +151,39 @@ public class ReviewboardTaskMapper extends TaskMapper {
         return attribute.getValue();
     }
     
-    private void setAttributeValue(Attribute enumAttribute, String value) {
+    private TaskAttribute setAttributeValue(Attribute enumAttribute, TaskAttribute parent, String value) {
     
-        TaskAttribute attribute = getWriteableAttribute(enumAttribute);
+        TaskAttribute attribute = getWriteableAttribute(enumAttribute, parent);
 
         if ( attribute != null )
             attribute.setValue(value);
+        
+        return attribute;
 
     }
     
-    private void setAttributeValues(Attribute enumAttribute, List<String> values) {
+    private void setAttributeValues(Attribute enumAttribute, TaskAttribute parent, List<String> values) {
         
-        TaskAttribute attribute = getWriteableAttribute(enumAttribute);
+        TaskAttribute attribute = getWriteableAttribute(enumAttribute, parent);
 
         if ( attribute != null )
             attribute.setValues(values);
     }
 
-
-    private TaskAttribute getWriteableAttribute(Attribute attributeEnum) {
+    private TaskAttribute getWriteableAttribute(Attribute attributeEnum, TaskAttribute parent) {
         String attributeKey = attributeEnum.toString();
-        TaskAttribute attribute = getTaskData().getRoot().getAttribute(attributeKey);
+        TaskAttribute attribute = parent.getAttribute(attributeKey);
         if (attribute == null) {
-            attribute = createAttribute(attributeEnum);
+            attribute = createAttribute(attributeEnum, parent);
         } else if (attribute != null && attribute.getMetaData().isReadOnly()) {
             attribute = null;
         }
         return attribute;
     }
 
-    private TaskAttribute createAttribute(Attribute attributeEnum) {
+    private TaskAttribute createAttribute(Attribute attributeEnum, TaskAttribute parent) {
 
-        TaskAttribute attribute = getTaskData().getRoot().createAttribute(attributeEnum.toString());
+        TaskAttribute attribute = parent.createAttribute(attributeEnum.toString());
         attribute.getMetaData().defaults().setType(attributeEnum.getAttributeType())
             .setReadOnly(true).setKind(attributeEnum.getAttributeType()).setLabel(attributeEnum.getDisplayName())
             .setKind(attributeEnum.getAttributeKind());
@@ -182,7 +203,7 @@ public class ReviewboardTaskMapper extends TaskMapper {
         TaskOperation.applyTo(leave, OPERATION_ID_LEAVE, "Leave unchanged");
 
         if ( getCompletionDate() == null ) {
-            TaskAttribute operationStatusAttribute = createAttribute(Attribute.OPERATION_STATUS);
+            TaskAttribute operationStatusAttribute = createAttribute(Attribute.OPERATION_STATUS, getTaskData().getRoot());
             operationStatusAttribute.getMetaData().setReadOnly(false);
             operationStatusAttribute.putOption(ReviewRequestStatus.SUBMITTED.name(), ReviewRequestStatus.SUBMITTED.getDisplayname());
             operationStatusAttribute.putOption(ReviewRequestStatus.DISCARDED.name(), ReviewRequestStatus.DISCARDED.getDisplayname());

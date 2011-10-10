@@ -140,7 +140,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 
                 Policy.advance(monitor, 1);
                 
-                TaskData taskData = getTaskDataForReviewRequest(taskRepository, reviewRequest, false);
+                TaskData taskData = getTaskDataForReviewRequest(taskRepository, client, reviewRequest, false);
                 
                 List<Diff> diffs = client.loadDiffs(reviewRequestId, monitor);
                 
@@ -458,7 +458,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             List<ReviewRequest> reviewRequests = client.getReviewRequests(query.getUrl(), Integer.parseInt(query.getAttribute("maxResults")), monitor);
             
             for (ReviewRequest reviewRequest : reviewRequests) {
-                TaskData taskData = getTaskDataForReviewRequest(repository, reviewRequest, true);
+                TaskData taskData = getTaskDataForReviewRequest(repository, client, reviewRequest, true);
                 collector.accept(taskData);
             }
         } catch ( ReviewboardException e) {
@@ -473,7 +473,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     }
     
     private TaskData getTaskDataForReviewRequest(TaskRepository taskRepository,
-            ReviewRequest reviewRequest, boolean partial) {
+            ReviewboardClient client, ReviewRequest reviewRequest, boolean partial) {
 
         String id = String.valueOf(reviewRequest.getId());
         Date dateModified = reviewRequest.getLastUpdated();
@@ -495,8 +495,12 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         if ( status != ReviewRequestStatus.PENDING )
             mapper.setCompletionDate(dateModified);
         
-        if ( reviewRequest.getRepository() != null )
-            mapper.setRepository(reviewRequest.getRepository());
+        if ( reviewRequest.getRepository() != null ) {
+            List<Repository> repositories = client.getClientData().getRepositories();
+            for ( Repository repository : repositories )
+                if ( repository.getName().equals(reviewRequest.getRepository() ))
+                    mapper.setRepository( repository );
+        }
         mapper.setBranch(reviewRequest.getBranch());
         mapper.setChangeNum(reviewRequest.getChangeNumber());
         mapper.setPublic(reviewRequest.isPublic());
