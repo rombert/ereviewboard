@@ -161,7 +161,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                         if ( !status.isOK() ) {
                             
                             int kind = MessageDialog.ERROR;
-                            if ( status.getCode() == IStatus.WARNING )
+                            if ( status.getSeverity() == IStatus.WARNING )
                                 kind = MessageDialog.WARNING;
                             
                             MessageDialog.open(kind, null, "Error performing action", status.getMessage(), SWT.SHEET);

@@ -112,14 +112,14 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
 
             Activator.getDefault().trace(TraceLocation.MAIN, "Matched with project " + matchingProject);
             
-            if( matchingProject != null ) {
-                IWorkbench wb = PlatformUI.getWorkbench();
-                
-                IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-                
-                new WizardDialog(win.getShell(), new PostReviewRequestWizard(matchingProject, reviewRequest)).open();
-            }
-                
+            if ( matchingProject == null )
+                return new Status(IStatus.WARNING, Activator.PLUGIN_ID, "Could not find a matching project");
+            
+            IWorkbench wb = PlatformUI.getWorkbench();
+            
+            IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+            
+            new WizardDialog(win.getShell(), new PostReviewRequestWizard(matchingProject, reviewRequest)).open();
 
             return Status.OK_STATUS;
         } catch (ReviewboardException e) {
