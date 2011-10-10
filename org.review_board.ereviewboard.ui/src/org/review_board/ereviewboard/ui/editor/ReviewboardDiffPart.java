@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
@@ -139,6 +140,9 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         int reviewRequestId = Integer.parseInt(getTaskData().getTaskId());
         TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, getTaskData().getRepositoryUrl());
         
+        Composite extensionsComposite = new Composite(composite, SWT.NONE);
+        RowLayoutFactory.fillDefaults().type(SWT.HORIZONTAL).applyTo(extensionsComposite);
+        
         for ( IConfigurationElement element : configurationElements ) {
             try {
                 final TaskDiffAction taskDiffAction = (TaskDiffAction) element.createExecutableExtension("class");
@@ -148,7 +152,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 
                 final String label = element.getAttribute("label");
                 
-                Button button = new Button(composite, SWT.NONE);
+                Button button = new Button(extensionsComposite, SWT.NONE);
                 button.setText(label);
                 button.addSelectionListener(new SelectionListener() {
                     
