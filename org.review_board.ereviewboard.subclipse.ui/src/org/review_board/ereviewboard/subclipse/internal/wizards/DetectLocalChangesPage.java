@@ -17,10 +17,6 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -272,43 +268,6 @@ class DetectLocalChangesPage extends WizardPage {
                         for ( ChangedFile changedFile : changedFiles ) {
                             
                             TableItem item = new TableItem (_table, SWT.NONE);
-                            
-                            /*       TableEditor editor = new TableEditor(_table);
-                            Button checkbox = new Button(_table, SWT.CHECK);
-                            checkbox.setData(changedFile);
-                            _selectedFiles.add(changedFile);
-                            checkbox.addSelectionListener(new SelectionListener() {
-                                
-                                public void widgetSelected(SelectionEvent e) {
-                                
-                                    Button source =  (Button) e.getSource();
-                                    
-                                    if ( source.getSelection() )
-                                        _selectedFiles.add((ChangedFile) source.getData());
-                                    else
-                                        _selectedFiles.remove(source.getData());
-                                    
-                                    Activator.getDefault().trace(TraceLocation.MAIN, "Now we have " + _selectedFiles.size() + " selected files.");
-                                    
-                                    if ( _selectedFiles.isEmpty() ) {
-                                        setErrorMessage("Please select at least one change to submit for review.");
-                                    } else {
-                                        setErrorMessage(null);
-                                    }
-                                    
-                                    getContainer().updateButtons();
-                                    
-                                }
-                                
-                                public void widgetDefaultSelected(SelectionEvent e) {
-                                    widgetSelected(e);
-                                }
-                            });
-                            checkbox.setSelection(true);
-                            checkbox.pack();
-                            editor.minimumWidth = checkbox.getSize ().x;
-                            editor.horizontalAlignment = SWT.LEFT;
-                            editor.setEditor(checkbox, item, 0);*/
                             item.setData(changedFile);
                             item.setText(0, "");
                             item.setText(1, changedFile.getStatusKind().toString());

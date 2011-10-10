@@ -1,0 +1,12 @@
+{
+  "err": {
+    "code": 105, 
+    "msg": "One or more fields had errors"
+  }, 
+  "fields": {
+    "myint": [
+      "`abc` is not an integer"
+    ]
+  }, 
+  "stat": "fail"
+}

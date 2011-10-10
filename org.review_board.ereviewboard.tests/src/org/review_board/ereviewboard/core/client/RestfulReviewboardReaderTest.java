@@ -56,6 +56,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
 import org.review_board.ereviewboard.core.model.*;
 
 /**
@@ -385,5 +386,20 @@ public class RestfulReviewboardReaderTest {
     public void readCount() throws ReviewboardException, IOException {
 
         assertThat("count", reader.readCount(readJsonTestResource("count.json")), is(6));
+    }
+
+    @Test
+    public void readInvalidFormDataException() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/errors/105-invalid-form-data/
+        try {
+            reader.ensureSuccess(readJsonTestResource("invalid-form-data.json"));
+        } catch (ReviewboardException e) {
+            assertThat(e, is(ReviewboardInvalidFormDataException.class));
+            
+            ReviewboardInvalidFormDataException exception = (ReviewboardInvalidFormDataException) e;
+            assertThat(exception.getMessage(), is("myint : `abc` is not an integer."));
+            assertThat(ErrorCode.INVALID_FORM_DATA.is(exception.getCode()), is(true));
+        }
     }
 }

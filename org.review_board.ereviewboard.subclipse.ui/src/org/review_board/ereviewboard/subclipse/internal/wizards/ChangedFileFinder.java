@@ -5,12 +5,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
-import org.tigris.subversion.svnclientadapter.ISVNInfo;
-import org.tigris.subversion.svnclientadapter.ISVNStatus;
-import org.tigris.subversion.svnclientadapter.SVNClientException;
-import org.tigris.subversion.svnclientadapter.SVNStatusKind;
-import org.tigris.subversion.svnclientadapter.SVNUrl;
+import org.tigris.subversion.svnclientadapter.*;
 
 /**
  * Finds local changes for a specified <tt>location</tt>
@@ -44,6 +39,9 @@ public class ChangedFileFinder {
         for (ISVNStatus svnStatus : statuses) {
 
             if (SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()))
+                continue;
+            
+            if (!SVNNodeKind.FILE.equals(svnStatus.getNodeKind()))
                 continue;
 
             boolean copied = svnStatus.isCopied();

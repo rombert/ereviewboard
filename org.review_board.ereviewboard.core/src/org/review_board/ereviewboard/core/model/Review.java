@@ -39,6 +39,7 @@ package org.review_board.ereviewboard.core.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Domain class for reviews.
@@ -46,7 +47,8 @@ import java.util.Date;
  * @author Markus Knittig
  */
 public class Review implements Serializable {
-
+    
+    private static final String SHIP_IT_PREFIX = "ship it";
     private int id;
     private String bodyTop;
     private String bodyBottom;
@@ -109,5 +111,13 @@ public class Review implements Serializable {
 
     public void setPublicReview(boolean publicReview) {
         this.publicReview = publicReview;
+    }
+
+    public boolean hasShipItText() {
+        
+        if ( bodyTop == null || bodyTop.trim().length() == 0 )
+            return false;
+        
+        return bodyTop.toLowerCase(Locale.ENGLISH).startsWith(SHIP_IT_PREFIX);
     }
 }
