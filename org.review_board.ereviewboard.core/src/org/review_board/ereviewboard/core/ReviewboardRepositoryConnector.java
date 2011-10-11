@@ -311,12 +311,16 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         if ( diffs.isEmpty() )
             return;
         
-        int latestDiff = 0;
+        int latestDiffId = 0;
         for ( Diff diff : diffs )
-            latestDiff = Math.max(latestDiff, diff.getRevision());
-                
+            latestDiffId = Math.max(latestDiffId, diff.getRevision());
+        Diff latestDiff = null;
+        for ( Diff diff : diffs )
+                if ( diff.getRevision() == latestDiffId )
+                	latestDiff = diff;
+        
         int reviewRequestId = Integer.parseInt(taskData.getTaskId());
-        List<FileDiff> fileDiffs = client.getFileDiffs(reviewRequestId, latestDiff, monitor);
+        List<FileDiff> fileDiffs = client.getFileDiffs(reviewRequestId, latestDiffId, monitor);
         
         ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(taskData, latestDiff);
         

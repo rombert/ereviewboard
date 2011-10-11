@@ -13,23 +13,12 @@ package org.review_board.ereviewboard.ui.editor;
 import java.util.List;
 
 import org.eclipse.compare.CompareUI;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.IOpenListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.OpenEvent;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
 import org.eclipse.mylyn.reviews.core.model.IFileRevision;
@@ -41,11 +30,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.forms.IFormColors;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
-import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
@@ -70,22 +61,38 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         setPartName("Latest Diff");
     }
     
+    private void addDescriptiveRow(String name, String value, FormToolkit toolkit,Composite composite) {
+        
+        Label authorLabel = new Label(composite, SWT.NONE);
+        authorLabel.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
+        authorLabel.setText(name);
+
+        Text authorText = new Text(composite, SWT.READ_ONLY);
+        authorText.setText(value);
+    }
+    
     @Override
     public void createControl(Composite parent, FormToolkit toolkit) {
         
         Section section = createSection(parent, toolkit, true);
         Composite composite = toolkit.createComposite(section);
-        composite.setLayout(EditorUtil.createSectionClientLayout());
+        GridLayoutFactory.createFrom(EditorUtil.createSectionClientLayout()).numColumns(2).applyTo(composite);
         
         final ReviewboardTaskMapper taskMapper = new ReviewboardTaskMapper(getTaskData());
         
         final ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(getTaskData());
         
+        ReviewModelFactory reviewModelFactory = new ReviewModelFactory(getClient());
+        
+        addDescriptiveRow("Author", reviewModelFactory.createUser(taskMapper.getReporter()).getDisplayName(), toolkit, composite);
+        addDescriptiveRow("Revision", String.valueOf(diffMapper.getDiffRevision()), toolkit, composite);
+        addDescriptiveRow("Created", diffMapper.getTimestamp(), toolkit, composite);
+        
         TableViewer diffTableViewer = new TableViewer(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
         diffTableViewer.setContentProvider(new ArrayContentProvider());
         diffTableViewer.setSorter(new ViewerSorter());
         
-        GridDataFactory.fillDefaults().grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
+        GridDataFactory.fillDefaults().span(2,1).grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
         
         TableViewerColumn fileColumn = new TableViewerColumn(diffTableViewer, SWT.NONE);
         fileColumn.getColumn().setWidth(300);
@@ -101,7 +108,9 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         });
         
         List<FileDiff> fileDiffs = diffMapper.getFileDiffs();
-        List<IFileItem> fileItems= new ReviewModelFactory().createFileItems(diffMapper);
+        
+
+        List<IFileItem> fileItems= reviewModelFactory.createFileItems(taskMapper.getReporter(), diffMapper);
         diffTableViewer.setInput(fileItems.toArray(new IFileItem[fileItems.size()]));
         
         diffTableViewer.addOpenListener(new IOpenListener() {
@@ -118,20 +127,21 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                     return;
                 }
                 
-                ReviewboardClient client = ReviewboardCorePlugin.getDefault().getConnector().getClientManager().getClient(getTaskRepository());
+                ReviewboardClient client = getClient();
                 
                 int reviewRequestId = Integer.parseInt(getTaskData().getTaskId());
                 int diffId = diffMapper.getDiffRevision();
                 int fileDiffId = Integer.parseInt(item.getId());
                 try {
                     if ( item.getTarget().getTopics().isEmpty() ) // do not add comments multiple times
-                        new ReviewModelFactory().appendComments(item.getTarget(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, new NullProgressMonitor()));
+                        new ReviewModelFactory(client).appendComments(item.getTarget(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, new NullProgressMonitor()));
                 } catch (ReviewboardException e) {
                     ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Failed retrieving diff comments ", e));
                 }
                 
                 CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, diffMapper, getTaskData(), locator));
             }
+
         });
                 
         installExtensions(composite, taskMapper.getRepository(), diffMapper, fileDiffs);
@@ -195,6 +205,10 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
     private TaskRepository getTaskRepository() {
         TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, getTaskData().getRepositoryUrl());
         return repository;
+    }
+    
+    private ReviewboardClient getClient() {
+        return ReviewboardCorePlugin.getDefault().getConnector().getClientManager().getClient(getTaskRepository());
     }
     
     private SCMFileContentsLocator getSCMFileContentsLocator(ReviewboardTaskMapper taskMapper, IFileRevision fileRevision) {

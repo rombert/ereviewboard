@@ -3,17 +3,13 @@ package org.review_board.ereviewboard.core.model.reviews;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.mylyn.reviews.core.model.*;
+import org.eclipse.mylyn.reviews.internal.core.model.ReviewsFactory;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
+import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.FileDiff;
-import org.eclipse.mylyn.reviews.core.model.IComment;
-import org.eclipse.mylyn.reviews.core.model.IFileItem;
-import org.eclipse.mylyn.reviews.core.model.IFileRevision;
-import org.eclipse.mylyn.reviews.core.model.ILineLocation;
-import org.eclipse.mylyn.reviews.core.model.ILineRange;
-import org.eclipse.mylyn.reviews.core.model.ITopic;
-import org.eclipse.mylyn.reviews.core.model.IUser;
-import org.eclipse.mylyn.reviews.internal.core.model.ReviewsFactory;
+import org.review_board.ereviewboard.core.model.User;
 
 /**
  * Bridges between the <tt>eReviewBoard</tt> and the <tt>Mylyn Reviews</tt> model
@@ -25,8 +21,14 @@ import org.eclipse.mylyn.reviews.internal.core.model.ReviewsFactory;
 public class ReviewModelFactory {
     
     private static final ReviewsFactory FACTORY = ReviewsFactory.eINSTANCE;
+    private final ReviewboardClient _client;
+    
+    public ReviewModelFactory(ReviewboardClient client) {
+        
+        _client = client;
+    }
 
-    public List<IFileItem> createFileItems(ReviewboardDiffMapper diffMapper) {
+    public List<IFileItem> createFileItems(String submitter, ReviewboardDiffMapper diffMapper) {
        
         List<FileDiff> fileDiffs = diffMapper.getFileDiffs();
         
@@ -35,6 +37,7 @@ public class ReviewModelFactory {
         for ( FileDiff fileDiff : fileDiffs ) {
             
             IFileItem fileItem = FACTORY.createFileItem();
+            fileItem.setAddedBy(createUser(submitter));
             fileItem.setName(fileDiff.getDestinationFile());
             fileItem.setId(String.valueOf(fileDiff.getId()));
             
@@ -66,10 +69,7 @@ public class ReviewModelFactory {
             ILineLocation location = FACTORY.createLineLocation();
             location.getRanges().add(line);
             
-            // TODO read complete data using the ReviewboardClient
-            IUser author = FACTORY.createUser();
-            author.setDisplayName(diffComment.getUsername());
-            author.setId(diffComment.getUsername());
+            IUser author = createUser(diffComment.getUsername());
             
             IComment topicComment = FACTORY.createComment();
             topicComment.setAuthor(author);
@@ -86,5 +86,17 @@ public class ReviewModelFactory {
             topic.setDescription(diffComment.getText());
             topic.getComments().add(topicComment);
         }
+    }
+
+    public IUser createUser(String username) {
+        IUser author = FACTORY.createUser();
+        
+        User user = _client.getClientData().getUser(username);
+        author.setId(username);
+        if ( user != null && user.getFullName().length() > 0 )
+            author.setDisplayName(user.getFullName());
+        else
+            author.setDisplayName(username);
+        return author;
     }
 }
