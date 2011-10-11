@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.IPath;
  * @author Robert Munteanu
  *
  */
-public class ByteArrayStorage implements IStorage {
+class ByteArrayStorage implements IStorage {
     
     private final byte[] diff;
 
