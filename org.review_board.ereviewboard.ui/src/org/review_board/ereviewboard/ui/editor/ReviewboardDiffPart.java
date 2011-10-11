@@ -113,8 +113,10 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 IFileItem item = (IFileItem) selection.getFirstElement();
                 
                 SCMFileContentsLocator locator = getSCMFileContentsLocator(taskMapper, item.getBase());
-                if ( locator == null )
+                if ( locator == null ) {
                     MessageDialog.openWarning(null, "Unable to load base file", "Unable to load base file contents since no plug-in was able to handle the repository " + taskMapper.getRepository());
+                    return;
+                }
                 
                 ReviewboardClient client = ReviewboardCorePlugin.getDefault().getConnector().getClientManager().getClient(getTaskRepository());
                 
