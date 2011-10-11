@@ -4,15 +4,18 @@ Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.review_board.ereviewboard.ui;singleton:=true
 Bundle-Version: 0.10.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.eclipse.mylyn.tasks.core;bundle-version="[3.2.0,4.0.0)",
- org.eclipse.mylyn.tasks.ui;bundle-version="[3.2.0,4.0.0)",
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
- org.review_board.ereviewboard.core,
+ org.eclipse.compare;bundle-version="3.5.0",
  org.eclipse.ui,
  org.eclipse.ui.forms,
- org.eclipse.ui.ide,
- org.eclipse.compare;bundle-version="3.5.0",
+ org.eclipse.team.core,
+ org.eclipse.mylyn.tasks.core;bundle-version="[3.6.0,4.0.0)",
+ org.eclipse.mylyn.tasks.ui;bundle-version="[3.6.0,4.0.0)",
+ org.eclipse.mylyn.commons.ui;bundle-version="[3.6.0,4.0.0)",
+ org.eclipse.mylyn.reviews.ui;bundle-version="[0.8.0,1.0.0)",
+ org.eclipse.mylyn.reviews.core;bundle-version="[0.8.0,1.0.0)",
+ org.review_board.ereviewboard.core,
  org.apache.commons.io;bundle-version="1.4.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.review_board.ereviewboard.ui.ReviewboardUiPlugin
@@ -21,7 +24,3 @@ Export-Package: org.review_board.ereviewboard.ui,
  org.review_board.ereviewboard.ui.editor.ext,
  org.review_board.ereviewboard.ui.util,
  org.review_board.ereviewboard.ui.wizard
-Import-Package: org.eclipse.mylyn.internal.provisional.commons.ui,
- org.eclipse.mylyn.internal.reviews.ui.annotations,
- org.eclipse.mylyn.internal.reviews.ui.operations,
- org.eclipse.mylyn.reviews.core.model

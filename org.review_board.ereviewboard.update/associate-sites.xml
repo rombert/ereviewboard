@@ -1,3 +1,4 @@
 <associateSites> 
-	<associateSite label="Mylyn for Eclipse 3.4 and 3.5" url="http://download.eclipse.org/tools/mylyn/update/e3.4"/> 
+        <associateSite label="Mylyn for Eclipse 3.5, 3.6 and 3.7" url="http://download.eclipse.org/mylyn/releases/latest"/> 
+        <associateSite label="Mylyn Reviews for Eclipse 3.5, 3.6 and 3.7" url="http://download.eclipse.org/reviews/updates"/> 
 </associateSites> 
