@@ -42,6 +42,12 @@
       <layout>p2</layout>
 	  <url>http://subclipse.tigris.org/update_1.6.x</url>
     </repository>
+    <repository>
+      <id>mylyn.reviews</id>
+      <layout>p2</layout>
+	  <url>http://download.eclipse.org/reviews/updates</url>
+    </repository>
+
   </repositories>
  
   <build>
