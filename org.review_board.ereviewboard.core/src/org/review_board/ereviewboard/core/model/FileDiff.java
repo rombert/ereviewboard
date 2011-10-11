@@ -20,6 +20,8 @@ import java.io.Serializable;
  * 
  */
 public class FileDiff implements Serializable {
+    
+    public static final String PRE_CREATION = "PRE-CREATION";
 
     private final int id;
     private final String sourceFile;
@@ -55,5 +57,10 @@ public class FileDiff implements Serializable {
     public String getDestinationDetail() {
         
         return destinationDetail;
+    }
+
+    public boolean isPreCreation() {
+        
+        return PRE_CREATION.equals(sourceRevision);
     }
 }

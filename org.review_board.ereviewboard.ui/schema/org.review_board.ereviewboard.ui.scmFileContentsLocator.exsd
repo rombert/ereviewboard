@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.review_board.ereviewboard.ui" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="org.review_board.ereviewboard.ui" id="org.review_board.ereviewboard.ui.scmFileContentsLocator" name="scmFileContentsLocator"/>
+      </appinfo>
+      <documentation>
+         Extension point which allows SCM plugins to retrieve remote versions of files.
+      </documentation>
+   </annotation>
+
+   <element name="scmFileContentsLocator">
+      <complexType>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         0.10.0
+      </documentation>
+   </annotation>
+
+
+
+
+
+</schema>

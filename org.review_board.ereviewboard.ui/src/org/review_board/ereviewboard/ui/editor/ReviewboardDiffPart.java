@@ -12,7 +12,6 @@ package org.review_board.ereviewboard.ui.editor;
 
 import java.util.List;
 
-import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -26,15 +25,14 @@ import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IOpenListener;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerSorter;
-import org.eclipse.mylyn.internal.reviews.ui.annotations.ReviewCompareAnnotationModel;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
+import org.eclipse.mylyn.reviews.core.model.IFileRevision;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
@@ -52,6 +50,7 @@ import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
+import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 import org.review_board.ereviewboard.ui.editor.ext.TaskDiffAction;
 
 /**
@@ -61,6 +60,7 @@ import org.review_board.ereviewboard.ui.editor.ext.TaskDiffAction;
 public class ReviewboardDiffPart extends AbstractTaskEditorPart {
 
     private static final String EXTENSION_POINT_TASK_DIFF_ACTIONS = "org.review_board.ereviewboard.ui.taskDiffActions";
+    private static final String EXTENSION_POINT_SCM_FILE_CONTENTS_LOCATOR = "org.review_board.ereviewboard.ui.scmFileContentsLocator";
 
     public ReviewboardDiffPart() {
         
@@ -73,6 +73,8 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         Section section = createSection(parent, toolkit, true);
         Composite composite = toolkit.createComposite(section);
         composite.setLayout(EditorUtil.createSectionClientLayout());
+        
+        final ReviewboardTaskMapper taskMapper = new ReviewboardTaskMapper(getTaskData());
         
         final ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(getTaskData());
         
@@ -107,12 +109,15 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 
                 IFileItem item = (IFileItem) selection.getFirstElement();
                 
-                CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, diffMapper, getTaskData()));
+                SCMFileContentsLocator locator = getSCMFileContentsLocator(taskMapper, item.getBase());
+                if ( locator == null ) {
+                    MessageDialog.openWarning(null, "Unable to load base file", "Unable to load base file contents since no plug-in was able to handle the repository " + taskMapper.getRepository());
+                }
+                
+                CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, diffMapper, getTaskData(), locator));
             }
         });
                 
-        ReviewboardTaskMapper taskMapper = new ReviewboardTaskMapper(getTaskData());
-        
         installExtensions(composite, taskMapper.getRepository(), diffMapper, fileDiffs);
         
         toolkit.paintBordersFor(composite);
@@ -171,6 +176,24 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 ReviewboardUiPlugin.getDefault().getLog().log(e.getStatus());
             }
         }
+    }
+    
+    private SCMFileContentsLocator getSCMFileContentsLocator(ReviewboardTaskMapper taskMapper, IFileRevision fileRevision) {
+        
+        IConfigurationElement[] configurationElements = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_SCM_FILE_CONTENTS_LOCATOR);
+
+        for ( IConfigurationElement element : configurationElements ) { 
+            try {
+                SCMFileContentsLocator locator = (SCMFileContentsLocator) element.createExecutableExtension("class");
+                locator.init(taskMapper.getRepository(), fileRevision.getPath(), fileRevision.getRevision());
+                if ( locator.isEnabled() )
+                    return locator;
+            } catch (CoreException e) {
+                ReviewboardUiPlugin.getDefault().getLog().log(e.getStatus());
+            }
+        }
+        
+        return null;
     }
 
 }

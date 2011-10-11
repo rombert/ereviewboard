@@ -24,4 +24,10 @@
                label="Update Diff..."
                class="org.review_board.ereviewboard.subclipse.internal.actions.UpdateReviewRequestAction"/>
    </extension>
+   <extension
+         point="org.review_board.ereviewboard.ui.scmFileContentsLocator">
+         <scmFileContentLocator
+         	id="org.review_board.ereviewboard.subclipse.subclipseSCMFileContentsLocator"
+         	class="org.review_board.ereviewboard.subclipse.internal.actions.SubclipseSCMFileContentsLocator"/>
+   </extension>
 </plugin>

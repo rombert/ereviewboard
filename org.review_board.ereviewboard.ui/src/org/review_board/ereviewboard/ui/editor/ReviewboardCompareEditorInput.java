@@ -26,6 +26,8 @@ import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 
 /**
  * @author Robert Munteanu
@@ -35,12 +37,21 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
     
     private final ReviewboardDiffMapper _diffMapper;
-    private TaskData _taskData;
+    private final TaskData _taskData;
+    private final SCMFileContentsLocator _locator;
 
-    ReviewboardCompareEditorInput(IFileItem file, ReviewboardDiffMapper diffMapper, TaskData taskData) {
+    /**
+     * @param file
+     * @param diffMapper
+     * @param taskData
+     * @param codeRepository
+     * @param locator the locator, already initialised for the specified <tt>file</tt> )
+     */
+    ReviewboardCompareEditorInput(IFileItem file, ReviewboardDiffMapper diffMapper, TaskData taskData, SCMFileContentsLocator locator) {
         super(file, new ReviewCompareAnnotationModel(file, null), new CompareConfiguration());
         _diffMapper = diffMapper;
         _taskData = taskData;
+        _locator = locator;
     }
 
     @Override
@@ -55,7 +66,7 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         ReviewboardClient client = connector.getClientManager().getClient(TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, _taskData.getRepositoryUrl()));
         
         try {
-            monitor.beginTask("Generating diff", 3);
+            monitor.beginTask("Generating diff", 4);
             
             IFilePatch patch = getPatchForFile(monitor, taskId, diffRevision, fileId, client);
             
@@ -99,20 +110,22 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         return parsedPatches[0];
     }
 
-    private IFilePatchResult applyPatch(IProgressMonitor monitor, IFilePatch patch) {
+    private IFilePatchResult applyPatch(IProgressMonitor monitor, IFilePatch patch) throws CoreException {
         
         PatchConfiguration patchConfiguration = new PatchConfiguration();
-        IStorage source = lookupResource(getFile().getBase());
+        IStorage source = lookupResource(getFile().getBase(), monitor);
+        monitor.worked(1);
         
         IFilePatchResult patchResult = patch.apply(source, patchConfiguration, monitor);
         monitor.worked(1);
         return patchResult;
     }
 
-    private IStorage lookupResource(IFileRevision fileRevision) {
+    private IStorage lookupResource(IFileRevision fileRevision, IProgressMonitor monitor) throws CoreException {
         
-        // TODO : delegate to specific SCM plugins
-        return (IFile) ResourcesPlugin.getWorkspace().getRoot().findMember(fileRevision.getPath());
+        return new ByteArrayStorage(_locator.getContents(monitor));
+        
+        // return (IFile) ResourcesPlugin.getWorkspace().getRoot().findMember(fileRevision.getPath());
     }
 
     private Object findDifferences(IProgressMonitor monitor, IFilePatchResult patchResult) throws IOException {
