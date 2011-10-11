@@ -29,6 +29,7 @@
         }
       }, 
       "num_lines": 3, 
+      "first_line": 3,
       "public": true, 
       "text": "This is just a sample comment.", 
       "timestamp": "2010-08-22 17:25:41"
@@ -62,6 +63,7 @@
         }
       }, 
       "num_lines": 3, 
+      "first_line": 2,
       "public": true, 
       "text": "Another sample comment.", 
       "timestamp": "2010-08-22 17:25:52"

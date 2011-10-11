@@ -514,6 +514,8 @@ public class RestfulReviewboardReader {
                 DiffComment comment = new DiffComment();
                 
                 mapComment(jsonDiffComment, comment);
+                comment.setFirstLine(jsonDiffComment.getInt("first_line"));
+                comment.setNumLines(jsonDiffComment.getInt("num_lines"));
                 
                 diffComments.add(comment);
             }

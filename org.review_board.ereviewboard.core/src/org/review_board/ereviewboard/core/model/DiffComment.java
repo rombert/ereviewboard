@@ -10,10 +10,27 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
-
 /**
  * @author Robert Munteanu
  */
-public class DiffComment extends Comment  {
+public class DiffComment extends Comment {
 
+    private int firstLine;
+    private int numLines;
+
+    public int getFirstLine() {
+        return firstLine;
+    }
+
+    public void setFirstLine(int firstLine) {
+        this.firstLine = firstLine;
+    }
+
+    public int getNumLines() {
+        return numLines;
+    }
+
+    public void setNumLines(int numLines) {
+        this.numLines = numLines;
+    }
 }

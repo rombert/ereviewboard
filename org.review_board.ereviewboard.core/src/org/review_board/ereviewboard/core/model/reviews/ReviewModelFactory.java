@@ -4,9 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
+import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.FileDiff;
+import org.eclipse.mylyn.reviews.core.model.IComment;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
 import org.eclipse.mylyn.reviews.core.model.IFileRevision;
+import org.eclipse.mylyn.reviews.core.model.ILineLocation;
+import org.eclipse.mylyn.reviews.core.model.ILineRange;
+import org.eclipse.mylyn.reviews.core.model.ITopic;
+import org.eclipse.mylyn.reviews.core.model.IUser;
 import org.eclipse.mylyn.reviews.internal.core.model.ReviewsFactory;
 
 /**
@@ -47,5 +53,38 @@ public class ReviewModelFactory {
         }
         
         return fileItems;
+    }
+    
+    public void appendComments(IFileRevision fileRevision, List<DiffComment> diffComments) {
+        
+        for ( DiffComment diffComment : diffComments ) {
+            
+            ILineRange line = FACTORY.createLineRange();
+            line.setStart(diffComment.getFirstLine());
+            line.setEnd(diffComment.getFirstLine() + diffComment.getNumLines());
+            
+            ILineLocation location = FACTORY.createLineLocation();
+            location.getRanges().add(line);
+            
+            // TODO read complete data using the ReviewboardClient
+            IUser author = FACTORY.createUser();
+            author.setDisplayName(diffComment.getUsername());
+            author.setId(diffComment.getUsername());
+            
+            IComment topicComment = FACTORY.createComment();
+            topicComment.setAuthor(author);
+            topicComment.setCreationDate(diffComment.getTimestamp());
+            topicComment.setDescription(diffComment.getText());
+            
+            ITopic topic = FACTORY.createTopic();
+            topic.setId(String.valueOf(diffComment.getId()));
+            topic.setAuthor(author);
+            topic.setCreationDate(diffComment.getTimestamp());
+            topic.setLocation(location);
+            topic.setItem(fileRevision);
+            topic.setDraft(false);
+            topic.setDescription(diffComment.getText());
+            topic.getComments().add(topicComment);
+        }
     }
 }

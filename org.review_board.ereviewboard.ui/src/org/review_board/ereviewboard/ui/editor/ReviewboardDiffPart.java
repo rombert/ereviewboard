@@ -45,7 +45,10 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
+import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
+import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
@@ -110,8 +113,18 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 IFileItem item = (IFileItem) selection.getFirstElement();
                 
                 SCMFileContentsLocator locator = getSCMFileContentsLocator(taskMapper, item.getBase());
-                if ( locator == null ) {
+                if ( locator == null )
                     MessageDialog.openWarning(null, "Unable to load base file", "Unable to load base file contents since no plug-in was able to handle the repository " + taskMapper.getRepository());
+                
+                ReviewboardClient client = ReviewboardCorePlugin.getDefault().getConnector().getClientManager().getClient(getTaskRepository());
+                
+                int reviewRequestId = Integer.parseInt(getTaskData().getTaskId());
+                int diffId = diffMapper.getDiffRevision();
+                int fileDiffId = Integer.parseInt(item.getId());
+                try {
+                    new ReviewModelFactory().appendComments(item.getBase(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, new NullProgressMonitor()));
+                } catch (ReviewboardException e) {
+                    ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Failed retrieving diff comments ", e));
                 }
                 
                 CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, diffMapper, getTaskData(), locator));
@@ -130,15 +143,13 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         IConfigurationElement[] configurationElements = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_TASK_DIFF_ACTIONS);
         
         int reviewRequestId = Integer.parseInt(getTaskData().getTaskId());
-        TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, getTaskData().getRepositoryUrl());
-        
         Composite extensionsComposite = new Composite(composite, SWT.NONE);
         RowLayoutFactory.fillDefaults().type(SWT.HORIZONTAL).applyTo(extensionsComposite);
         
         for ( IConfigurationElement element : configurationElements ) {
             try {
                 final TaskDiffAction taskDiffAction = (TaskDiffAction) element.createExecutableExtension("class");
-                taskDiffAction.init(repository, reviewRequestId, codeRepository, fileDiffs);
+                taskDiffAction.init(getTaskRepository(), reviewRequestId, codeRepository, fileDiffs);
                 if ( !taskDiffAction.isEnabled() )
                     continue;
                 
@@ -176,6 +187,11 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 ReviewboardUiPlugin.getDefault().getLog().log(e.getStatus());
             }
         }
+    }
+
+    private TaskRepository getTaskRepository() {
+        TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, getTaskData().getRepositoryUrl());
+        return repository;
     }
     
     private SCMFileContentsLocator getSCMFileContentsLocator(ReviewboardTaskMapper taskMapper, IFileRevision fileRevision) {
