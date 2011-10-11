@@ -29,11 +29,7 @@ import org.review_board.ereviewboard.core.model.FileDiff;
  */
 public class ReviewboardDiffMapper {
     
-    /**
-     * Signals that the file is newly created in this diff and is not expected to be found in the source
-     * repository
-     */
-    public static final String REVISION_PRE_CREATION = "PRE-CREATION";
+    private static final String PREFIX_FILE = "file-";
     
     private final TaskData taskData;
 
@@ -58,9 +54,8 @@ public class ReviewboardDiffMapper {
     public void addFileDiff(FileDiff fileDiff) {
         
         TaskAttribute diff = latestDiff();
-        int nextId = diff.getAttributes().size() - 1;
         
-        TaskAttribute fileDiffAttribute = diff.createAttribute("file-" + nextId);
+        TaskAttribute fileDiffAttribute = diff.createAttribute(PREFIX_FILE + fileDiff.getId());
         fileDiffAttribute.setValue(String.valueOf(fileDiff.getId()));
         fileDiffAttribute.createAttribute(SOURCE_FILE.toString()).setValue(fileDiff.getSourceFile());
         fileDiffAttribute.createAttribute(DEST_FILE.toString()).setValue(fileDiff.getDestinationFile());
@@ -83,7 +78,7 @@ public class ReviewboardDiffMapper {
         
         for (TaskAttribute fileDiffAttribute : latestDiff().getAttributes().values()) {
             
-            if ( !fileDiffAttribute.getId().startsWith("file-") )
+            if ( !fileDiffAttribute.getId().startsWith(PREFIX_FILE) )
                 continue;
 
             int fileDiffId = Integer.parseInt(fileDiffAttribute.getValue());
@@ -107,8 +102,8 @@ public class ReviewboardDiffMapper {
   
     public String getTimestamp() {
 
-        TaskAttribute diffAttribute = taskData.getRoot().getAttribute(LATEST_DIFF.toString());
-        Date timestamp = taskData.getAttributeMapper().getDateValue(diffAttribute.getAttribute(LAST_UPDATED.toString()));
+        Date timestamp = taskData.getAttributeMapper().getDateValue(latestDiff().getAttribute(LAST_UPDATED.toString()));
+        
         return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(timestamp);
     }
 }
