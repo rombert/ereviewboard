@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="ereviewboard" sequenceNumber="20">
+<locations>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.tigris.subversion.subclipse.feature.group" version="1.6.18"/>
+<unit id="org.tigris.subversion.clientadapter.feature.feature.group" version="1.6.12"/>
+<repository location="http://subclipse.tigris.org/update_1.6.x"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.mylyn_feature.feature.group" version="3.6.0.v20110608-1400"/>
+<unit id="org.eclipse.mylyn.commons.feature.group" version="3.6.0.v20110608-1400"/>
+<repository location="http://download.eclipse.org/mylyn/drops/3.6.0/v20110608-1400/"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.apache.commons.io" version="2.0.1.v201105210651"/>
+<unit id="com.google.collect" version="1.0.0.v201105210816"/>
+<unit id="com.google.inject" version="2.0.0.v201105231817"/>
+<unit id="org.json" version="1.0.0.v201011060100"/>
+<unit id="org.junit" version="4.8.2.v4_8_2_v20110321-1705"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20110523182458/repository/"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.rcp.feature.group" version="3.5.2.R35x_v20100119-9SA0FxwFnoCU5XxWItFdXXb27BA6"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.5.0.v200906151043"/>
+<repository location="http://download.eclipse.org/releases/galileo"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.mylyn.reviews.feature.feature.group" version="0.8.0.v20110608-1400"/>
+<repository location="http://download.eclipse.org/reviews/drops/0.8.0/v20110608-1400/"/>
+</location>
+</locations>
+<targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+</target>
