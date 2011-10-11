@@ -46,11 +46,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.wizards.AbstractRepositorySettingsPage;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryMapper;
@@ -66,8 +62,6 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
 
     private static final String DESCRIPTION = "Example: reviews.your-domain.org";
 
-    private final TaskRepository taskRepository;
-
     private String checkedUrl = null;
 
     private boolean authenticated;
@@ -78,12 +72,12 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
     public ReviewboardRepositorySettingsPage(TaskRepository taskRepository) {
         super(TITLE, DESCRIPTION, taskRepository);
 
-        this.taskRepository = taskRepository;
         setNeedsAnonymousLogin(false);
         setNeedsEncoding(false);
         setNeedsTimeZone(false);
         setNeedsValidation(true);
         setNeedsHttpAuth(true);
+        setNeedsAdvanced(false);
     }
 
     @Override
@@ -103,14 +97,6 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
 
     @Override
     protected void createAdditionalControls(Composite parent) {
-        final Button selfSignedSSLCheckbox = new Button(parent, SWT.CHECK);
-        selfSignedSSLCheckbox.setText("Accept self-signed SSL certificates");
-        selfSignedSSLCheckbox.addListener(SWT.Modify, new Listener() {
-            public void handleEvent(Event event) {
-                taskRepository.setProperty("selfSignedSSL",
-                        String.valueOf(selfSignedSSLCheckbox.getSelection()));
-            }
-        });
     }
 
     @Override
@@ -166,6 +152,5 @@ public class ReviewboardRepositorySettingsPage extends AbstractRepositorySetting
         super.applyTo(repository);
         
         new ReviewboardRepositoryMapper(repository).setCategoryIfNotSet();
-        
     }
 }

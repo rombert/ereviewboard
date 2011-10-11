@@ -45,34 +45,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.httpclient.Cookie;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthenticationException;
 import org.apache.commons.httpclient.auth.BasicScheme;
-import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.methods.multipart.*;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.mylyn.commons.net.AbstractWebLocation;
-import org.eclipse.mylyn.commons.net.AuthenticationCredentials;
-import org.eclipse.mylyn.commons.net.AuthenticationType;
-import org.eclipse.mylyn.commons.net.Policy;
-import org.eclipse.mylyn.commons.net.WebUtil;
+import org.eclipse.mylyn.commons.net.*;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 
 /**
@@ -89,17 +72,12 @@ public class ReviewboardHttpClient {
 
     private String sessionCookie;
 
-    public ReviewboardHttpClient(AbstractWebLocation location, String characterEncoding,
-            boolean selfSignedSSL) {
+    public ReviewboardHttpClient(AbstractWebLocation location, String characterEncoding) {
         this.location = location;
-        this.httpClient = createAndInitHttpClient(characterEncoding, selfSignedSSL);
+        this.httpClient = createAndInitHttpClient(characterEncoding);
     }
 
-    private HttpClient createAndInitHttpClient(String characterEncoding, boolean selfSignedSSL) {
-        if (selfSignedSSL) {
-            Protocol.registerProtocol("https",
-                    new Protocol("https", new EasySSLProtocolSocketFactory(), 443));
-        }
+    private HttpClient createAndInitHttpClient(String characterEncoding) {
         HttpClient httpClient = new HttpClient(WebUtil.getConnectionManager());
         WebUtil.configureHttpClient(httpClient, "eReviewBoard");
         httpClient.getParams().setContentCharset(characterEncoding);

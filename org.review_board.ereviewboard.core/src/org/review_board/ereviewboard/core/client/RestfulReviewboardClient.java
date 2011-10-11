@@ -78,8 +78,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
         reviewboardReader = new RestfulReviewboardReader();
 
-        httpClient = new ReviewboardHttpClient(location, repository.getCharacterEncoding(),
-                Boolean.valueOf(repository.getProperty("selfSignedSSL")));
+        httpClient = new ReviewboardHttpClient(location, repository.getCharacterEncoding());
 
         refreshRepositorySettings(repository);
     }
