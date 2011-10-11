@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
+import org.review_board.ereviewboard.core.model.FileDiff;
 
 import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute.*;
 
@@ -48,15 +49,17 @@ public class ReviewboardDiffMapper {
         this.taskData = taskData;
     }
 
-    public void addFileDiff(int fileDiffId, String sourceFile, String sourceRevision) {
+    public void addFileDiff(FileDiff fileDiff) {
         
         TaskAttribute diff = latestDiff();
         int nextId = diff.getAttributes().size() - 1;
         
         TaskAttribute fileDiffAttribute = diff.createAttribute("file-" + nextId);
-        fileDiffAttribute.setValue(String.valueOf(fileDiffId));
-        fileDiffAttribute.createAttribute(SOURCE_FILE.toString()).setValue(sourceFile);
-        fileDiffAttribute.createAttribute(SOURCE_REVISION.toString()).setValue(sourceRevision);
+        fileDiffAttribute.setValue(String.valueOf(fileDiff.getId()));
+        fileDiffAttribute.createAttribute(SOURCE_FILE.toString()).setValue(fileDiff.getSourceFile());
+        fileDiffAttribute.createAttribute(DEST_FILE.toString()).setValue(fileDiff.getDestinationFile());
+        fileDiffAttribute.createAttribute(SOURCE_REVISION.toString()).setValue(fileDiff.getSourceRevision());
+        fileDiffAttribute.createAttribute(DEST_DETAIL.toString()).setValue(fileDiff.getDestinationDetail());
     }
     
     private TaskAttribute latestDiff() {
@@ -68,9 +71,23 @@ public class ReviewboardDiffMapper {
         return attribute;
     }
 
-    public List<TaskAttribute> getFileDiffs() {
+    public List<FileDiff> getFileDiffs() {
+
+        List<FileDiff> fileDiffs = new ArrayList<FileDiff>();
         
-        return new ArrayList<TaskAttribute>(latestDiff().getAttributes().values());
+        for (TaskAttribute fileDiffAttribute : latestDiff().getAttributes().values()) {
+
+            int fileDiffId = Integer.parseInt(fileDiffAttribute.getValue());
+            final String sourcePath = fileDiffAttribute.getAttribute(SOURCE_FILE.toString()).getValue();
+            final String sourceRevision = fileDiffAttribute.getAttribute(SOURCE_REVISION.toString()).getValue();
+            final String destinationFile = fileDiffAttribute.getAttribute(DEST_FILE.toString()).getValue();
+            final String destinationDetail = fileDiffAttribute.getAttribute(DEST_DETAIL.toString()).getValue();
+
+            fileDiffs.add(new FileDiff(fileDiffId, sourcePath, sourceRevision,
+                    destinationFile, destinationDetail));
+        }
+
+        return fileDiffs;
     }
     
     public int getDiffRevision() {

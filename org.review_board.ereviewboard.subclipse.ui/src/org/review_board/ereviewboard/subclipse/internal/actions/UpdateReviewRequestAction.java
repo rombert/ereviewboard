@@ -18,13 +18,13 @@ import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.subclipse.Activator;
 import org.review_board.ereviewboard.subclipse.TraceLocation;
 import org.review_board.ereviewboard.subclipse.internal.wizards.PostReviewRequestWizard;
-import org.review_board.ereviewboard.ui.editor.ext.DiffResource;
 import org.review_board.ereviewboard.ui.editor.ext.TaskDiffAction;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
@@ -39,15 +39,15 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
 
     private TaskRepository repository;
     private int reviewRequestId;
-    private List<DiffResource> diffResources;
+    private List<FileDiff> fileDiffs;
     private Repository codeRepository;
 
-    public void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, List<DiffResource> diffResources) {
+    public void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, List<FileDiff> fileDiffs) {
         
         this.repository = repository;
         this.reviewRequestId = reviewRequestId;
         this.codeRepository = codeRepository;
-        this.diffResources = diffResources;
+        this.fileDiffs = fileDiffs;
     }
 
 
@@ -81,9 +81,9 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
                 
                 String projectRelativePath = SVNUrlUtils.getRelativePath(projectSvnResource.getRepository().getRepositoryRoot(), projectSvnResource.getUrl(), true);
                 
-                for ( DiffResource diffResource : diffResources ) {
+                for ( FileDiff fileDiff : fileDiffs  ) {
                     
-                    if ( !diffResource.getPath().startsWith(projectRelativePath) ) {
+                    if ( !fileDiff.getDestinationFile().startsWith(projectRelativePath) ) {
                         continue projectLoop;
                     }
                 }

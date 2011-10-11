@@ -362,6 +362,8 @@ public class RestfulReviewboardReaderTest {
         assertThat("diffs[0].id", firstDiff.getId(), is(31));
         assertThat("diffs[0].sourceFile", firstDiff.getSourceFile(), is("/trunk/reviewboard/settings_local.py.tmpl"));
         assertThat("diffs[0].sourceRevision", firstDiff.getSourceRevision(), is("1797"));
+        assertThat("diffs[0].destinationFile", firstDiff.getDestinationFile(), is("/trunk/reviewboard/settings_local.py.tmpl"));
+        assertThat("diffs[0].destinationDetail", firstDiff.getDestinationDetail(), is("(working copy)"));
     }
 
     @Test

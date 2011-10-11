@@ -10,33 +10,32 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
-import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute.SOURCE_FILE;
-import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute.SOURCE_REVISION;
-
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.sound.sampled.ReverbType;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IOpenListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.OpenEvent;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.mylyn.internal.reviews.ui.annotations.ReviewCompareAnnotationModel;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
+import org.eclipse.mylyn.reviews.core.model.IFileItem;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
-import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
-import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
 import org.eclipse.swt.SWT;
@@ -44,20 +43,15 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.forms.events.HyperlinkAdapter;
-import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.forms.widgets.Section;
-import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
-import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.util.ResourceUtil;
+import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
-import org.review_board.ereviewboard.ui.editor.ext.DiffResource;
 import org.review_board.ereviewboard.ui.editor.ext.TaskDiffAction;
 
 /**
@@ -82,58 +76,51 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         
         final ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(getTaskData());
         
-        List<DiffResource> diffResources = new ArrayList<DiffResource>();
+        TableViewer diffTableViewer = new TableViewer(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
+        diffTableViewer.setContentProvider(new ArrayContentProvider());
+        diffTableViewer.setSorter(new ViewerSorter());
         
-        for ( final TaskAttribute child : diffMapper.getFileDiffs() ) {
-            
-            final String sourcePath = child.getAttribute(SOURCE_FILE.toString()).getValue();
-            final String sourceRevision = child.getAttribute(SOURCE_REVISION.toString()).getValue();
-            
-            diffResources.add(new DiffResource(sourcePath, sourceRevision));
-            
-            Hyperlink link = toolkit.createHyperlink(composite, sourcePath + " ( " + sourceRevision + " )", SWT.NONE);
-            link.addHyperlinkListener(new HyperlinkAdapter() {
-                @Override
-                public void linkActivated(HyperlinkEvent e) {
-                    
-                    List<String> paths = ResourceUtil.getResourcePathPermutations(sourcePath);
-                    
-                    IWorkspace workspace = ResourcesPlugin.getWorkspace();
-                    IResource resource = null;
-                    for ( String path : paths ) {
-                        resource = workspace.getRoot().findMember(path);
-                        if ( resource != null )
-                            break;
-                    }
-                    
-                    if ( resource == null  && ! ReviewboardDiffMapper.REVISION_PRE_CREATION.equals(sourceRevision) ) {
-                        MessageDialog.openWarning(null, "Unable to find file", "Unable to find a file for " + sourcePath + " in the workspace.");
-                        ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.WARNING, ReviewboardUiPlugin.PLUGIN_ID, "Unable to find a matching file for " + child.getValue() + " tried " + paths ));
-                        return;
-                    }
-                    
-                    IFile file = (IFile) resource;
-                    
-                    CompareConfiguration configuration = new CompareConfiguration();
-                    ReviewboardClient client = ReviewboardCorePlugin.getDefault().getConnector().getClientManager().getClient(new TaskRepository(ReviewboardCorePlugin.PLUGIN_ID, getTaskData().getRepositoryUrl()));
-                    ReviewBoardInput input = new ReviewBoardInput(file, configuration, client, Integer.parseInt(getTaskData().getTaskId()), diffMapper.getDiffRevision(), Integer.parseInt(child.getValue()));
-                    
-                    CompareUI.openCompareEditor(input);
-                }
-            });
-        }
+        GridDataFactory.fillDefaults().grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
         
+        TableViewerColumn fileColumn = new TableViewerColumn(diffTableViewer, SWT.NONE);
+        fileColumn.getColumn().setWidth(300);
+        fileColumn.setLabelProvider(new ColumnLabelProvider() {
+
+            @Override
+            public String getText(Object element) {
+                
+                IFileItem fileDiff = (IFileItem) element;
+                
+                return fileDiff.getName();
+            }
+        });
+        
+        List<FileDiff> fileDiffs = diffMapper.getFileDiffs();
+        List<IFileItem> fileItems= new ReviewModelFactory().createFileItems(diffMapper);
+        diffTableViewer.setInput(fileItems.toArray(new IFileItem[fileItems.size()]));
+        
+        diffTableViewer.addOpenListener(new IOpenListener() {
+            
+            public void open(OpenEvent event) {
+                
+                IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+                
+                IFileItem item = (IFileItem) selection.getFirstElement();
+                
+                CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, diffMapper, getTaskData()));
+            }
+        });
+                
         ReviewboardTaskMapper taskMapper = new ReviewboardTaskMapper(getTaskData());
         
-        installExtensions(composite, taskMapper.getRepository(), diffMapper, diffResources);
-
+        installExtensions(composite, taskMapper.getRepository(), diffMapper, fileDiffs);
         
         toolkit.paintBordersFor(composite);
         section.setClient(composite);
         setSection(toolkit, section);
     }
 
-    private void installExtensions(Composite composite, Repository codeRepository, ReviewboardDiffMapper diffMapper, List<DiffResource> diffResources) {
+    private void installExtensions(Composite composite, Repository codeRepository, ReviewboardDiffMapper diffMapper, List<FileDiff> fileDiffs) {
         
         IConfigurationElement[] configurationElements = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_TASK_DIFF_ACTIONS);
         
@@ -146,7 +133,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         for ( IConfigurationElement element : configurationElements ) {
             try {
                 final TaskDiffAction taskDiffAction = (TaskDiffAction) element.createExecutableExtension("class");
-                taskDiffAction.init(repository, reviewRequestId, codeRepository, diffResources);
+                taskDiffAction.init(repository, reviewRequestId, codeRepository, fileDiffs);
                 if ( !taskDiffAction.isEnabled() )
                     continue;
                 

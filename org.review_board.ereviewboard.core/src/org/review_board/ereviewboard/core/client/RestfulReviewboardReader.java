@@ -463,8 +463,10 @@ public class RestfulReviewboardReader {
                 int id = jsonDiff.getInt("id");
                 String sourceFile = jsonDiff.getString("source_file");
                 String sourceRevision = jsonDiff.getString("source_revision");
+                String destinationFile = jsonDiff.getString("dest_file");
+                String destinationDetail = jsonDiff.getString("dest_detail");
                 
-                diffList.add(new FileDiff(id, sourceFile, sourceRevision));
+                diffList.add(new FileDiff(id, sourceFile, sourceRevision, destinationFile, destinationDetail));
             }
             
             return diffList;

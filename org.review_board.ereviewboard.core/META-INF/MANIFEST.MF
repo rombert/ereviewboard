@@ -17,6 +17,9 @@ Export-Package: org.review_board.ereviewboard.core,
  org.review_board.ereviewboard.core.client,
  org.review_board.ereviewboard.core.exception,
  org.review_board.ereviewboard.core.model,
+ org.review_board.ereviewboard.core.model.reviews,
  org.review_board.ereviewboard.core.util
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.review_board.ereviewboard.core.ReviewboardCorePlugin
+Import-Package: org.eclipse.mylyn.reviews.core.model,
+ org.eclipse.mylyn.reviews.internal.core.model

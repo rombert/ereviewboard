@@ -321,7 +321,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(taskData, latestDiff);
         
         for ( FileDiff fileDiff : fileDiffs )
-            diffMapper.addFileDiff(fileDiff.getId(), fileDiff.getSourceFile(), fileDiff.getSourceRevision());
+            diffMapper.addFileDiff(fileDiff);
     }
     
     /**

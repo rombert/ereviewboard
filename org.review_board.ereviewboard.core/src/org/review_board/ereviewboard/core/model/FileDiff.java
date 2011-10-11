@@ -24,11 +24,15 @@ public class FileDiff implements Serializable {
     private final int id;
     private final String sourceFile;
     private final String sourceRevision;
+    private final String destinationFile;
+    private final String destinationDetail;
 
-    public FileDiff(int id, String sourceFile, String sourceRevision) {
+    public FileDiff(int id, String sourceFile, String sourceRevision, String destinationFile, String destinationDetail) {
         this.id = id;
         this.sourceFile = sourceFile;
         this.sourceRevision = sourceRevision;
+        this.destinationFile = destinationFile;
+        this.destinationDetail = destinationDetail;
     }
 
     public int getId() {
@@ -43,4 +47,13 @@ public class FileDiff implements Serializable {
         return sourceRevision;
     }
 
+    public String getDestinationFile() {
+        
+        return destinationFile;
+    }
+
+    public String getDestinationDetail() {
+        
+        return destinationDetail;
+    }
 }
