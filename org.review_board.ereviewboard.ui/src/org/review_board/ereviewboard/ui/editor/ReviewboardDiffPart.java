@@ -124,7 +124,8 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 int diffId = diffMapper.getDiffRevision();
                 int fileDiffId = Integer.parseInt(item.getId());
                 try {
-                    new ReviewModelFactory().appendComments(item.getBase(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, new NullProgressMonitor()));
+                    if ( item.getTarget().getTopics().isEmpty() ) // do not add comments multiple times
+                        new ReviewModelFactory().appendComments(item.getTarget(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, new NullProgressMonitor()));
                 } catch (ReviewboardException e) {
                     ReviewboardUiPlugin.getDefault().getLog().log(new Status(Status.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Failed retrieving diff comments ", e));
                 }
