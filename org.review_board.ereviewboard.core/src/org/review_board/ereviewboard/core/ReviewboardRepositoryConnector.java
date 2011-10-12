@@ -434,13 +434,17 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             
             ReviewboardClient client = getClientManager().getClient(repository);
             
-            List<Integer> changedReviewIds = client.getReviewsIdsChangedSince(lastSyncTimestamp, monitor);
+            List<ReviewRequest> changedReviewRequests = client.getReviewRequestsChangedSince(lastSyncTimestamp, monitor);
             
-            if ( changedReviewIds.isEmpty() )
+            if ( changedReviewRequests.isEmpty() )
                 return;
             
+            Set<Integer> changedReviewRequestIds = new HashSet<Integer>(changedReviewRequests.size());
+            for ( ReviewRequest reviewRequest : changedReviewRequests )
+                changedReviewRequestIds.add(reviewRequest.getId());
+            
             for ( ITask task : event.getTasks() )
-                if ( changedReviewIds.contains(Integer.valueOf(task.getTaskId())) )
+                if ( changedReviewRequestIds.contains(Integer.valueOf(task.getTaskId())) )
                     event.markStale(task);
             
             

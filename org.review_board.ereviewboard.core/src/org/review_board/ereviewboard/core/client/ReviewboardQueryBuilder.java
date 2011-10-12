@@ -1,5 +1,11 @@
 package org.review_board.ereviewboard.core.client;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Date;
+
+import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
+
 /**
  * @author Robert Munteanu
  *
@@ -78,6 +84,32 @@ public class ReviewboardQueryBuilder {
         
         return this;
     }
+    
+    public ReviewboardQueryBuilder setParameter(String key, int value ) {
+        
+        _queryBuilder.setParameter(key, value);
+        
+        return this;
+    }
+
+    public ReviewboardQueryBuilder setParameter(String key, String value ) {
+        
+        _queryBuilder.setParameter(key, value);
+        
+        return this;
+    }
+    
+    public ReviewboardQueryBuilder setParameter(String key, Date timestamp) {
+        
+        try {
+            String value = URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8");
+            
+            return setParameter(key, value);
+
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Failed encoding date " + timestamp, e);
+        }
+    }    
     
     public String createQuery() {
 

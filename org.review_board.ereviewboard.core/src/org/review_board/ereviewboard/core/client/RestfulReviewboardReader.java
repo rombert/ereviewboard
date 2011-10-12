@@ -408,10 +408,12 @@ public class RestfulReviewboardReader {
         }
     }
 
-    public List<Diff> readDiffs(String source) throws ReviewboardException {
+    public PagedResult<Diff> readDiffs(String source) throws ReviewboardException {
 
         try {
             JSONObject json = checkedGetJSonRootObject(source);
+            
+            int totalResults = json.getInt("total_results");
             JSONArray jsonDiffs = json.getJSONArray("diffs");
             
             List<Diff> diffList = new ArrayList<Diff>();
@@ -422,7 +424,7 @@ public class RestfulReviewboardReader {
                 diffList.add(parseDiff(jsonDiff));
             }
             
-            return diffList;
+            return PagedResult.create(diffList, totalResults);
             
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
@@ -451,9 +453,11 @@ public class RestfulReviewboardReader {
         }
     }
 
-    public List<FileDiff> readFileDiffs(String source) throws ReviewboardException {
+    public PagedResult<FileDiff> readFileDiffs(String source) throws ReviewboardException {
         try {
             JSONObject json = checkedGetJSonRootObject(source);
+            
+            int totalResults = json.getInt("total_results");
             JSONArray jsonDiffs = json.getJSONArray("files");
             
             List<FileDiff> diffList = new ArrayList<FileDiff>();
@@ -469,17 +473,19 @@ public class RestfulReviewboardReader {
                 diffList.add(new FileDiff(id, sourceFile, sourceRevision, destinationFile, destinationDetail));
             }
             
-            return diffList;
+            return PagedResult.create(diffList, totalResults);
             
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
     
-    public List<Screenshot> readScreenshots(String source) throws ReviewboardException {
+    public PagedResult<Screenshot> readScreenshots(String source) throws ReviewboardException {
         
         try {
             JSONObject json = checkedGetJSonRootObject(source);
+            
+            int totalResults = json.getInt("total_results");
             JSONArray jsonScreenshots = json.getJSONArray("screenshots");
             
             List<Screenshot> screenshotList = new ArrayList<Screenshot>();
@@ -493,7 +499,7 @@ public class RestfulReviewboardReader {
                 screenshotList.add(new Screenshot(id, caption, url));
             }
             
-            return screenshotList;
+            return PagedResult.create(screenshotList, totalResults);
             
         } catch (JSONException e) {
             throw new ReviewboardException(e.getMessage(), e);

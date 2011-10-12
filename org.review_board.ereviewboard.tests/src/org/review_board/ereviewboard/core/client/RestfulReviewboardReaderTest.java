@@ -328,7 +328,11 @@ public class RestfulReviewboardReaderTest {
     public void readDiffs() throws ReviewboardException, IOException {
         
         // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/diff-list/
-        List<Diff> diffs = reader.readDiffs(readJsonTestResource("diffs.json"));
+        PagedResult<Diff> diffsResult = reader.readDiffs(readJsonTestResource("diffs.json"));
+        
+        assertThat("diffsResult.totalResults", diffsResult.getTotalResults(), is(3));
+        
+        List<Diff> diffs = diffsResult.getResults();
         
         assertThat("diffs.size", diffs.size(), is(3));
         
@@ -355,7 +359,11 @@ public class RestfulReviewboardReaderTest {
     public void readFileDiffs() throws ReviewboardException, IOException {
         
         // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/diff-list/
-        List<FileDiff> diffs = reader.readFileDiffs(readJsonTestResource("filediffs.json"));
+        PagedResult<FileDiff> diffsResult = reader.readFileDiffs(readJsonTestResource("filediffs.json"));
+        
+        assertThat("diffsResult.totalResults", diffsResult.getTotalResults(), is(2));
+        
+        List<FileDiff> diffs = diffsResult.getResults();
         
         assertThat("diffs.size", diffs.size(), is(2));
         

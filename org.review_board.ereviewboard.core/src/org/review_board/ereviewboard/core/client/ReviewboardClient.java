@@ -65,7 +65,7 @@ public interface ReviewboardClient {
 
     IStatus validate(String username, String password, IProgressMonitor monitor);
 
-    List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException;
+    List<ReviewRequest> getReviewRequestsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException;
     
     byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException;
 

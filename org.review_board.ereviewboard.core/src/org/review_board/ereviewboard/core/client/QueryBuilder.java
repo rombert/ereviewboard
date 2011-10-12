@@ -112,7 +112,7 @@ class QueryBuilder {
 
     public void ensureTrailingSlash() {
 
-        if ( _query.length() > 0 && _query.charAt(_query.length() - 1) == '/')
+        if ( ( _query.length() > 0 && _query.charAt(_query.length() - 1) == '/') || _query.indexOf("?") != -1)
             return;
         
         _query.append('/');

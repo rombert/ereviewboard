@@ -51,9 +51,12 @@ import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.
 import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_SCREENSHOT_COMMENTS;
 import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_USERS;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -61,10 +64,22 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.commons.net.AbstractWebLocation;
 import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
-import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.core.model.Diff;
+import org.review_board.ereviewboard.core.model.DiffComment;
+import org.review_board.ereviewboard.core.model.FileDiff;
+import org.review_board.ereviewboard.core.model.Repository;
+import org.review_board.ereviewboard.core.model.Review;
+import org.review_board.ereviewboard.core.model.ReviewGroup;
+import org.review_board.ereviewboard.core.model.ReviewReply;
+import org.review_board.ereviewboard.core.model.ReviewRequest;
+import org.review_board.ereviewboard.core.model.ReviewRequestDraft;
+import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
+import org.review_board.ereviewboard.core.model.Screenshot;
+import org.review_board.ereviewboard.core.model.ScreenshotComment;
+import org.review_board.ereviewboard.core.model.ServerInfo;
+import org.review_board.ereviewboard.core.model.User;
 
 /**
  * RESTful implementation of {@link ReviewboardClient}.
@@ -267,32 +282,57 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return loader.doLoad();
     }
     
-    public List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+    public List<Diff> loadDiffs(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
-        // TODO : pagination
-        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).descend(PATH_DIFFS);
+        PagedLoader<Diff> loader = new PagedLoader<Diff>(PAGED_RESULT_INCREMENT, monitor, "Loading diffs") {
+            
+            @Override
+            protected PagedResult<Diff> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+                
+
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).descend(PATH_DIFFS).paginate(start, maxResults);
+                
+                return reviewboardReader.readDiffs(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+            }
+        };
         
-        return reviewboardReader.readDiffs(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+        return loader.doLoad();
     }
     
-    public List<FileDiff> getFileDiffs(int reviewRequestId, int latestDiff, IProgressMonitor monitor) throws ReviewboardException {
+    public List<FileDiff> getFileDiffs(final int reviewRequestId, final int latestDiff, IProgressMonitor monitor) throws ReviewboardException {
         
-        // TODO - pagination
+        PagedLoader<FileDiff> loader = new PagedLoader<FileDiff>(PAGED_RESULT_INCREMENT, monitor, "Loading diffs") {
+            
+            @Override
+            protected PagedResult<FileDiff> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+                
+
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                        descend(PATH_DIFFS, latestDiff).descend(PATH_FILES).paginate(start, maxResults);
+                
+                return reviewboardReader.readFileDiffs(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+            }
+        };
         
-        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
-                descend(PATH_DIFFS, latestDiff).descend(PATH_FILES);
-        
-        return reviewboardReader.readFileDiffs(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+        return loader.doLoad();
     }
 
-    public List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+    public List<Screenshot> loadScreenshots(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
-        // TODO - pagination
+        PagedLoader<Screenshot> loader = new PagedLoader<Screenshot>(PAGED_RESULT_INCREMENT, monitor, "Loading diffs") {
+            
+            @Override
+            protected PagedResult<Screenshot> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+                
+
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                        descend(PATH_SCREENSHOTS).paginate(start, maxResults);
+                
+                return reviewboardReader.readScreenshots(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+            }
+        };
         
-        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
-                descend(PATH_SCREENSHOTS);
-        
-        return reviewboardReader.readScreenshots(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+        return loader.doLoad();
     }
     
     public List<ScreenshotComment> getScreenshotComments(final int reviewRequestId, final int screenshotId, final IProgressMonitor screenshotCommentMonitor) throws ReviewboardException {
@@ -312,14 +352,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return loader.doLoad();
     }
     
-    private List<Integer> getReviewRequestIds(String query, IProgressMonitor monitor) throws ReviewboardException {
-        
-        ReviewboardQueryBuilder  queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, query);
-        
-        return reviewboardReader.readReviewRequestIds( httpClient.executeGet(queryBuilder.createQuery(), monitor));
-    }
-
     public boolean hasRepositoryData() {
+        
         return (clientData.lastupdate != 0);
     }
 
@@ -400,21 +434,26 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         }
     }
     
-    public List<Integer> getReviewsIdsChangedSince(Date timestamp, IProgressMonitor monitor) throws ReviewboardException {
+    public List<ReviewRequest> getReviewRequestsChangedSince(final Date timestamp, IProgressMonitor monitor) throws ReviewboardException {
         
-        try {
             if ( timestamp == null )
                 throw new IllegalArgumentException("Timestamp may not be null");
             
-            // TODO: use pagination
-            QueryBuilder queryBuilder = new QueryBuilder().setParameter("status", ReviewRequestStatus.ALL.asSubmittableValue()).setParameter("max-results", 10000).
-                    setParameter("last-updated-from", URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8"));
+            PagedLoader<ReviewRequest> loader = new PagedLoader<ReviewRequest>(PAGED_RESULT_INCREMENT, monitor, "Getting review requests changed since " + timestamp) {
+                
+                @Override
+                protected PagedResult<ReviewRequest> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
+        
+                    ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS).
+                            setParameter("status", ReviewRequestStatus.ALL.asSubmittableValue()).
+                            setParameter("last-updated-from", timestamp).
+                            paginate(start, maxResults);
+                    
+                    return reviewboardReader.readReviewRequests(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+                }
+            };
             
-            return getReviewRequestIds( queryBuilder.createQuery(), monitor);
-            
-        } catch (UnsupportedEncodingException e) {
-            throw new ReviewboardException("Failed encoding the query url", e);
-        }
+            return loader.doLoad();
     }
 
     public ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
