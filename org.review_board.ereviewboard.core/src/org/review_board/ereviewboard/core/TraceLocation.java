@@ -6,7 +6,7 @@ package org.review_board.ereviewboard.core;
  */
 public enum TraceLocation {
 
-    MAIN(""), SYNC("/sync");
+    MAIN(""), SYNC("/sync"), MODEL("/model");
     
     private final String _prefix;
     

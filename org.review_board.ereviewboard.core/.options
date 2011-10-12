@@ -1,2 +1,3 @@
 org.review_board.ereviewboard.core/debug=false
 org.review_board.ereviewboard.core/debug/sync=false
+org.review_board.ereviewboard.core/debug/model=false

@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.eclipse.mylyn.reviews.core.model.*;
 import org.eclipse.mylyn.reviews.internal.core.model.ReviewsFactory;
+import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
+import org.review_board.ereviewboard.core.TraceLocation;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.FileDiff;
@@ -63,8 +65,12 @@ public class ReviewModelFactory {
         for ( DiffComment diffComment : diffComments ) {
             
             ILineRange line = FACTORY.createLineRange();
-            line.setStart(diffComment.getFirstLine()  - 1 );
+            line.setStart(diffComment.getFirstLine());
             line.setEnd(diffComment.getFirstLine() + diffComment.getNumLines() - 1);
+            
+            ReviewboardCorePlugin.getDefault().trace(TraceLocation.MODEL, "Converted " +
+            		"DiffComment [" + diffComment.getFirstLine()+ ", " + diffComment.getNumLines()+"] " +
+    				"to ILineRange [" + line.getStart()+", " + line.getEnd()+"]");
             
             ILineLocation location = FACTORY.createLineLocation();
             location.getRanges().add(line);
