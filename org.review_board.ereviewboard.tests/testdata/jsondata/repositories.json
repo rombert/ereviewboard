@@ -56,7 +56,7 @@
       }, 
       "name": "Navi SVN", 
       "path": "http:\/\/svn.navi.cx\/misc", 
-      "tool": "Subversion"
+      "tool": "Clear Case"
     }
   ], 
   "stat": "ok", 

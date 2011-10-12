@@ -258,7 +258,7 @@ public class RestfulReviewboardReader {
                 Repository repository = new Repository();
                 repository.setId(jsonRepository.getInt("id"));
                 repository.setName(jsonRepository.getString("name"));
-                repository.setTool(RepositoryType.valueOf(jsonRepository.getString("tool")));
+                repository.setTool(RepositoryType.fromDisplayName(jsonRepository.getString("tool")));
                 repository.setPath(jsonRepository.getString("path"));
                 
                 repositories.add(repository);

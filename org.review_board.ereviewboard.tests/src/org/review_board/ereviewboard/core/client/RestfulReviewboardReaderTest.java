@@ -166,6 +166,7 @@ public class RestfulReviewboardReaderTest {
     public void readRepositories() throws Exception {
 
         // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/repository-list/
+        // tweaked to have a Clear Case repository
         PagedResult<Repository> pagedRepositories = reader.readRepositories(readJsonTestResource("repositories.json"));
         
         assertThat("totalResults", pagedRepositories.getTotalResults(), is(2));
@@ -180,6 +181,8 @@ public class RestfulReviewboardReaderTest {
         assertThat("repositories[0].path", repository.getPath(),
                 is("http://reviewboard.googlecode.com/svn"));
         assertThat("repositories[0].tool", repository.getTool(), is(RepositoryType.Subversion));
+
+        assertThat("repositories[1].tool", repositories.get(1).getTool(), is(RepositoryType.ClearCase));
     }
 
     @Test

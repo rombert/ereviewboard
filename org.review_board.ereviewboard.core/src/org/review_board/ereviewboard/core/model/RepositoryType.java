@@ -17,10 +17,19 @@ package org.review_board.ereviewboard.core.model;
  */
 public enum RepositoryType {
 
-    Bazaar("Bazaar"), ClearCase("Clear Case"), CVS("CVS"), Git("Git"), Mercurial("Mercurial"), Perforce("Perforce"), PlasticSCM("Plastic SCM"), Subversion("Subversion");
+    Bazaar("Bazaar"), ClearCase("Clear Case"), CVS("CVS"), Git("Git"), Mercurial("Mercurial"), Perforce("Perforce"), PerforceVMWare("Perforce (VMware)"), PlasticSCM("Plastic SCM"), Subversion("Subversion");
 
     private final String displayName;
 
+    public static RepositoryType fromDisplayName(String displayName) {
+        
+        for (RepositoryType repositoryType : RepositoryType.values() )
+            if ( repositoryType.getDisplayName().equals(displayName) )
+                return repositoryType;
+        
+        throw new IllegalArgumentException();
+    }
+    
     private RepositoryType(String displayName) {
         
         this.displayName = displayName;
