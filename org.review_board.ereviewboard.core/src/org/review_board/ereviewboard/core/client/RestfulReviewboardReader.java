@@ -480,6 +480,25 @@ public class RestfulReviewboardReader {
         }
     }
     
+    public Screenshot readScreenshot(String source) throws ReviewboardException {
+        try {
+
+            return readScreenshot(checkedGetJSonRootObject(source).getJSONObject("screenshot"));
+
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
+    private Screenshot readScreenshot(JSONObject jsonScreenshot) throws JSONException {
+
+        int id = jsonScreenshot.getInt("id");
+        String caption = jsonScreenshot.getString("caption");
+        String url = jsonScreenshot.getString("url");
+
+        return new Screenshot(id, caption, url);
+    }
+    
     public PagedResult<Screenshot> readScreenshots(String source) throws ReviewboardException {
         
         try {
@@ -489,15 +508,8 @@ public class RestfulReviewboardReader {
             JSONArray jsonScreenshots = json.getJSONArray("screenshots");
             
             List<Screenshot> screenshotList = new ArrayList<Screenshot>();
-            for (int i = 0; i < jsonScreenshots.length(); i++) {
-
-                JSONObject jsonScreenshot = jsonScreenshots.getJSONObject(i);
-                int id = jsonScreenshot.getInt("id");
-                String caption = jsonScreenshot.getString("caption");
-                String url = jsonScreenshot.getString("url");
-                
-                screenshotList.add(new Screenshot(id, caption, url));
-            }
+            for (int i = 0; i < jsonScreenshots.length(); i++)
+                screenshotList.add(readScreenshot(jsonScreenshots.getJSONObject(i)));
             
             return PagedResult.create(screenshotList, totalResults);
             
@@ -581,6 +593,4 @@ public class RestfulReviewboardReader {
         
         checkedGetJSonRootObject(source);
     }
-
-
 }

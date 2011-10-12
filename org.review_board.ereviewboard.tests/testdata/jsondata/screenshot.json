@@ -1,0 +1,28 @@
+{
+  "screenshot": {
+    "caption": "Example Screenshot", 
+    "id": 1, 
+    "links": {
+      "delete": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/1\/", 
+        "method": "DELETE"
+      }, 
+      "screenshot_comments": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/1\/screenshot-comments\/", 
+        "method": "GET"
+      }, 
+      "self": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/1\/", 
+        "method": "GET"
+      }, 
+      "update": {
+        "href": "http:\/\/reviews.example.com\/api\/review-requests\/8\/screenshots\/1\/", 
+        "method": "PUT"
+      }
+    }, 
+    "path": "uploaded\/images\/2010\/08\/13\/screenshot1.png", 
+    "thumbnail_url": "\/media\/uploaded\/images\/2010\/08\/13\/screenshot1_400x100.png", 
+    "url": "\/media\/uploaded\/images\/2010\/08\/13\/screenshot1.png"
+  }, 
+  "stat": "ok"
+}

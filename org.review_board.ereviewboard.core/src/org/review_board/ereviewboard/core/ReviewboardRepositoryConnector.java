@@ -363,6 +363,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         for ( Screenshot screenshot : screenshots ) {
   
             TaskAttribute attribute = root.createAttribute(TaskAttribute.PREFIX_ATTACHMENT + ++ attachmentIndex);
+            attribute.setValue(String.valueOf(screenshot.getId()));
             TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
             mapper.setFileName(screenshot.getFileName());
             mapper.setDescription(screenshot.getCaption());

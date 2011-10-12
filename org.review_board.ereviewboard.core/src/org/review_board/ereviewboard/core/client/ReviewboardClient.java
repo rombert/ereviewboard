@@ -69,7 +69,7 @@ public interface ReviewboardClient {
     
     byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException;
 
-    byte[] getScreenshot(String url, IProgressMonitor monitor) throws ReviewboardException;
+    byte[] getScreenshot(int reviewRequestId, int screenshotId, IProgressMonitor monitor) throws ReviewboardException;
 
     ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 

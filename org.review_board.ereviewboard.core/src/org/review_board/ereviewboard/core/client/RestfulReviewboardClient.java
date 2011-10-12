@@ -399,9 +399,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return httpClient.executeGetForBytes(queryBuilder.createQuery(),"text/x-patch", monitor);
     }
     
-    public byte[] getScreenshot(String url, IProgressMonitor monitor) throws ReviewboardException {
-        // TODO use ReviewboardQueryBuilder
-        return httpClient.executeGetForBytes("/" + url, "image/*", monitor);
+    public byte[] getScreenshot(int reviewRequestId, int screenshotId, IProgressMonitor monitor) throws ReviewboardException {
+        
+        monitor.beginTask("Getting screenshot content", 2);
+        
+        try {
+            ReviewboardQueryBuilder builder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                    descend(PATH_SCREENSHOTS, screenshotId);
+            
+            Screenshot screenshot = reviewboardReader.readScreenshot(httpClient.executeGet(builder.createQuery(), monitor));
+            
+            monitor.worked(1);
+            
+            return httpClient.executeGetForBytes(screenshot.getUrl(), "image/*", monitor);
+        } finally {
+            monitor.done();
+        }
     }
 
     public IStatus validate(String username, String password, IProgressMonitor monitor) {

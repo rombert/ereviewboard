@@ -64,21 +64,25 @@ public class ReviewboardAttachmentHandler extends AbstractTaskAttachmentHandler 
             ReviewboardClient client = reviewboardRepositoryConnector.getClientManager().getClient(repository);
 
             TaskAttribute revision = attachmentAttribute.getAttribute(ATTACHMENT_ATTRIBUTE_REVISION);
+            int reviewRequestId = Integer.parseInt(task.getTaskId());
+            
             if ( revision != null ) {
             
-                int reviewId = Integer.parseInt(task.getTaskId());
+                
                 int revisionId = Integer.parseInt(revision.getValue());
     
-                byte[] rawDiff = client.getRawDiff(reviewId, revisionId, monitor);
+                byte[] rawDiff = client.getRawDiff(reviewRequestId, revisionId, monitor);
                 
                 return new ByteArrayInputStream(rawDiff);
             } else {
                 
                 String url = TaskAttachmentMapper.createFrom(attachmentAttribute).getUrl();
                 
+                int screenshotId = Integer.parseInt(attachmentAttribute.getValue());
+                
                 url = url.substring(repository.getUrl().length() + 1);
                 
-                byte[] screenshot = client.getScreenshot(url, monitor);
+                byte[] screenshot = client.getScreenshot(reviewRequestId, screenshotId, monitor);
                 
                 return new ByteArrayInputStream(screenshot);
             }

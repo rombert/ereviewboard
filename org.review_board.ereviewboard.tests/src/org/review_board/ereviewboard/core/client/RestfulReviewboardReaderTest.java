@@ -375,6 +375,19 @@ public class RestfulReviewboardReaderTest {
         assertThat("diffs[0].destinationFile", firstDiff.getDestinationFile(), is("/trunk/reviewboard/settings_local.py.tmpl"));
         assertThat("diffs[0].destinationDetail", firstDiff.getDestinationDetail(), is("(working copy)"));
     }
+    
+    @Test
+    public void readScreenshot() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/screenshot/
+        Screenshot screenshot = reader.readScreenshot(readJsonTestResource("screenshot.json"));
+        
+        assertThat("screenshot.caption", screenshot.getCaption(), is("Example Screenshot"));
+        assertThat("screenshot.id", screenshot.getId(), is(1));
+        assertThat("screenshot.name", screenshot.getFileName(), is("screenshot1.png"));
+        assertThat("screenshot.url", screenshot.getUrl(), is("/media/uploaded/images/2010/08/13/screenshot1.png"));
+        assertThat("screenshot.contentType", screenshot.getContentType(), is("image/png"));
+    }
 
     @Test
     public void readScreenshotComments() throws ReviewboardException, IOException {
