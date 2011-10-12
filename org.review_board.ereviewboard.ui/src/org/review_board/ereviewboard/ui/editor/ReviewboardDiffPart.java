@@ -91,7 +91,6 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         
         TableViewer diffTableViewer = new TableViewer(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
         diffTableViewer.setContentProvider(new ArrayContentProvider());
-        diffTableViewer.setSorter(new ViewerSorter());
         
         GridDataFactory.fillDefaults().span(2,1).grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
         
