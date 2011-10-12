@@ -10,9 +10,7 @@ import org.eclipse.compare.patch.IFilePatch;
 import org.eclipse.compare.patch.IFilePatchResult;
 import org.eclipse.compare.patch.PatchConfiguration;
 import org.eclipse.compare.structuremergeviewer.Differencer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IStorage;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.mylyn.internal.reviews.ui.annotations.ReviewCompareAnnotationModel;
@@ -26,7 +24,6 @@ import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 
 /**
