@@ -121,8 +121,6 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
     private IStorage lookupResource(IFileRevision fileRevision, IProgressMonitor monitor) throws CoreException {
         
         return new ByteArrayStorage(_locator.getContents(monitor));
-        
-        // return (IFile) ResourcesPlugin.getWorkspace().getRoot().findMember(fileRevision.getPath());
     }
 
     private Object findDifferences(IProgressMonitor monitor, IFilePatchResult patchResult) throws IOException {

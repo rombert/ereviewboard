@@ -69,6 +69,6 @@ public class SubclipseSCMFileContentsLocator implements SCMFileContentsLocator {
 
     private CoreException toCoreException(Exception e) {
 
-        return new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Failed getting contents of " + _filePath + " @ " +_revision, e));
+        return new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Failed getting contents of " + _filePath + " @ " +_revision + " : " + e.getMessage(), e));
     }
 }
