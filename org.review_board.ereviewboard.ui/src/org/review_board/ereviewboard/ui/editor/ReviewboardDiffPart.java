@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
 import org.eclipse.mylyn.reviews.core.model.IFileRevision;
+import org.eclipse.mylyn.reviews.ui.ReviewUi;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
@@ -120,6 +121,8 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 IStructuredSelection selection = (IStructuredSelection) event.getSelection();
                 
                 IFileItem item = (IFileItem) selection.getFirstElement();
+                
+                ReviewUi.setActiveReview(new ReviewboardReviewBehaviour(getTaskEditorPage().getTask()));
                 
                 SCMFileContentsLocator locator = getSCMFileContentsLocator(taskMapper, item.getBase());
                 if ( locator == null ) {
