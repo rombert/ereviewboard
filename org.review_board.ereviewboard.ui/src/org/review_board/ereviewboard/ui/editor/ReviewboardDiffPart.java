@@ -68,7 +68,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         authorLabel.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
         authorLabel.setText(name);
 
-        Text authorText = new Text(composite, SWT.READ_ONLY);
+        Label authorText = new Label(composite, SWT.NONE);
         authorText.setText(value);
     }
     
