@@ -50,7 +50,7 @@ public class SubclipseSCMFileContentsLocator implements SCMFileContentsLocator {
         try {
             SVNRepositoryLocation repoLocation = SVNRepositoryLocation.fromString(_codeRepository.getPath());
             
-            Activator.getDefault().trace(TraceLocation.MAIN, "Retrieving file " + _filePath + " @ " + _revision + " from repo " + repoLocation.getLabel());
+            Activator.getDefault().trace(TraceLocation.MAIN, "Retrieving file " + _filePath + " @ " + _revision + " from repo " + repoLocation.getLabel() + " ( " + repoLocation.getLocation() + " )");
             
             SVNUrl resourceUrl = repoLocation.getUrl().appendPath(_filePath);
             SVNRevision revision = SVNRevision.getRevision(_revision);
