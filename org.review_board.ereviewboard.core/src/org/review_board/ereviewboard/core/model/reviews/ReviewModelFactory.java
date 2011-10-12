@@ -63,8 +63,8 @@ public class ReviewModelFactory {
         for ( DiffComment diffComment : diffComments ) {
             
             ILineRange line = FACTORY.createLineRange();
-            line.setStart(diffComment.getFirstLine());
-            line.setEnd(diffComment.getFirstLine() + diffComment.getNumLines());
+            line.setStart(diffComment.getFirstLine()  - 1 );
+            line.setEnd(diffComment.getFirstLine() + diffComment.getNumLines() - 1);
             
             ILineLocation location = FACTORY.createLineLocation();
             location.getRanges().add(line);
