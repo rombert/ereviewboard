@@ -325,6 +325,7 @@ public class RestfulReviewboardReaderTest {
         assertThat("diffComments[0].timestamp", firstComment.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2010-08-22 17:25:41")));
         assertThat("diffComments[0].numLines", firstComment.getNumLines(), is(3));
         assertThat("diffComments[0].firstLine", firstComment.getFirstLine(), is(12));
+        assertThat("diffComments[0].fileId", firstComment.getFileId(), is(41));
     }
     
     @Test

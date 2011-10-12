@@ -17,6 +17,7 @@ public class DiffComment extends Comment {
 
     private int firstLine;
     private int numLines;
+    private int fileId;
 
     public int getFirstLine() {
         return firstLine;
@@ -32,5 +33,13 @@ public class DiffComment extends Comment {
 
     public void setNumLines(int numLines) {
         this.numLines = numLines;
+    }
+
+    public void setFileId(int fileId) {
+        this.fileId = fileId;
+    }
+    
+    public int getFileId() {
+        return fileId;
     }
 }

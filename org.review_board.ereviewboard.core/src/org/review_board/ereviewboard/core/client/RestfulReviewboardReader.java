@@ -534,6 +534,9 @@ public class RestfulReviewboardReader {
                 mapComment(jsonDiffComment, comment);
                 comment.setFirstLine(jsonDiffComment.getInt("first_line"));
                 comment.setNumLines(jsonDiffComment.getInt("num_lines"));
+                String fileHref = jsonDiffComment.getJSONObject("links").getJSONObject("filediff").getString("href");
+                int fileId = Integer.parseInt( fileHref.replaceFirst(".*files/", "").replace("/", "") );
+                comment.setFileId(fileId);
                 
                 diffComments.add(comment);
             }

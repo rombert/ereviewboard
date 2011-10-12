@@ -54,7 +54,9 @@ import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -195,7 +197,18 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             }
         };
         
-        return loader.doLoad();
+        List<DiffComment> diffComments = loader.doLoad();
+        
+        // http://code.google.com/p/reviewboard/issues/detail?id=2327
+        for ( Iterator<DiffComment> it = diffComments.iterator() ; it.hasNext();  ) {
+            
+            DiffComment comment = it.next();
+            if ( comment.getFileId() != fileDiffId )
+                it.remove();
+        }
+     
+        
+        return diffComments;
     }
     
     public int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {
