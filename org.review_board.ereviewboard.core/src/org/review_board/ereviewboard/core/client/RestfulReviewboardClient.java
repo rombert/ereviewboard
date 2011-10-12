@@ -37,6 +37,20 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_DIFFS;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_DIFF_COMMENTS;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_DRAFT;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_FILES;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_GROUPS;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_INFO;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_REPLIES;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_REPOSITORIES;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_REVIEWS;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_REVIEW_REQUESTS;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_SCREENSHOTS;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_SCREENSHOT_COMMENTS;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_USERS;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
@@ -61,16 +75,16 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     
     private static final int PAGED_RESULT_INCREMENT = 50;
 
+    private static String asBooleanParameter(boolean parameter) {
+        
+        return parameter ? "1" : "0";
+    }
+    
     private final RestfulReviewboardReader reviewboardReader;
 
     private ReviewboardClientData clientData;
 
     private ReviewboardHttpClient httpClient;
-    
-    private static String asBooleanParameter(boolean parameter) {
-        
-        return parameter ? "1" : "0";
-    }
 
     public RestfulReviewboardClient(AbstractWebLocation location, ReviewboardClientData clientData,
             TaskRepository repository) {
@@ -97,12 +111,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             @Override
             protected PagedResult<Review> doLoadInternal(int start, int maxResults, IProgressMonitor monitor)
                     throws ReviewboardException {
-                
-                StringBuilder query = new StringBuilder();
-                query.append("/api/review-requests/").append(reviewRequestId).append("/reviews/");
-                query.append("?start=").append(start).append("&max-results=").append(maxResults);
-               
-                return reviewboardReader.readReviews(httpClient.executeGet(query.toString(), monitor));
+            	
+            	ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId)
+            	        .descend(PATH_REVIEWS).paginate(start, maxResults);
+            	
+                return reviewboardReader.readReviews(httpClient.executeGet(queryBuilder.createQuery(), monitor));
             }
         };
         
@@ -117,12 +130,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             protected PagedResult<ReviewReply> doLoadInternal(int start, int maxResults,
                     IProgressMonitor monitor) throws ReviewboardException {
                 
-                StringBuilder query = new StringBuilder();
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId)
+                        .descend(PATH_REVIEWS, reviewId).descend(PATH_REPLIES).paginate(start, maxResults);
 
-                query.append("/api/review-requests/").append(reviewRequestId).append("/reviews/");
-                query.append(reviewId).append("/replies/?start=").append(start).append("&max-results=" + maxResults);
-                
-                return reviewboardReader.readReviewReplies(httpClient.executeGet(query.toString(), monitor));
+                return reviewboardReader.readReviewReplies(httpClient.executeGet(queryBuilder.createQuery(), monitor));
             }
         };
         
@@ -130,15 +141,21 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
     
     public int countDiffCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException {
-        
-        String result = httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews/"+reviewId+"/replies/" + reviewReplyId+"/diff-comments/?counts-only=1", reviewDiffMonitor);
+
+    	ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).descend(PATH_REVIEWS, reviewId).
+    			descend(PATH_REPLIES, reviewReplyId).descend(PATH_DIFF_COMMENTS).countsOnly();
+    	
+        String result = httpClient.executeGet(queryBuilder.createQuery(), reviewDiffMonitor);
         
         return reviewboardReader.readCount(result);
     }
     
     public int countScreenshotCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException {
         
-        String result = httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/reviews/"+reviewId+"/replies/" + reviewReplyId+"/screenshot-comments/?counts-only=1", reviewDiffMonitor);
+    	ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).descend(PATH_REVIEWS, reviewId).
+                descend(PATH_REPLIES, reviewReplyId).descend(PATH_SCREENSHOT_COMMENTS).countsOnly();
+        
+        String result = httpClient.executeGet(queryBuilder.createQuery(), reviewDiffMonitor);
         
         return reviewboardReader.readCount(result);
     }
@@ -149,24 +166,24 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             @Override
             protected PagedResult<DiffComment> doLoadInternal(int start, int maxResults, IProgressMonitor monitor)
                     throws ReviewboardException {
-                
-                StringBuilder query = new StringBuilder();
-                query.append("/api/review-requests/").append(reviewRequestId).append("/diffs/").append(diffId);
-                query.append("/files/").append(fileDiffId).append("/diff-comments/");
-                query.append("?start=").append(start).append("&max-results=").append(maxResults);
-               
-                return reviewboardReader.readDiffComments(httpClient.executeGet(query.toString(), monitor));
+            	
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                		descend(PATH_DIFFS, diffId).descend(PATH_FILES, fileDiffId).
+                		descend(PATH_DIFF_COMMENTS).paginate(start, maxResults);
+            	
+                return reviewboardReader.readDiffComments(httpClient.executeGet(queryBuilder.createQuery(), monitor));
             }
         };
         
         return loader.doLoad();
-        
-       
     }
     
     public int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {
+    	
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                descend(PATH_REVIEWS, reviewId).descend(PATH_DIFF_COMMENTS).countsOnly();
         
-        return reviewboardReader.readCount(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/reviews/" + reviewId +"/diff-comments/?counts-only=1", monitor));
+        return reviewboardReader.readCount(httpClient.executeGet(queryBuilder.createQuery(), monitor));
     }
 
     private List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
@@ -176,12 +193,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             @Override
             protected PagedResult<Repository> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
                 
-                StringBuilder query = new StringBuilder();
+            	ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REPOSITORIES).paginate(start, maxResults);
 
-                query.append("/api/repositories/?start=").append(start).append("&max-results=" + maxResults);
-
-                return reviewboardReader.readRepositories(httpClient.executeGet(query.toString(),
-                            monitor));
+                return reviewboardReader.readRepositories(httpClient.executeGet(queryBuilder.createQuery(), monitor));
             }
         };
         
@@ -195,11 +209,9 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             @Override
             protected PagedResult<User> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
                 
-                StringBuilder query = new StringBuilder();
+            	ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_USERS).paginate(start, maxResults);
                 
-                query.append("/api/users/?start=").append(start).append("&max-results="+maxResults);
-                
-                return reviewboardReader.readUsers(httpClient.executeGet(query.toString(), monitor));
+                return reviewboardReader.readUsers(httpClient.executeGet(queryBuilder.createQuery(), monitor));
             }
             
         };
@@ -214,12 +226,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             @Override
             protected PagedResult<ReviewGroup> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
                 
-                StringBuilder query = new StringBuilder();
 
-                query.append("/api/groups/?start=").append(start).append("&max-results=" + maxResults);
-
-                return reviewboardReader.readGroups(httpClient.executeGet(query.toString(),
-                            monitor));
+            	ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_GROUPS).paginate(start, maxResults);
+            	
+                return reviewboardReader.readGroups(httpClient.executeGet(queryBuilder.createQuery(), monitor));
             }
         };
         
@@ -231,7 +241,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         monitor.beginTask("Retrieving server information", 1);
         
         try {
-            return reviewboardReader.readServerInfo(httpClient.executeGet("/api/info/", monitor)).getTimeZone();
+            return reviewboardReader.readServerInfo(httpClient.executeGet(new ReviewboardQueryBuilder().descend(PATH_INFO).createQuery(), monitor)).getTimeZone();
         } finally {
             monitor.done();
         }
@@ -246,14 +256,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             protected PagedResult<ReviewRequest> doLoadInternal(int start, int maxResults,
                     IProgressMonitor monitor) throws ReviewboardException {
                 
-                StringBuilder stringBuilder = new StringBuilder();
+                QueryBuilder queryBuilder = QueryBuilder.fromString(query).setParameter("start", start).setParameter("max-results", maxResults);
+                ReviewboardQueryBuilder rQueryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, queryBuilder.createQuery());
 
-                stringBuilder.append("/api/review-requests/");
-                // TODO: move this to a better location
-                stringBuilder.append(query.replaceFirst("&max-results=[\\d]+", ""));
-                stringBuilder.append("&start=").append(start).append("&max-results=").append(maxResults);
-                
-                return reviewboardReader.readReviewRequests(httpClient.executeGet(stringBuilder.toString(), monitor));
+                return reviewboardReader.readReviewRequests(httpClient.executeGet(rQueryBuilder.createQuery(), monitor));
             }
         };
         loader.setLimit(queryMaxResults);
@@ -263,18 +269,30 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     
     public List<Diff> loadDiffs(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
-        return reviewboardReader.readDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs/", monitor));
+        // TODO : pagination
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).descend(PATH_DIFFS);
+        
+        return reviewboardReader.readDiffs(httpClient.executeGet(queryBuilder.createQuery(), monitor));
     }
     
     public List<FileDiff> getFileDiffs(int reviewRequestId, int latestDiff, IProgressMonitor monitor) throws ReviewboardException {
         
         // TODO - pagination
-        return reviewboardReader.readFileDiffs(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/diffs/"+latestDiff+"/files/", monitor));
+        
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                descend(PATH_DIFFS, latestDiff).descend(PATH_FILES);
+        
+        return reviewboardReader.readFileDiffs(httpClient.executeGet(queryBuilder.createQuery(), monitor));
     }
 
     public List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
         
-        return reviewboardReader.readScreenshots(httpClient.executeGet("/api/review-requests/" + reviewRequestId+"/screenshots/", monitor));
+        // TODO - pagination
+        
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                descend(PATH_SCREENSHOTS);
+        
+        return reviewboardReader.readScreenshots(httpClient.executeGet(queryBuilder.createQuery(), monitor));
     }
     
     public List<ScreenshotComment> getScreenshotComments(final int reviewRequestId, final int screenshotId, final IProgressMonitor screenshotCommentMonitor) throws ReviewboardException {
@@ -284,22 +302,21 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             @Override
             protected PagedResult<ScreenshotComment> doLoadInternal(int start, int maxResults, IProgressMonitor monitor) throws ReviewboardException {
                 
-                StringBuilder query = new StringBuilder();
-                query.append("/api/review-requests/").append(reviewRequestId);
-                query.append("/screenshots/").append(screenshotId).append("/screenshot-comments/");
-                query.append("?start=").append(start).append("&max-results=" + maxResults);
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                        descend(PATH_SCREENSHOTS, screenshotId).descend(PATH_SCREENSHOT_COMMENTS).paginate(start, maxResults);
                 
-                return reviewboardReader.readScreenshotComments(httpClient.executeGet(query.toString(), screenshotCommentMonitor));
+                return reviewboardReader.readScreenshotComments(httpClient.executeGet(queryBuilder.createQuery(), screenshotCommentMonitor));
             }
         };
         
         return loader.doLoad();
     }
     
-    private List<Integer> getReviewRequestIds(String query, IProgressMonitor monitor)
-            throws ReviewboardException {
-        return reviewboardReader.readReviewRequestIds(
-                httpClient.executeGet("/api/review-requests/" + query, monitor));
+    private List<Integer> getReviewRequestIds(String query, IProgressMonitor monitor) throws ReviewboardException {
+        
+        ReviewboardQueryBuilder  queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, query);
+        
+        return reviewboardReader.readReviewRequestIds( httpClient.executeGet(queryBuilder.createQuery(), monitor));
     }
 
     public boolean hasRepositoryData() {
@@ -334,14 +351,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
 
     public byte[] getRawDiff(int reviewRequestId, int diffRevision, IProgressMonitor monitor) throws ReviewboardException {
         
-        return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/","text/x-patch", monitor);
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId)
+                .descend(PATH_DIFFS, diffRevision);
+        
+        return httpClient.executeGetForBytes(queryBuilder.createQuery(),"text/x-patch", monitor);
     }
     
     public byte[] getRawFileDiff(int reviewRequestId, int diffRevision, int fileId, IProgressMonitor monitor) throws ReviewboardException {
-        return httpClient.executeGetForBytes("/api/review-requests/" + reviewRequestId + "/diffs/" + diffRevision +"/files/" + fileId + "/","text/x-patch", monitor);
+        
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId)
+                .descend(PATH_DIFFS, diffRevision).descend(PATH_FILES, fileId);
+
+        return httpClient.executeGetForBytes(queryBuilder.createQuery(),"text/x-patch", monitor);
     }
     
     public byte[] getScreenshot(String url, IProgressMonitor monitor) throws ReviewboardException {
+        // TODO use ReviewboardQueryBuilder
         return httpClient.executeGetForBytes("/" + url, "image/*", monitor);
     }
 
@@ -381,18 +406,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             if ( timestamp == null )
                 throw new IllegalArgumentException("Timestamp may not be null");
             
-            String query = "?status=all&max-results=10000&last-updated-from=" + URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8");
-            return getReviewRequestIds( query, monitor);
+            // TODO: use pagination
+            QueryBuilder queryBuilder = new QueryBuilder().setParameter("status", ReviewRequestStatus.ALL.asSubmittableValue()).setParameter("max-results", 10000).
+                    setParameter("last-updated-from", URLEncoder.encode( ReviewboardAttributeMapper.newIso86011DateFormat().format(timestamp), "UTF-8"));
+            
+            return getReviewRequestIds( queryBuilder.createQuery(), monitor);
             
         } catch (UnsupportedEncodingException e) {
             throw new ReviewboardException("Failed encoding the query url", e);
         }
-        
     }
 
     public ReviewRequest getReviewRequest(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+        
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId);
 
-        return reviewboardReader.readReviewRequest(httpClient.executeGet("/api/review-requests/" + reviewRequestId + "/", monitor));
+        return reviewboardReader.readReviewRequest(httpClient.executeGet(queryBuilder.createQuery(), monitor));
     }
 
     public void updateStatus(int reviewRequestId, ReviewRequestStatus status, IProgressMonitor monitor) throws ReviewboardException {
@@ -403,14 +432,18 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("status", status.asSubmittableValue());
         
-        String result = httpClient.executePut("/api/review-requests/"+reviewRequestId+"/", parameters, monitor);
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId);
+        
+        String result = httpClient.executePut(queryBuilder.createQuery(), parameters, monitor);
         
         reviewboardReader.ensureSuccess(result);
     }
     
     public ReviewRequest createReviewRequest(Repository repository, IProgressMonitor monitor) throws ReviewboardException {
         
-        String result = httpClient.executePost("/api/review-requests/", Collections.singletonMap("repository", String.valueOf(repository.getId())),  monitor);
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS);
+        
+        String result = httpClient.executePost(queryBuilder.createQuery(), Collections.singletonMap("repository", String.valueOf(repository.getId())),  monitor);
         
         return reviewboardReader.readReviewRequest(result);
     }
@@ -423,9 +456,11 @@ public class RestfulReviewboardClient implements ReviewboardClient {
             Map<String, String> parameters = new HashMap<String, String>(1);
             if ( baseDir != null )
                 parameters.put("basedir", baseDir);
+            
+            ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                    descend(PATH_DIFFS);
 
-            String result = httpClient.executePost("/api/review-requests/" + reviewRequestId
-                    + "/diffs/", parameters, Collections.singletonList(uploadItem), monitor);
+            String result = httpClient.executePost(queryBuilder.createQuery(), parameters, Collections.singletonList(uploadItem), monitor);
 
             return reviewboardReader.readDiff(result);
     }
@@ -444,7 +479,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         parameters.put("target_people", reviewRequest.getTargetPeopleText());
         parameters.put("testing_done", reviewRequest.getTestingDone());
         
-        String result = httpClient.executePut("/api/review-requests/"+reviewRequest.getId()+"/draft/", parameters, monitor);
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequest.getId()).
+                descend(PATH_DRAFT);
+        
+        String result = httpClient.executePut(queryBuilder.createQuery(), parameters, monitor);
         
         return reviewboardReader.readReviewRequestDraft(result);
 
@@ -460,7 +498,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         parameters.put("public", asBooleanParameter(review.isPublicReview()));
         parameters.put("ship_it", asBooleanParameter(review.getShipIt()));
         
-        String result = httpClient.executePost("/api/review-requests/" + reviewRequestId+"/reviews/", parameters, monitor);
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                descend(PATH_REVIEWS);
+        
+        String result = httpClient.executePost(queryBuilder.createQuery(), parameters, monitor);
         
         return reviewboardReader.readReview(result);
     }
