@@ -61,10 +61,12 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
@@ -342,12 +344,15 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
         Composite groupComposite = createRadioCompositeWithCombo(radioComposite, "With group", Selection.GROUP);
         groupCombo = createGroupCombo(groupComposite);
-
+        recursiveEnable(groupComposite, false);
+        
         Composite fromUserComposite = createRadioCompositeWithCombo(radioComposite, "From the user", Selection.FROM_USER);
         createFromUserText(fromUserComposite);
+        recursiveEnable(fromUserComposite, false);
 
         Composite toUserComposite = createRadioCompositeWithCombo(radioComposite, "To the user", Selection.TO_USER);
         createToUserText(toUserComposite);
+        recursiveEnable(toUserComposite, false);
 
         Composite repositoryComposite = createRadioCompositeWithCombo(radioComposite, "From repository", Selection.REPOSITORY);
         repositoryCombo = createRepositoryCombo(repositoryComposite);
@@ -362,6 +367,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
                 getContainer().updateButtons();
             }
         });
+        recursiveEnable(repositoryComposite, false);
 
         Composite statusComposite =  new Composite(parentRadioComposite, SWT.NONE);
         GridLayoutFactory.fillDefaults().numColumns(2).applyTo(statusComposite);
@@ -423,13 +429,14 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         radioButtons.put(button, toggleRunnable);
         button.setSelection(true);
         final Composite allComposite = createRadioComposite(radioComposite);
-        allComposite.setEnabled(false);
         new Label(allComposite, SWT.NONE);
         button.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
                 toggleRunnable.run();
             }
         });
+        
+        recursiveEnable(allComposite, false);
     }
 
     private Composite createRadioComposite(Composite parent) {
@@ -439,13 +446,19 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         return composite;
     }
 
+    private static void recursiveEnable(Composite composite, boolean enabled) {
+        
+        composite.setEnabled(enabled);
+        for ( Control childControl : composite.getChildren() )
+            childControl.setEnabled(enabled);
+    }
+    
     private Composite createRadioCompositeWithCombo(final Composite parent, String text, final Selection selection) {
         final Button button = UiUtils.createRadioButton(parent, text);
         final Composite composite = createRadioComposite(parent);
-        composite.setEnabled(false);
         final SelectionRunnable toggleRunnable = new SelectionRunnable(selection) {
             protected void run0() {
-                composite.setEnabled(button.getSelection());
+                recursiveEnable(composite, button.getSelection());
                 getContainer().updateButtons();
             }  
           };
