@@ -98,6 +98,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     private final RestfulReviewboardReader reviewboardReader;
 
     private ReviewboardClientData clientData;
+    
+    private final Object clientDataSync = new Object();
 
     private ReviewboardHttpClient httpClient;
 
@@ -113,7 +115,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     }
 
     public ReviewboardClientData getClientData() {
-        return clientData;
+        
+        synchronized ( clientDataSync ) {
+            return clientData;
+        }
     }
 
     public void refreshRepositorySettings(TaskRepository repository) {
@@ -354,32 +359,38 @@ public class RestfulReviewboardClient implements ReviewboardClient {
     
     public boolean hasRepositoryData() {
         
-        return (clientData.lastupdate != 0);
+        synchronized ( clientDataSync ) {
+        
+            return (clientData.lastupdate != 0);
+        }
     }
 
     public void updateRepositoryData(boolean force, IProgressMonitor monitor) throws ReviewboardException {
         
-        if (hasRepositoryData() && !force)
-            return;
+        synchronized ( clientDataSync ) {
         
-        monitor.beginTask("Refreshing repository data", 100);
-
-        try {
+            if (hasRepositoryData() && !force)
+                return;
             
-            // users usually outnumber groups and repositories
-            // try to get good progress reporting by approximating the ratios
-            // repositories with small data sets will not need very accurate progress reporting anyway
-            clientData.setUsers(getUsers(Policy.subMonitorFor(monitor, 90)));
+            monitor.beginTask("Refreshing repository data", 100);
             
-            clientData.setGroups(getReviewGroups(Policy.subMonitorFor(monitor, 5)));
-
-            clientData.setRepositories(getRepositories(Policy.subMonitorFor(monitor, 4)));
+            try {
+                
+                // users usually outnumber groups and repositories
+                // try to get good progress reporting by approximating the ratios
+                // repositories with small data sets will not need very accurate progress reporting anyway
+                clientData.setUsers(getUsers(Policy.subMonitorFor(monitor, 90)));
+                
+                clientData.setGroups(getReviewGroups(Policy.subMonitorFor(monitor, 5)));
             
-            clientData.setTimeZone(getTimeZone(Policy.subMonitorFor(monitor, 1)));
-
-            clientData.lastupdate = new Date().getTime();
-        } finally  {
-            monitor.done();
+                clientData.setRepositories(getRepositories(Policy.subMonitorFor(monitor, 4)));
+                
+                clientData.setTimeZone(getTimeZone(Policy.subMonitorFor(monitor, 1)));
+            
+                clientData.lastupdate = new Date().getTime();
+            } finally  {
+                monitor.done();
+            }
         }
     }
 
