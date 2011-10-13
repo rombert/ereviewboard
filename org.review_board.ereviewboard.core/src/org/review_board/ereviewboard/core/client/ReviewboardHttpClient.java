@@ -169,6 +169,9 @@ public class ReviewboardHttpClient {
     private void configureRequestForJson(HttpMethodBase request) {
         
         request.addRequestHeader("Accept", "application/json");
+        
+        if ( request instanceof PutMethod )
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     }
 
     public byte[] executeGetForBytes(String url, String acceptHeaderValue, IProgressMonitor monitor)
