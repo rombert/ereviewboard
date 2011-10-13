@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
+import org.review_board.ereviewboard.subclipse.Activator;
+import org.review_board.ereviewboard.subclipse.TraceLocation;
 import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.svnclientadapter.*;
 
@@ -37,10 +39,27 @@ public class ChangedFileFinder {
         List<ChangedFile> changedFiles = new ArrayList<ChangedFile>(statuses.length);
 
         for (ISVNStatus svnStatus : statuses) {
+            
+            Activator.getDefault().trace(TraceLocation.MAIN, "Considering file " + svnStatus.getFile() + 
+                    " with text status " + svnStatus.getTextStatus() + 
+                    " , prop status " + svnStatus.getPropStatus() + 
+                    " , conflict descriptor " + svnStatus.getConflictDescriptor() + " .");
 
-            if (SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()))
+            // can't generate diffs based on unversioned files
+            if ( SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()) )
+                continue;
+
+            // skip all forms of conflicts
+            if ( SVNStatusKind.CONFLICTED.equals(svnStatus.getTextStatus()) )
                 continue;
             
+            if ( SVNStatusKind.CONFLICTED.equals(svnStatus.getPropStatus()) )
+                continue;
+            
+            if ( svnStatus.getConflictDescriptor() != null )
+                continue;
+            
+            // only consider files
             if (!SVNNodeKind.FILE.equals(svnStatus.getNodeKind()))
                 continue;
 
