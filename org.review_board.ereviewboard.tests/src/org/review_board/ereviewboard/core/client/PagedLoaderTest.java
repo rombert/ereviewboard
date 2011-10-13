@@ -14,6 +14,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -124,7 +125,6 @@ public class PagedLoaderTest {
         assertThat(results.size(), is(7));
     }
     
-    
     @Test
     public void loadWithLimitUnderIncrement() throws ReviewboardException {
         
@@ -136,5 +136,60 @@ public class PagedLoaderTest {
         
         assertThat(loader.callCount, is(1));
         assertThat(results.size(), is(40));
+    }
+    
+    /**
+     * Tests that the loader is robust to the total number of results shrinking during its execution
+     * 
+     * @throws ReviewboardException
+     */
+    @Test
+    public void loadWithShrinkingResults() throws ReviewboardException {
+        
+        PagedLoader<String> loader = new PagedLoader<String>(10, new NullProgressMonitor(), "") {
+            
+            private int callCount;
+            private int firstCallTotal = 15;
+            private int otherCallsTotal = 14;
+            
+            @Override
+            protected PagedResult<String> doLoadInternal(int start, int maxResults, IProgressMonitor monitor)
+                    throws ReviewboardException {
+                
+                // first call, 15 results, 10 returned
+                if ( callCount == 0 ) { 
+                    
+                    List<String> result = new ArrayList<String>();
+                    for ( int i = 0 ; i < maxResults; i++ )
+                        result.add(callCount+"-"+ i);
+                    
+                    callCount++;
+                    
+                    return PagedResult.create(result, firstCallTotal);
+                    
+                // second call, 14 results, 4 returned
+                } else if ( callCount == 1) {
+
+                    List<String> result = new ArrayList<String>();
+                    for ( int i = 0 ; i < 4; i++ )
+                        result.add(callCount+"-"+ i);
+                    
+                    callCount++;
+
+                    return PagedResult.create(result, otherCallsTotal);
+                // all other calls, 14 results, none returned
+                } else {
+                    
+                    return PagedResult.create(Collections. <String> emptyList(), otherCallsTotal);
+                }
+            }
+        };
+ 
+        loader.setLimit(40);
+        
+        List<String> results = loader.doLoad();
+        
+        assertThat(results.size(), is(14));
+
     }
 }

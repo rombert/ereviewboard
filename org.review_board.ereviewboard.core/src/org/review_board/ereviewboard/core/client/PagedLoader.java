@@ -55,7 +55,7 @@ public abstract class PagedLoader<T> {
         int actualLimit = 0;
         int stillToLoad = 0;
         
-        ReviewboardCorePlugin.getDefault().trace(TraceLocation.SYNC, this + " starting run.");
+        trace(this + " starting run.");
         
         while ( true ) {
 
@@ -69,16 +69,18 @@ public abstract class PagedLoader<T> {
             // we perform the monitor work ourselves, so pass a NPM downstream            
             PagedResult<T> pagedUsers = doLoadInternal(currentPage * increment, adjustedIncrement, new NullProgressMonitor());
             
-            ReviewboardCorePlugin.getDefault().trace(TraceLocation.SYNC, this + " page : " + currentPage + ": loaded " + pagedUsers.getResults().size() + " elements.");
+            trace(this + " page : " + currentPage + ": loaded " + pagedUsers.getResults().size() + " elements.");
             
             if ( results == null ) {
                 results = new ArrayList<T>(pagedUsers.getTotalResults());
                 monitor.beginTask(progressMessage, pagedUsers.getTotalResults());
-                if ( limit == 0 )
-                    actualLimit = pagedUsers.getTotalResults();
-                else
-                    actualLimit = Math.min(limit, pagedUsers.getTotalResults());
             }
+            
+            if ( limit == 0 )
+                actualLimit = pagedUsers.getTotalResults();
+            else
+                actualLimit = Math.min(limit, pagedUsers.getTotalResults());
+
             
             Policy.advance(monitor, pagedUsers.getResults().size());
             results.addAll(pagedUsers.getResults());
@@ -87,7 +89,7 @@ public abstract class PagedLoader<T> {
             
             stillToLoad = actualLimit - results.size();
             
-            ReviewboardCorePlugin.getDefault().trace(TraceLocation.SYNC, this + " page : " + currentPage + ": still to load: " + stillToLoad);
+            trace(this + " page : " + currentPage + ": still to load: " + stillToLoad);
             
             if ( stillToLoad == 0 )
                 break;
@@ -98,11 +100,16 @@ public abstract class PagedLoader<T> {
             }
         }
         
-        ReviewboardCorePlugin.getDefault().trace(TraceLocation.SYNC, this + " completed run.");
+        trace(this + " completed run.");
         
         monitor.done();
         
         return results;
+    }
+
+    private void trace(String message) {
+        if ( ReviewboardCorePlugin.getDefault() != null )
+            ReviewboardCorePlugin.getDefault().trace(TraceLocation.SYNC, message);
     }
     
 
