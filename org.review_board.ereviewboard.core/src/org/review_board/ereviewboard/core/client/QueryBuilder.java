@@ -1,6 +1,6 @@
 package org.review_board.ereviewboard.core.client;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -34,7 +34,7 @@ class QueryBuilder {
     }
 	
 	private final StringBuilder _query = new StringBuilder();
-	private final Map<String, String> _parameters = new HashMap<String, String>();
+	private final Map<String, String> _parameters = new LinkedHashMap<String, String>();
 	
 	public QueryBuilder() {
 	    
