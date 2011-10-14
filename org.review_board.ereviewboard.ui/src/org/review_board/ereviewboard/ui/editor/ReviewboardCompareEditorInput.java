@@ -22,8 +22,11 @@ import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
+import org.review_board.ereviewboard.core.client.DiffCommentLineMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
+import org.review_board.ereviewboard.core.util.ByteArrayStorage;
 import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 
 /**
@@ -63,9 +66,11 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         ReviewboardClient client = connector.getClientManager().getClient(TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, _taskData.getRepositoryUrl()));
         
         try {
-            monitor.beginTask("Generating diff", 4);
+            monitor.beginTask("Generating diff", 5);
             
             IFilePatch patch = getPatchForFile(monitor, taskId, diffRevision, fileId, client);
+            
+            appendComments(monitor, client, patch);
             
             IFilePatchResult patchResult = applyPatch(monitor, patch);
 
@@ -80,6 +85,19 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         } finally {
             monitor.done();
         }
+    }
+
+    private void appendComments(IProgressMonitor monitor, ReviewboardClient client, IFilePatch patch)
+            throws ReviewboardException {
+        
+        int reviewRequestId = Integer.parseInt(_taskData.getTaskId());
+        int diffId = _diffMapper.getDiffRevision();
+        int fileDiffId = Integer.parseInt(getFile().getId());
+        
+        // do not add comments twice
+        if ( getFile().getBase().getTopics().isEmpty() && getFile().getTarget().getTopics().isEmpty() )
+            new ReviewModelFactory(client).appendComments(getFile(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, monitor), new DiffCommentLineMapper(patch.getHunks()));
+        monitor.worked(1);
     }
 
     /**

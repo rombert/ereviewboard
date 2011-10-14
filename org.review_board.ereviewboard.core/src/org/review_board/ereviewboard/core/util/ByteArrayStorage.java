@@ -1,4 +1,4 @@
-package org.review_board.ereviewboard.ui.editor;
+package org.review_board.ereviewboard.core.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.IPath;
  * @author Robert Munteanu
  *
  */
-class ByteArrayStorage implements IStorage {
+public class ByteArrayStorage implements IStorage {
     
     private final byte[] diff;
 
