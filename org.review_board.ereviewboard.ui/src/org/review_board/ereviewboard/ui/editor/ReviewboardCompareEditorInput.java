@@ -149,7 +149,7 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         ByteArrayInput baseInput = new ByteArrayInput(baseContent, getFile().getBase().getPath());
         ByteArrayInput targetInput = new ByteArrayInput(targetContent, getFile().getTarget().getPath());
         
-        Object differences = new Differencer().findDifferences(false, monitor, null, null, baseInput, targetInput);
+        Object differences = new Differencer().findDifferences(false, monitor, null, null, targetInput, baseInput);
         
         monitor.worked(1);
         
