@@ -192,8 +192,8 @@ public class ReviewboardHttpClient {
         PostMethod postRequest = new PostMethod(stripSlash(location.getUrl()) + url);
         configureRequestForJson(postRequest);
 
-        for (String key : parameters.keySet())
-            postRequest.setParameter(key, parameters.get(key));
+        for (Map.Entry<String, String> entry : parameters.entrySet())
+            postRequest.setParameter(entry.getKey(), entry.getValue());
 
         return executeMethod(postRequest, monitor);
     }
