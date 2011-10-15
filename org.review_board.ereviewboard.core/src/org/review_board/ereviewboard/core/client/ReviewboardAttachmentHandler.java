@@ -21,7 +21,6 @@ import org.eclipse.mylyn.tasks.core.ITask;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentHandler;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskAttachmentSource;
-import org.eclipse.mylyn.tasks.core.data.TaskAttachmentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
@@ -76,11 +75,7 @@ public class ReviewboardAttachmentHandler extends AbstractTaskAttachmentHandler 
                 return new ByteArrayInputStream(rawDiff);
             } else {
                 
-                String url = TaskAttachmentMapper.createFrom(attachmentAttribute).getUrl();
-                
                 int screenshotId = Integer.parseInt(attachmentAttribute.getValue());
-                
-                url = url.substring(repository.getUrl().length() + 1);
                 
                 byte[] screenshot = client.getScreenshot(reviewRequestId, screenshotId, monitor);
                 
