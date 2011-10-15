@@ -124,7 +124,7 @@ public class DiffCommentLineMapperTest {
             this.startPosition = startPosition;
             this.unifiedLines = new String[unifiedLinechars.length];
             for (int i = 0; i < unifiedLinechars.length; i++)
-                unifiedLines[i] = new String(unifiedLinechars[i] + "asdf");
+                unifiedLines[i] = unifiedLinechars[i] + "asdf";
         }
 
         public String getLabel() {
