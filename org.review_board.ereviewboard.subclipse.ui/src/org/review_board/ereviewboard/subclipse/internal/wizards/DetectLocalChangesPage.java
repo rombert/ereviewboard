@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2011 Robert Munteanu and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Robert Munteanu - initial API and implementation
+ *******************************************************************************/
 package org.review_board.ereviewboard.subclipse.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,13 +27,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.team.core.RepositoryProvider;
 import org.review_board.ereviewboard.core.ReviewboardClientManager;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
@@ -34,11 +38,7 @@ import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
 import org.review_board.ereviewboard.subclipse.Activator;
 import org.review_board.ereviewboard.subclipse.TraceLocation;
-import org.tigris.subversion.subclipse.core.ISVNLocalResource;
-import org.tigris.subversion.subclipse.core.ISVNRepositoryLocation;
-import org.tigris.subversion.subclipse.core.SVNException;
-import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
-import org.tigris.subversion.subclipse.core.SVNTeamProvider;
+import org.tigris.subversion.subclipse.core.*;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;

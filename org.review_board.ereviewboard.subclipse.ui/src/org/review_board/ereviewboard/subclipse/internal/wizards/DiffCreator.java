@@ -1,13 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2011 Robert Munteanu and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Robert Munteanu - initial API and implementation
+ *******************************************************************************/
 package org.review_board.ereviewboard.subclipse.internal.wizards;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.FileUtils;
 import org.review_board.ereviewboard.subclipse.Activator;
@@ -46,7 +52,6 @@ public class DiffCreator {
 
             svnClient.createPatch(changes.toArray(new File[changes.size()]), rootLocation, tmpFile, false);
 
-            @SuppressWarnings("unchecked")
             List<String> patchLines = FileUtils.readLines(tmpFile);
             int replaceIndex = -1;
             String replaceFrom = null;
