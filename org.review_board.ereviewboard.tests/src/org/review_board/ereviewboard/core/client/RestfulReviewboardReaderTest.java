@@ -58,6 +58,8 @@ import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
 import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.core.model.DiffData.Chunk;
+import org.review_board.ereviewboard.core.model.DiffData.Line;
 
 /**
  * @author Markus Knittig
@@ -357,6 +359,37 @@ public class RestfulReviewboardReaderTest {
         assertThat("diff.name", diff.getName(), is("diff"));
         assertThat("diff.revision", diff.getRevision(), is(1));
         assertThat("diff.timestamp", diff.getTimestamp(), is (ReviewboardAttributeMapper.parseDateValue("2009-02-25 02:01:21")));
+    }
+    
+    @Test
+    public void readDiffData() throws IOException, ReviewboardException {
+        
+        // http://www.reviewboard.org/docs/manual/dev/webapi/2.0/resources/file-diff/#example_application/vnd.reviewboard.org.diff.data+json
+        DiffData diffData = reader.readDiffData(readJsonTestResource("diff_data.json"));
+        
+        assertThat("diffData.numChanges", diffData.getNumChanges(), is(3));
+        assertThat("diffData.newFile", diffData.isNewFile(), is(false));
+        assertThat("diffData.binary", diffData.isBinary(), is(false));
+        assertThat("diffData.changedChunkIndexes", diffData.getChangedChunkIndexes(), is(Arrays.asList(2, 4, 6)));
+        
+        List<Chunk> chunks = diffData.getChunks();
+        
+        assertThat("chunks.size", chunks.size(), is(8));
+        
+        Chunk chunk = chunks.get(2);
+        assertThat("chunk.type", chunk.getChange(), is(DiffData.Type.DELETE));
+        assertThat("chunk.collapsable", chunk.isCollapsable(), is(false));
+        assertThat("chunk.index", chunk.getIndex(), is(2));
+        assertThat("chunk.numLines", chunk.getNumLines(), is(4));
+        assertThat("chunk.lines.size", chunk.getLines().size(), is(4));
+        
+        Line line = chunk.getLines().get(0);
+        assertThat("line.diffRowNumber", line.getDiffRowNumber(), is(16));
+        assertThat("line.leftRowNumber", line.getLeftFileRowNumber(), is(16));
+        assertThat("line.leftText", line.getLeftLineText(), is( "# Local time zone for this installation. All choices can be found here:"));
+        assertThat("line.rightRowNumber", line.getRightFileRowNumber(), is(-1));
+        assertThat("line.rightText", line.getRightLineText(), is(""));
+        assertThat("line.whitespaceOnly", line.isWhitespaceOnly(), is(false));
     }
 
     @Test

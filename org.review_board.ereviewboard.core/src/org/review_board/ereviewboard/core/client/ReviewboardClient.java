@@ -121,4 +121,7 @@ public interface ReviewboardClient {
     ReviewRequestDraft updateReviewRequest(ReviewRequest reviewRequest, boolean publish, String changedescription, IProgressMonitor monitor) throws ReviewboardException;
 
     Review createReview(int reviewRequestId, Review review, IProgressMonitor monitor) throws ReviewboardException;
+
+    DiffData getDiffData(int reviewRequestId, int diffRevision, int fileId, IProgressMonitor monitor)
+            throws ReviewboardException;
 }

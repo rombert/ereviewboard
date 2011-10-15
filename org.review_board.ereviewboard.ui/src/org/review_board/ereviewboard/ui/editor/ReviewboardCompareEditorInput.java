@@ -25,6 +25,7 @@ import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.DiffCommentLineMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.model.DiffData;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.core.util.ByteArrayStorage;
 import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
@@ -66,7 +67,7 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         ReviewboardClient client = connector.getClientManager().getClient(TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, _taskData.getRepositoryUrl()));
         
         try {
-            monitor.beginTask("Generating diff", 5);
+            monitor.beginTask("Generating diff", 6);
             
             IFilePatch patch = getPatchForFile(monitor, taskId, diffRevision, fileId, client);
             
@@ -95,9 +96,15 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         int fileDiffId = Integer.parseInt(getFile().getId());
         
         // do not add comments twice
-        if ( getFile().getBase().getTopics().isEmpty() && getFile().getTarget().getTopics().isEmpty() )
-            new ReviewModelFactory(client).appendComments(getFile(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, monitor), new DiffCommentLineMapper(patch.getHunks()));
-        monitor.worked(1);
+        if ( getFile().getBase().getTopics().isEmpty() && getFile().getTarget().getTopics().isEmpty() ) {
+            DiffData diffData = client.getDiffData(reviewRequestId, diffId, fileDiffId, monitor);
+            monitor.worked(1);
+            new ReviewModelFactory(client).appendComments(getFile(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, monitor), new DiffCommentLineMapper(diffData));
+            monitor.worked(1);
+        } else {
+            monitor.worked(2);
+        }
+        
     }
 
     /**

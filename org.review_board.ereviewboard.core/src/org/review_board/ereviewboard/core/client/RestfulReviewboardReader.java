@@ -46,6 +46,9 @@ import org.review_board.ereviewboard.core.exception.ReviewboardApiException;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
 import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.core.model.DiffData.Chunk;
+import org.review_board.ereviewboard.core.model.DiffData.Line;
+import org.review_board.ereviewboard.core.model.DiffData.Type;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 /**
@@ -595,5 +598,67 @@ public class RestfulReviewboardReader {
     public void ensureSuccess(String source) throws ReviewboardException {
         
         checkedGetJSonRootObject(source);
+    }
+
+   
+    public DiffData readDiffData(String source) throws ReviewboardException{
+        
+        try {
+            JSONObject jsonDiffData = checkedGetJSonRootObject(source).getJSONObject("diff_data");
+            
+            DiffData diffData = new DiffData();
+            diffData.setBinary(jsonDiffData.getBoolean("binary"));
+            diffData.setNewFile(jsonDiffData.getBoolean("new_file"));
+            diffData.setNumChanges(jsonDiffData.getInt("num_changes"));
+            
+            JSONArray changedChunkIndexes = jsonDiffData.getJSONArray("changed_chunk_indexes");
+            for ( int i = 0 ; i < changedChunkIndexes.length(); i++)
+                diffData.getChangedChunkIndexes().add(changedChunkIndexes.getInt(i));
+            
+            JSONArray chunks = jsonDiffData.getJSONArray("chunks");
+            for ( int i = 0 ; i < chunks.length(); i++ ) {
+                
+                JSONObject jsonChunk = chunks.getJSONObject(i);
+                
+                Chunk chunk = new Chunk();
+                chunk.setChange(Type.fromString(jsonChunk.getString("change")));
+                chunk.setCollapsable(jsonChunk.getBoolean("collapsable"));
+                chunk.setIndex(jsonChunk.getInt("index"));
+                chunk.setNumLines(jsonChunk.getInt("numlines"));
+                
+                JSONArray lines = jsonChunk.getJSONArray("lines");
+                for ( int j =0 ; j < lines.length(); j++ ) {
+                    
+                    JSONArray lineArray = lines.getJSONArray(j);
+                    
+                    Line line = new Line();
+                    line.setDiffRowNumber(lineArray.getInt(0));
+                    line.setLeftFileRowNumber(getPossiblyEmptyInt(lineArray, 1));
+                    line.setLeftLineText(lineArray.getString(2));
+
+                    line.setRightFileRowNumber(getPossiblyEmptyInt(lineArray, 4));
+                    line.setRightLineText(lineArray.getString(5));
+                    
+                    line.setWhitespaceOnly(lineArray.getBoolean(7));
+                    
+                    chunk.getLines().add(line);
+                }
+                
+                diffData.getChunks().add(chunk);
+            }
+            
+            return diffData;
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
+    private int getPossiblyEmptyInt(JSONArray lineArray, int index) throws JSONException {
+        
+        String value = lineArray.getString(index);
+        if ( value.length() == 0 )
+            return -1;
+        
+        return Integer.parseInt(value);
     }
 }

@@ -1,0 +1,579 @@
+{
+  "diff_data": {
+    "binary": false, 
+    "changed_chunk_indexes": [
+      2, 
+      4, 
+      6
+    ], 
+    "chunks": [
+      {
+        "change": "equal", 
+        "collapsable": true, 
+        "index": 0, 
+        "lines": [
+          [
+            1, 
+            1, 
+            "# Database backend.  Any supported django database engine should work.", 
+            [], 
+            1, 
+            "# Database backend.  Any supported django database engine should work.", 
+            [], 
+            false
+          ], 
+          [
+            2, 
+            2, 
+            "DATABASE_ENGINE = &#39;mysql&#39;      # &#39;postgresql&#39;, &#39;mysql&#39;, &#39;sqlite3&#39; or &#39;ado_mssql&#39;.", 
+            [], 
+            2, 
+            "DATABASE_ENGINE = &#39;mysql&#39;      # &#39;postgresql&#39;, &#39;mysql&#39;, &#39;sqlite3&#39; or &#39;ado_mssql&#39;.", 
+            [], 
+            false
+          ], 
+          [
+            3, 
+            3, 
+            "DATABASE_NAME = &#39;reviewboard&#39;  # Or path to database file if using sqlite3.", 
+            [], 
+            3, 
+            "DATABASE_NAME = &#39;reviewboard&#39;  # Or path to database file if using sqlite3.", 
+            [], 
+            false
+          ], 
+          [
+            4, 
+            4, 
+            "DATABASE_USER = &#39;********&#39;     # Not used with sqlite3.", 
+            [], 
+            4, 
+            "DATABASE_USER = &#39;********&#39;     # Not used with sqlite3.", 
+            [], 
+            false
+          ], 
+          [
+            5, 
+            5, 
+            "DATABASE_PASSWORD = &#39;********&#39; # Not used with sqlite3.", 
+            [], 
+            5, 
+            "DATABASE_PASSWORD = &#39;********&#39; # Not used with sqlite3.", 
+            [], 
+            false
+          ], 
+          [
+            6, 
+            6, 
+            "DATABASE_HOST = &#39;&#39;             # Set to empty string for localhost.", 
+            [], 
+            6, 
+            "DATABASE_HOST = &#39;&#39;             # Set to empty string for localhost.", 
+            [], 
+            false
+          ], 
+          [
+            7, 
+            7, 
+            "DATABASE_PORT = &#39;&#39;             # Set to empty string for default.", 
+            [], 
+            7, 
+            "DATABASE_PORT = &#39;&#39;             # Set to empty string for default.", 
+            [], 
+            false
+          ], 
+          [
+            8, 
+            8, 
+            "", 
+            [], 
+            8, 
+            "", 
+            [], 
+            false
+          ], 
+          [
+            9, 
+            9, 
+            "# Make this unique, and don&#39;t share it with anybody.", 
+            [], 
+            9, 
+            "# Make this unique, and don&#39;t share it with anybody.", 
+            [], 
+            false
+          ], 
+          [
+            10, 
+            10, 
+            "SECRET_KEY = &#39;***********************************************&#39;", 
+            [], 
+            10, 
+            "SECRET_KEY = &#39;***********************************************&#39;", 
+            [], 
+            false
+          ]
+        ], 
+        "meta": {
+          "left_headers": [], 
+          "right_headers": []
+        }, 
+        "numlines": 10
+      }, 
+      {
+        "change": "equal", 
+        "collapsable": false, 
+        "index": 1, 
+        "lines": [
+          [
+            11, 
+            11, 
+            "", 
+            [], 
+            11, 
+            "", 
+            [], 
+            false
+          ], 
+          [
+            12, 
+            12, 
+            "# Cache backend.  Unset this to turn off caching completely.  As with most", 
+            [], 
+            12, 
+            "# Cache backend.  Unset this to turn off caching completely.  As with most", 
+            [], 
+            false
+          ], 
+          [
+            13, 
+            13, 
+            "# django installations, the best option is probably to use memcached.", 
+            [], 
+            13, 
+            "# django installations, the best option is probably to use memcached.", 
+            [], 
+            false
+          ], 
+          [
+            14, 
+            14, 
+            "CACHE_BACKEND = &#39;locmem:\/\/\/&#39;", 
+            [], 
+            14, 
+            "CACHE_BACKEND = &#39;locmem:\/\/\/&#39;", 
+            [], 
+            false
+          ], 
+          [
+            15, 
+            15, 
+            "", 
+            [], 
+            15, 
+            "", 
+            [], 
+            false
+          ]
+        ], 
+        "meta": {
+          "left_headers": [], 
+          "right_headers": []
+        }, 
+        "numlines": 5
+      }, 
+      {
+        "change": "delete", 
+        "collapsable": false, 
+        "index": 2, 
+        "lines": [
+          [
+            16, 
+            16, 
+            "# Local time zone for this installation. All choices can be found here:", 
+            [], 
+            "", 
+            "", 
+            [], 
+            false, 
+            21
+          ], 
+          [
+            17, 
+            17, 
+            "# http:\/\/www.postgresql.org\/docs\/8.1\/static\/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE", 
+            [], 
+            "", 
+            "", 
+            [], 
+            false, 
+            22
+          ], 
+          [
+            18, 
+            18, 
+            "TIME_ZONE = &#39;US\/Pacific&#39;", 
+            [], 
+            "", 
+            "", 
+            [], 
+            false, 
+            23
+          ], 
+          [
+            19, 
+            19, 
+            "", 
+            [], 
+            "", 
+            "", 
+            [], 
+            false
+          ]
+        ], 
+        "meta": {
+          "left_headers": [], 
+          "moved": {
+            "16": 21, 
+            "17": 22, 
+            "18": 23
+          }, 
+          "right_headers": [], 
+          "whitespace_chunk": false, 
+          "whitespace_lines": []
+        }, 
+        "numlines": 4
+      }, 
+      {
+        "change": "equal", 
+        "collapsable": false, 
+        "index": 3, 
+        "lines": [
+          [
+            20, 
+            20, 
+            "# Language code for this installation. All choices can be found here:", 
+            [], 
+            16, 
+            "# Language code for this installation. All choices can be found here:", 
+            [], 
+            false
+          ], 
+          [
+            21, 
+            21, 
+            "# http:\/\/www.w3.org\/TR\/REC-html40\/struct\/dirlang.html#langcodes", 
+            [], 
+            17, 
+            "# http:\/\/www.w3.org\/TR\/REC-html40\/struct\/dirlang.html#langcodes", 
+            [], 
+            false
+          ], 
+          [
+            22, 
+            22, 
+            "# http:\/\/blogs.law.harvard.edu\/tech\/stories\/storyReader$15", 
+            [], 
+            18, 
+            "# http:\/\/blogs.law.harvard.edu\/tech\/stories\/storyReader$15", 
+            [], 
+            false
+          ], 
+          [
+            23, 
+            23, 
+            "LANGUAGE_CODE = &#39;en-us&#39;", 
+            [], 
+            19, 
+            "LANGUAGE_CODE = &#39;en-us&#39;", 
+            [], 
+            false
+          ], 
+          [
+            24, 
+            24, 
+            "", 
+            [], 
+            20, 
+            "", 
+            [], 
+            false
+          ]
+        ], 
+        "meta": {
+          "left_headers": [], 
+          "right_headers": [], 
+          "whitespace_chunk": false, 
+          "whitespace_lines": []
+        }, 
+        "numlines": 5
+      }, 
+      {
+        "change": "insert", 
+        "collapsable": false, 
+        "index": 4, 
+        "lines": [
+          [
+            25, 
+            "", 
+            "", 
+            [], 
+            21, 
+            "# Local time zone for this installation. All choices can be found here:", 
+            [], 
+            false, 
+            16
+          ], 
+          [
+            26, 
+            "", 
+            "", 
+            [], 
+            22, 
+            "# http:\/\/www.postgresql.org\/docs\/8.1\/static\/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE", 
+            [], 
+            false, 
+            17
+          ], 
+          [
+            27, 
+            "", 
+            "", 
+            [], 
+            23, 
+            "TIME_ZONE = &#39;US\/Pacific&#39;", 
+            [], 
+            false, 
+            18
+          ], 
+          [
+            28, 
+            "", 
+            "", 
+            [], 
+            24, 
+            "", 
+            [], 
+            false
+          ]
+        ], 
+        "meta": {
+          "left_headers": [], 
+          "moved": {
+            "21": 16, 
+            "22": 17, 
+            "23": 18
+          }, 
+          "right_headers": [], 
+          "whitespace_chunk": false, 
+          "whitespace_lines": []
+        }, 
+        "numlines": 4
+      }, 
+      {
+        "change": "equal", 
+        "collapsable": false, 
+        "index": 5, 
+        "lines": [
+          [
+            29, 
+            25, 
+            "# This should match the ID of the Site object in the database.  This is used to", 
+            [], 
+            25, 
+            "# This should match the ID of the Site object in the database.  This is used to", 
+            [], 
+            false
+          ], 
+          [
+            30, 
+            26, 
+            "# figure out URLs to stick in e-mails and related pages.", 
+            [], 
+            26, 
+            "# figure out URLs to stick in e-mails and related pages.", 
+            [], 
+            false
+          ], 
+          [
+            31, 
+            27, 
+            "SITE_ID = 1", 
+            [], 
+            27, 
+            "SITE_ID = 1", 
+            [], 
+            false
+          ], 
+          [
+            32, 
+            28, 
+            "", 
+            [], 
+            28, 
+            "", 
+            [], 
+            false
+          ], 
+          [
+            33, 
+            29, 
+            "# Set this to the place of your reviewboard if it does not reside", 
+            [], 
+            29, 
+            "# Set this to the place of your reviewboard if it does not reside", 
+            [], 
+            false
+          ], 
+          [
+            34, 
+            30, 
+            "# at the root of your server. - Add the trailing slash.", 
+            [], 
+            30, 
+            "# at the root of your server. - Add the trailing slash.", 
+            [], 
+            false
+          ], 
+          [
+            35, 
+            31, 
+            "# SITE_ROOT = &quot;\/reviewboard\/&quot;", 
+            [], 
+            31, 
+            "# SITE_ROOT = &quot;\/reviewboard\/&quot;", 
+            [], 
+            false
+          ], 
+          [
+            36, 
+            32, 
+            "", 
+            [], 
+            32, 
+            "", 
+            [], 
+            false
+          ], 
+          [
+            37, 
+            33, 
+            "# If you set this to False, Django will make some optimizations so as not", 
+            [], 
+            33, 
+            "# If you set this to False, Django will make some optimizations so as not", 
+            [], 
+            false
+          ], 
+          [
+            38, 
+            34, 
+            "# to load the internationalization machinery.", 
+            [], 
+            34, 
+            "# to load the internationalization machinery.", 
+            [], 
+            false
+          ], 
+          [
+            39, 
+            35, 
+            "USE_I18N = True", 
+            [], 
+            35, 
+            "USE_I18N = True", 
+            [], 
+            false
+          ], 
+          [
+            40, 
+            36, 
+            "", 
+            [], 
+            36, 
+            "", 
+            [], 
+            false
+          ]
+        ], 
+        "meta": {
+          "left_headers": [], 
+          "right_headers": [], 
+          "whitespace_chunk": false, 
+          "whitespace_lines": []
+        }, 
+        "numlines": 12
+      }, 
+      {
+        "change": "delete", 
+        "collapsable": false, 
+        "index": 6, 
+        "lines": [
+          [
+            41, 
+            37, 
+            "", 
+            [], 
+            "", 
+            "", 
+            [], 
+            false
+          ]
+        ], 
+        "meta": {
+          "left_headers": [], 
+          "right_headers": [], 
+          "whitespace_chunk": false, 
+          "whitespace_lines": []
+        }, 
+        "numlines": 1
+      }, 
+      {
+        "change": "equal", 
+        "collapsable": false, 
+        "index": 7, 
+        "lines": [
+          [
+            42, 
+            38, 
+            "# TLS for LDAP.  If you&#39;re using LDAP authentication and your LDAP server", 
+            [], 
+            37, 
+            "# TLS for LDAP.  If you&#39;re using LDAP authentication and your LDAP server", 
+            [], 
+            false
+          ], 
+          [
+            43, 
+            39, 
+            "# doesn&#39;t support ldaps:\/\/, you can enable start-TLS with this.", 
+            [], 
+            38, 
+            "# doesn&#39;t support ldaps:\/\/, you can enable start-TLS with this.", 
+            [], 
+            false
+          ], 
+          [
+            44, 
+            40, 
+            "LDAP_TLS = False", 
+            [], 
+            39, 
+            "LDAP_TLS = False", 
+            [], 
+            false
+          ]
+        ], 
+        "meta": {
+          "left_headers": [], 
+          "right_headers": [], 
+          "whitespace_chunk": false, 
+          "whitespace_lines": []
+        }, 
+        "numlines": 3
+      }
+    ], 
+    "new_file": false, 
+    "num_changes": 3
+  }, 
+  "stat": "ok"
+}

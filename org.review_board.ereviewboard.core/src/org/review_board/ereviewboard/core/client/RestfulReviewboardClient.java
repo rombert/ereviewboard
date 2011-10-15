@@ -37,27 +37,10 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.client;
 
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_DIFFS;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_DIFF_COMMENTS;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_DRAFT;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_FILES;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_GROUPS;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_INFO;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_REPLIES;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_REPOSITORIES;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_REVIEWS;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_REVIEW_REQUESTS;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_SCREENSHOTS;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_SCREENSHOT_COMMENTS;
-import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.PATH_USERS;
+import static org.review_board.ereviewboard.core.client.ReviewboardQueryBuilder.*;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -67,20 +50,7 @@ import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.Diff;
-import org.review_board.ereviewboard.core.model.DiffComment;
-import org.review_board.ereviewboard.core.model.FileDiff;
-import org.review_board.ereviewboard.core.model.Repository;
-import org.review_board.ereviewboard.core.model.Review;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.ReviewReply;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.ReviewRequestDraft;
-import org.review_board.ereviewboard.core.model.ReviewRequestStatus;
-import org.review_board.ereviewboard.core.model.Screenshot;
-import org.review_board.ereviewboard.core.model.ScreenshotComment;
-import org.review_board.ereviewboard.core.model.ServerInfo;
-import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.core.model.*;
 
 /**
  * RESTful implementation of {@link ReviewboardClient}.
@@ -420,6 +390,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 .descend(PATH_DIFFS, diffRevision).descend(PATH_FILES, fileId);
 
         return httpClient.executeGetForBytes(queryBuilder.createQuery(),"text/x-patch", monitor);
+    }
+    
+    public DiffData getDiffData(int reviewRequestId, int diffRevision, int fileId, IProgressMonitor monitor) throws ReviewboardException {
+
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId)
+                .descend(PATH_DIFFS, diffRevision).descend(PATH_FILES, fileId);
+        
+        try {
+            String result = new String(httpClient.executeGetForBytes(queryBuilder.createQuery(),"application/vnd.reviewboard.org.diff.data+json", monitor), "UTF-8");
+            
+            return reviewboardReader.readDiffData(result);
+                    
+        } catch (UnsupportedEncodingException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+
     }
     
     public byte[] getScreenshot(int reviewRequestId, int screenshotId, IProgressMonitor monitor) throws ReviewboardException {
