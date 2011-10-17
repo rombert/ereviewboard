@@ -118,7 +118,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         GridLayoutFactory.createFrom(EditorUtil.createSectionClientLayout()).numColumns(2).applyTo(subComposite);
         GridDataFactory.fillDefaults().applyTo(subComposite);
         subSection.setClient(subComposite);
-        String changesText = diffMapper.getNumberOfComments(diffRevision) != 0 ? String.valueOf(diffMapper.getNumberOfComments(diffRevision)) + " inline comments" : "";
+        String changesText = diffMapper.getNumberOfComments(diffRevision) != 0 ? NLS.bind( "{0} inline comments", String.valueOf(diffMapper.getNumberOfComments(diffRevision))) : "";
         addTextClient(toolkit, subSection, changesText);
       
         addDescriptiveRow("Author", reviewModelFactory.createUser(taskMapper.getReporter()).getDisplayName(), toolkit, subComposite);
@@ -129,19 +129,6 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         diffTableViewer.setLabelProvider(new DelegatingStyledCellLabelProvider(new ReviewboardFileDiffLabelProvider(diffMapper)));
         
         GridDataFactory.fillDefaults().span(2,1).grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
-        
-//        TableViewerColumn fileColumn = new TableViewerColumn(diffTableViewer, SWT.NONE);
-//        fileColumn.getColumn().setWidth(300);
-//        fileColumn.setLabelProvider(new ColumnLabelProvider() {
-//   
-//            @Override
-//            public String getText(Object element) {
-//                
-//                IFileItem fileDiff = (IFileItem) element;
-//                
-//                return fileDiff.getName();
-//            }
-//        });
         
         List<IFileItem> fileItems= reviewModelFactory.createFileItems(taskMapper.getReporter(), diffMapper, diffRevision);
         diffTableViewer.setInput(fileItems.toArray(new IFileItem[fileItems.size()]));

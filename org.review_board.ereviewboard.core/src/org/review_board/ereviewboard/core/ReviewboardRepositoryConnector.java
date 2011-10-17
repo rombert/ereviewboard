@@ -68,9 +68,9 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     
     private static final String CLIENT_LABEL = "Reviewboard (supports 1.5 and later)";
 
-    private static final int REVIEW_DIFF_TICKS = 8;
+    private static final int REVIEW_DIFF_TICKS = 4;
     private static final int SCREENSHOT_COMMENT_TICKS = 2;
-    private static final int FILE_DIFF_TICKS = 4;
+    private static final int FILE_DIFF_TICKS = 8;
     
     private final static Pattern REVIEW_REQUEST_ID_FROM_TASK_URL = Pattern
             .compile(ReviewboardConstants.REVIEW_REQUEST_URL + "(\\d+)");
