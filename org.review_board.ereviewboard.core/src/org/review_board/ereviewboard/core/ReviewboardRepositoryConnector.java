@@ -67,7 +67,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
     private static final int REVIEW_DIFF_TICKS = 8;
     private static final int SCREENSHOT_COMMENT_TICKS = 2;
-    private static final int PATCHSET_TICKS = 4;
+    private static final int FILE_DIFF_TICKS = 4;
     
     private final static Pattern REVIEW_REQUEST_ID_FROM_TASK_URL = Pattern
             .compile(ReviewboardConstants.REVIEW_REQUEST_URL + "(\\d+)");
@@ -130,7 +130,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
             ReviewboardClient client = getClientManager().getClient(taskRepository);
             
-            monitor.beginTask("Getting task data", 4 + REVIEW_DIFF_TICKS + SCREENSHOT_COMMENT_TICKS + PATCHSET_TICKS);
+            monitor.beginTask("Getting task data", 4 + REVIEW_DIFF_TICKS + SCREENSHOT_COMMENT_TICKS + FILE_DIFF_TICKS);
 
             try {
                 
@@ -306,16 +306,28 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
     }
     
+    /**
+     * Advances monitor by {@value #FILE_DIFF_TICKS} ticks
+     */
     private void createTaskDataPatchSet(ReviewboardClient client, TaskData taskData, List<Diff> diffs, IProgressMonitor monitor) throws ReviewboardException {
         
         if ( diffs.isEmpty() )
             return;
-
-        int reviewRequestId = Integer.parseInt(taskData.getTaskId());
-        ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(taskData);
         
-        for ( Diff diff : diffs )
-            diffMapper.addDiff(diff, client.getFileDiffs(reviewRequestId, diff.getRevision(), monitor));
+        IProgressMonitor fileDiffMonitor = Policy.subMonitorFor(monitor, FILE_DIFF_TICKS);
+        fileDiffMonitor.beginTask("Retrieving file diffs", diffs.size());
+
+        try {
+            int reviewRequestId = Integer.parseInt(taskData.getTaskId());
+            ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(taskData);
+            
+            for ( Diff diff : diffs ) {
+                diffMapper.addDiff(diff, client.getFileDiffs(reviewRequestId, diff.getRevision(), monitor));
+                Policy.advance(fileDiffMonitor, 1);
+            }
+        } finally {
+            monitor.done();
+        }
     }
     
     /**

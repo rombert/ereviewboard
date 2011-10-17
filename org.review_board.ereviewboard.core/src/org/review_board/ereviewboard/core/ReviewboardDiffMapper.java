@@ -87,7 +87,6 @@ public class ReviewboardDiffMapper {
 
     public void addDiff(Diff diff, List<FileDiff> fileDiffs) {
         
-        
         Assert.isNotNull(diff, "diff may not be null");
         TaskAttribute diffsAttribute = taskData.getRoot().getAttribute(DIFFS.toString());
         TaskAttribute diffAttribute = diffsAttribute.createAttribute(PREFIX_DIFF + diff.getRevision());
