@@ -23,6 +23,10 @@
                id="org.review_board.ereviewboard.subclipse.ui.updateDiff"
                label="Update Diff..."
                class="org.review_board.ereviewboard.subclipse.internal.actions.UpdateReviewRequestAction"/>
+         <taskDiffAction
+               id="org.review_board.ereviewboard.subclipse.ui.applyDiff"
+               label="Apply Diff..."
+               class="org.review_board.ereviewboard.subclipse.internal.actions.ApplyDiffAction"/>
    </extension>
    <extension
          point="org.review_board.ereviewboard.ui.scmFileContentsLocator">
