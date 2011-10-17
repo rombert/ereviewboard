@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,6 @@ import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
-import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
@@ -128,21 +126,22 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         
         TableViewer diffTableViewer = new TableViewer(subComposite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
         diffTableViewer.setContentProvider(new ArrayContentProvider());
+        diffTableViewer.setLabelProvider(new DelegatingStyledCellLabelProvider(new ReviewboardFileDiffLabelProvider(diffMapper)));
         
         GridDataFactory.fillDefaults().span(2,1).grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
         
-        TableViewerColumn fileColumn = new TableViewerColumn(diffTableViewer, SWT.NONE);
-        fileColumn.getColumn().setWidth(300);
-        fileColumn.setLabelProvider(new ColumnLabelProvider() {
-   
-            @Override
-            public String getText(Object element) {
-                
-                IFileItem fileDiff = (IFileItem) element;
-                
-                return fileDiff.getName();
-            }
-        });
+//        TableViewerColumn fileColumn = new TableViewerColumn(diffTableViewer, SWT.NONE);
+//        fileColumn.getColumn().setWidth(300);
+//        fileColumn.setLabelProvider(new ColumnLabelProvider() {
+//   
+//            @Override
+//            public String getText(Object element) {
+//                
+//                IFileItem fileDiff = (IFileItem) element;
+//                
+//                return fileDiff.getName();
+//            }
+//        });
         
         List<IFileItem> fileItems= reviewModelFactory.createFileItems(taskMapper.getReporter(), diffMapper, diffRevision);
         diffTableViewer.setInput(fileItems.toArray(new IFileItem[fileItems.size()]));

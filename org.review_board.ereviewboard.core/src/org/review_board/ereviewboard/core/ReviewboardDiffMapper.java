@@ -90,8 +90,6 @@ public class ReviewboardDiffMapper {
 
     public void addDiff(Diff diff, List<FileDiff> fileDiffs, Multimap<Integer, DiffComment> fileIdToDiffComments) {
         
-        ReviewboardCorePlugin.getDefault().trace(TraceLocation.MAIN, "Matching comments - fileDiff ids are " + fileIdToDiffComments.keySet());
-        
         Assert.isNotNull(diff, "diff may not be null");
         TaskAttribute diffsAttribute = taskData.getRoot().getAttribute(DIFFS.toString());
         TaskAttribute diffAttribute = diffsAttribute.createAttribute(PREFIX_DIFF + diff.getRevision());
@@ -101,8 +99,6 @@ public class ReviewboardDiffMapper {
         
         for ( FileDiff fileDiff : fileDiffs ) {
         
-            ReviewboardCorePlugin.getDefault().trace(TraceLocation.MAIN, "Matching comments - considering fileDiff with id " + fileDiff.getId());
-            
             Collection<DiffComment> diffComments = fileIdToDiffComments.get(fileDiff.getId());
             
             int inlineComments = diffComments.size();
@@ -118,6 +114,22 @@ public class ReviewboardDiffMapper {
         }
         
         diffAttribute.createAttribute(NUM_COMMENTS.toString()).setValue(String.valueOf(totalInlineComments));
+    }
+    
+    public int getCommentCountForFileDiff(int fileDiffId) {
+        
+        for ( Integer diffRevisionId : getDiffRevisions() ) {
+            for ( TaskAttribute attribute : diff(diffRevisionId).getAttributes().values() ) {
+                
+                if ( ! attribute.getId().startsWith(PREFIX_FILE) )
+                    continue;
+                
+                if ( Integer.parseInt(attribute.getValue()) == fileDiffId )
+                    return Integer.parseInt(attribute.getAttribute(NUM_COMMENTS.toString()).getValue());
+            }
+        }
+        
+        throw new IllegalArgumentException("No data for file diff with id " + fileDiffId);
     }
     
     public Integer getLatestDiffRevisionId() {
