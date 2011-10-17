@@ -29,7 +29,6 @@ import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
-import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
@@ -41,7 +40,6 @@ import org.tigris.subversion.subclipse.core.ISVNLocalResource;
 import org.tigris.subversion.subclipse.core.SVNProviderPlugin;
 import org.tigris.subversion.subclipse.core.SVNTeamProvider;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
-import org.tigris.subversion.svnclientadapter.utils.SVNUrlUtils;
 
 /**
  * @author Robert Munteanu
@@ -52,14 +50,12 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
     private int reviewRequestId;
     private Repository codeRepository;
     private Integer diffRevisionId;
-    private ReviewboardDiffMapper diffMapper;
 
     public void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, ReviewboardDiffMapper diffMapper, Integer diffRevisionId) {
         
         this.repository = repository;
         this.reviewRequestId = reviewRequestId;
         this.codeRepository = codeRepository;
-        this.diffMapper = diffMapper;
         this.diffRevisionId = diffRevisionId;
     }
 
@@ -74,19 +70,19 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
 
     public IStatus execute(IProgressMonitor monitor) {
         
+        monitor.beginTask("Preparing to update the diff", 1);
+        
         try {
             
             ReviewboardRepositoryConnector connector = ReviewboardCorePlugin.getDefault().getConnector();
             
             ReviewboardClient client = connector.getClientManager().getClient(repository);
             
-            ReviewRequest reviewRequest = client.getReviewRequest(reviewRequestId, monitor);
-            
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
             IProject matchingProject = null;
             
-            projectLoop: for ( IProject project : workspace.getRoot().getProjects() ) {
+            for ( IProject project : workspace.getRoot().getProjects() ) {
                 
                 SVNTeamProvider svnProvider = (SVNTeamProvider) RepositoryProvider.getProvider(project, SVNProviderPlugin.getTypeId());
                 
@@ -94,19 +90,15 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
                     continue;
                 
                 ISVNLocalResource projectSvnResource = SVNWorkspaceRoot.getSVNResourceFor(project);
+                String svnRepositoryPath = projectSvnResource.getRepository().getRepositoryRoot().toString();
                 
-                String projectRelativePath = SVNUrlUtils.getRelativePath(projectSvnResource.getRepository().getRepositoryRoot(), projectSvnResource.getUrl(), true);
-                
-                for ( FileDiff fileDiff : diffMapper.getFileDiffs(diffMapper.getLatestDiffRevisionId())  ) {
-                    
-                    if ( !fileDiff.getDestinationFile().startsWith(projectRelativePath) ) {
-                        continue projectLoop;
-                    }
+                if ( codeRepository.getPath().equals(svnRepositoryPath) ) {
+                    matchingProject = project;
+                    break;
                 }
-                
-                matchingProject = project;
-                break;
             }
+            
+            ReviewRequest reviewRequest = client.getReviewRequest(reviewRequestId, monitor);
 
             Activator.getDefault().trace(TraceLocation.MAIN, "Matched review request with id " + reviewRequestId + " with project " + matchingProject);
             
@@ -122,6 +114,8 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
             return Status.OK_STATUS;
         } catch (ReviewboardException e) {
             return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Failed updating the diff : " + e.getMessage(), e);
+        } finally {
+            monitor.done();
         }
     }
 }
