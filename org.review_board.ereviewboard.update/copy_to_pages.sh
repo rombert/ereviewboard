@@ -12,4 +12,4 @@ rm -rf $PAGES/update/features/*
 cp -R target/site/* $PAGES/update/
 cp associate-sites.xml $PAGES/update/
 
-( cd $PAGES && git status )
+( cd $PAGES && git add -u && git add update/plugins && git add update/features && git status )
