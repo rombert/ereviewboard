@@ -86,7 +86,7 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
                 new TaskEditorPartDescriptor(ID_REVIEWBOARD_PART_TESTING_DONE) {
             @Override
             public AbstractTaskEditorPart createPart() {
-                return new RichTextPart(ReviewboardAttributeMapper.Attribute.TESTING_DONE, true);
+                return new RichTextPart(ReviewboardAttributeMapper.Attribute.TESTING_DONE, false);
             }
         }.setPath(PATH_COMMENTS), ID_PART_DESCRIPTION);
         
