@@ -43,9 +43,9 @@ public class ReviewModelFactory {
         _client = client;
     }
 
-    public List<IFileItem> createFileItems(String submitter, ReviewboardDiffMapper diffMapper) {
+    public List<IFileItem> createFileItems(String submitter, ReviewboardDiffMapper diffMapper, int diffRevisionId) {
        
-        List<FileDiff> fileDiffs = diffMapper.getFileDiffs();
+        List<FileDiff> fileDiffs = diffMapper.getFileDiffs(diffRevisionId);
         
         List<IFileItem> fileItems = new ArrayList<IFileItem>(fileDiffs.size());
         

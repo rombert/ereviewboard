@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor.ext;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
-import org.review_board.ereviewboard.core.model.FileDiff;
+import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.model.Repository;
 
 /**
@@ -24,7 +22,14 @@ import org.review_board.ereviewboard.core.model.Repository;
  */
 public interface TaskDiffAction {
 
-    void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, List<FileDiff> fileDiffs);
+    /**
+     * @param repository
+     * @param reviewRequestId
+     * @param codeRepository
+     * @param diffMapper
+     * @param diffRevisionId the diff revision id from this action, or null if applicable for all diff actions
+     */
+    void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, ReviewboardDiffMapper diffMapper, Integer diffRevisionId);
 
     boolean isEnabled();
 

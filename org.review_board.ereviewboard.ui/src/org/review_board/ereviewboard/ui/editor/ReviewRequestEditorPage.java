@@ -95,7 +95,7 @@ public class ReviewRequestEditorPage extends AbstractTaskEditorPage {
         try {
             TaskData taskData = TasksUi.getTaskDataManager().getTaskData(getTask());
             
-            if (taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.LATEST_DIFF.toString()) != null) {
+            if (taskData.getRoot().getAttribute(ReviewboardAttributeMapper.Attribute.DIFFS.toString()) != null) {
                 
                 partDescriptors = insertPart(partDescriptors, new TaskEditorPartDescriptor(ID_REVIEWBOARD_DIFF) {
                     

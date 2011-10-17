@@ -14,8 +14,10 @@ import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attr
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
@@ -29,54 +31,35 @@ import org.review_board.ereviewboard.core.model.FileDiff;
  */
 public class ReviewboardDiffMapper {
     
+    private static final String PREFIX_DIFF = "diff-";
+
     private static final String PREFIX_FILE = "file-";
     
     private final TaskData taskData;
-
-    public ReviewboardDiffMapper(TaskData taskData, Diff latestDiff) {
-        
-        Assert.isNotNull(taskData, "taskData may not be null");
-        Assert.isNotNull(latestDiff, "latestDiff may not be null");
-        
-        this.taskData = taskData;
-        
-        TaskAttribute diffAttribute = taskData.getRoot().createAttribute(LATEST_DIFF.toString());
-        diffAttribute.setValue(String.valueOf(latestDiff.getRevision()));
-        
-        taskData.getAttributeMapper().setDateValue(diffAttribute.createAttribute(LAST_UPDATED.toString()), latestDiff.getTimestamp());
-    }
     
     public ReviewboardDiffMapper(TaskData taskData) {
         
+        Assert.isNotNull(taskData, "taskData may not be null");
+        
         this.taskData = taskData;
-    }
-
-    public void addFileDiff(FileDiff fileDiff) {
-        
-        TaskAttribute diff = latestDiff();
-        
-        TaskAttribute fileDiffAttribute = diff.createAttribute(PREFIX_FILE + fileDiff.getId());
-        fileDiffAttribute.setValue(String.valueOf(fileDiff.getId()));
-        fileDiffAttribute.createAttribute(SOURCE_FILE.toString()).setValue(fileDiff.getSourceFile());
-        fileDiffAttribute.createAttribute(DEST_FILE.toString()).setValue(fileDiff.getDestinationFile());
-        fileDiffAttribute.createAttribute(SOURCE_REVISION.toString()).setValue(fileDiff.getSourceRevision());
-        fileDiffAttribute.createAttribute(DEST_DETAIL.toString()).setValue(fileDiff.getDestinationDetail());
+        if ( taskData.getRoot().getAttribute(DIFFS.toString()) == null )
+            taskData.getRoot().createAttribute(DIFFS.toString());
     }
     
-    private TaskAttribute latestDiff() {
+    private TaskAttribute diff(int diffRevisionId) {
         
-        TaskAttribute attribute = taskData.getRoot().getAttribute(LATEST_DIFF.toString());
+        TaskAttribute attribute = taskData.getRoot().getAttribute(DIFFS.toString()).getAttribute(PREFIX_DIFF + diffRevisionId);
         
-        Assert.isNotNull(attribute,LATEST_DIFF.toString() + " attribute not found");
+        Assert.isNotNull(attribute,DIFFS.toString() + " attribute not found");
         
         return attribute;
     }
 
-    public List<FileDiff> getFileDiffs() {
+    public List<FileDiff> getFileDiffs(int diffRevisionId) {
 
         List<FileDiff> fileDiffs = new ArrayList<FileDiff>();
         
-        for (TaskAttribute fileDiffAttribute : latestDiff().getAttributes().values()) {
+        for (TaskAttribute fileDiffAttribute : diff(diffRevisionId).getAttributes().values()) {
             
             if ( !fileDiffAttribute.getId().startsWith(PREFIX_FILE) )
                 continue;
@@ -93,17 +76,64 @@ public class ReviewboardDiffMapper {
 
         return fileDiffs;
     }
-    
-    public int getDiffRevision() {
-        
-        return Integer.parseInt(latestDiff().getValue());
-    }
-
   
-    public String getTimestamp() {
+    public String getTimestamp(int diffRevisionId) {
 
-        Date timestamp = taskData.getAttributeMapper().getDateValue(latestDiff().getAttribute(LAST_UPDATED.toString()));
+        Date timestamp = taskData.getAttributeMapper().getDateValue(diff(diffRevisionId).getAttribute(LAST_UPDATED.toString()));
         
         return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(timestamp);
+    }
+    
+
+    public void addDiff(Diff diff, List<FileDiff> fileDiffs) {
+        
+        
+        Assert.isNotNull(diff, "diff may not be null");
+        TaskAttribute diffsAttribute = taskData.getRoot().getAttribute(DIFFS.toString());
+        TaskAttribute diffAttribute = diffsAttribute.createAttribute(PREFIX_DIFF + diff.getRevision());
+        diffAttribute.setValue(String.valueOf(diff.getRevision()));
+        taskData.getAttributeMapper().setDateValue(diffAttribute.createAttribute(LAST_UPDATED.toString()), diff.getTimestamp());
+        
+        for ( FileDiff fileDiff : fileDiffs ) {
+        
+            TaskAttribute fileDiffAttribute = diffAttribute.createAttribute(PREFIX_FILE + fileDiff.getId());
+            fileDiffAttribute.setValue(String.valueOf(fileDiff.getId()));
+            fileDiffAttribute.createAttribute(SOURCE_FILE.toString()).setValue(fileDiff.getSourceFile());
+            fileDiffAttribute.createAttribute(DEST_FILE.toString()).setValue(fileDiff.getDestinationFile());
+            fileDiffAttribute.createAttribute(SOURCE_REVISION.toString()).setValue(fileDiff.getSourceRevision());
+            fileDiffAttribute.createAttribute(DEST_DETAIL.toString()).setValue(fileDiff.getDestinationDetail());
+
+        }
+    }
+    
+    public Integer getLatestDiffRevisionId() {
+        
+        List<Integer> revisions = getDiffRevisions();
+        
+        if ( revisions.isEmpty() )
+            return null;
+        
+        return revisions.get(revisions.size() - 1);
+    }
+    
+    public List<Integer> getDiffRevisions() {
+        
+        List<Integer> revisions = new ArrayList<Integer>();
+        for ( Map.Entry<String, TaskAttribute> entry : taskData.getRoot().getAttribute(DIFFS.toString()).getAttributes().entrySet() ) {
+            
+            String attributeId = entry.getKey();
+            
+            if ( !attributeId.startsWith(PREFIX_DIFF) )
+                continue;
+            
+            int diffRevisionId = Integer.parseInt(entry.getValue().getValue());
+            
+            revisions.add(diffRevisionId);
+            
+        }
+        
+        Collections.sort(revisions);
+        
+        return revisions;
     }
 }

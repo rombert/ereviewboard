@@ -43,7 +43,7 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         LAST_UPDATED("last_updated", "Last updated", TaskAttribute.TYPE_DATETIME, null),
         TIME_ADDED("time_added", "Time added", TaskAttribute.TYPE_DATETIME, null),
         OPERATION_STATUS("operation_status", "Status", TaskAttribute.TYPE_SINGLE_SELECT, null),
-        LATEST_DIFF("latest_diff", "Latest Diff", TaskAttribute.TYPE_CONTAINER, null),
+        DIFFS("diffs", "Diffs", TaskAttribute.TYPE_CONTAINER, null),
         // DIFF attributes
         SOURCE_FILE("source_file", "Source file", TaskAttribute.TYPE_SHORT_TEXT, null),
         DEST_FILE("dest_file", "Destination file", TaskAttribute.TYPE_SHORT_TEXT, null),

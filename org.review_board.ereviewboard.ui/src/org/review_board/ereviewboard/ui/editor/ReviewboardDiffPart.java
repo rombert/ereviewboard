@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.editor;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.runtime.*;
@@ -26,6 +29,7 @@ import org.eclipse.mylyn.reviews.ui.ReviewUi;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -33,6 +37,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.IFormColors;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
@@ -57,7 +64,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
 
     public ReviewboardDiffPart() {
         
-        setPartName("Latest Diff");
+        setPartName("Diff");
     }
     
     private void addDescriptiveRow(String name, String value, FormToolkit toolkit,Composite composite) {
@@ -75,7 +82,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         
         Section section = createSection(parent, toolkit, true);
         Composite composite = toolkit.createComposite(section);
-        GridLayoutFactory.createFrom(EditorUtil.createSectionClientLayout()).numColumns(2).applyTo(composite);
+        GridLayoutFactory.createFrom(EditorUtil.createSectionClientLayout()).applyTo(composite);
         
         final ReviewboardTaskMapper taskMapper = new ReviewboardTaskMapper(getTaskData());
         
@@ -83,11 +90,41 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         
         ReviewModelFactory reviewModelFactory = new ReviewModelFactory(getClient());
         
-        addDescriptiveRow("Author", reviewModelFactory.createUser(taskMapper.getReporter()).getDisplayName(), toolkit, composite);
-        addDescriptiveRow("Revision", String.valueOf(diffMapper.getDiffRevision()), toolkit, composite);
-        addDescriptiveRow("Created", diffMapper.getTimestamp(), toolkit, composite);
+        Integer latestDiffRevisionId = diffMapper.getLatestDiffRevisionId();
         
-        TableViewer diffTableViewer = new TableViewer(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
+        for ( final Integer diffRevision : diffMapper.getDiffRevisions() ) {
+            
+            int style = ExpandableComposite.TWISTIE | ExpandableComposite.CLIENT_INDENT | ExpandableComposite.LEFT_TEXT_CLIENT_ALIGNMENT;
+            
+            if ( diffRevision.equals(latestDiffRevisionId) )
+                style |= ExpandableComposite.EXPANDED;
+            
+            createSubsection(toolkit, composite, taskMapper, diffMapper, reviewModelFactory, diffRevision, style);
+        }
+        
+        installExtensions(composite, taskMapper.getRepository(), diffMapper, null);
+        
+        toolkit.paintBordersFor(composite);
+        section.setClient(composite);
+        setSection(toolkit, section);
+    }
+
+    private void createSubsection(FormToolkit toolkit, Composite composite, final ReviewboardTaskMapper taskMapper, final ReviewboardDiffMapper diffMapper,
+            ReviewModelFactory reviewModelFactory, final Integer diffRevision, int style) {
+        
+        final Section subSection = toolkit.createSection(composite, style);
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(subSection);
+        subSection.setText(NLS.bind("Revision {0}", diffRevision));
+        
+        Composite subComposite = toolkit.createComposite(subSection);
+        GridLayoutFactory.createFrom(EditorUtil.createSectionClientLayout()).numColumns(2).applyTo(subComposite);
+        GridDataFactory.fillDefaults().applyTo(subComposite);
+        subSection.setClient(subComposite);
+      
+        addDescriptiveRow("Author", reviewModelFactory.createUser(taskMapper.getReporter()).getDisplayName(), toolkit, subComposite);
+        addDescriptiveRow("Created", diffMapper.getTimestamp(diffRevision), toolkit, subComposite);
+        
+        TableViewer diffTableViewer = new TableViewer(subComposite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
         diffTableViewer.setContentProvider(new ArrayContentProvider());
         
         GridDataFactory.fillDefaults().span(2,1).grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
@@ -95,7 +132,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         TableViewerColumn fileColumn = new TableViewerColumn(diffTableViewer, SWT.NONE);
         fileColumn.getColumn().setWidth(300);
         fileColumn.setLabelProvider(new ColumnLabelProvider() {
-
+   
             @Override
             public String getText(Object element) {
                 
@@ -105,10 +142,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
             }
         });
         
-        List<FileDiff> fileDiffs = diffMapper.getFileDiffs();
-        
-
-        List<IFileItem> fileItems= reviewModelFactory.createFileItems(taskMapper.getReporter(), diffMapper);
+        List<IFileItem> fileItems= reviewModelFactory.createFileItems(taskMapper.getReporter(), diffMapper, diffRevision);
         diffTableViewer.setInput(fileItems.toArray(new IFileItem[fileItems.size()]));
         
         diffTableViewer.addOpenListener(new IOpenListener() {
@@ -127,67 +161,78 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                     return;
                 }
                 
-                CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, diffMapper, getTaskData(), locator));
+                CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, diffMapper, getTaskData(), locator, diffRevision));
             }
-
+   
         });
                 
-        installExtensions(composite, taskMapper.getRepository(), diffMapper, fileDiffs);
-        
-        toolkit.paintBordersFor(composite);
-        section.setClient(composite);
-        setSection(toolkit, section);
+        installExtensions(subComposite, taskMapper.getRepository(), diffMapper, diffRevision);
     }
 
-    private void installExtensions(Composite composite, Repository codeRepository, ReviewboardDiffMapper diffMapper, List<FileDiff> fileDiffs) {
+    private void installExtensions(Composite composite, Repository codeRepository, ReviewboardDiffMapper diffMapper, Integer diffRevisionId) {
         
         IConfigurationElement[] configurationElements = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_TASK_DIFF_ACTIONS);
         
         int reviewRequestId = Integer.parseInt(getTaskData().getTaskId());
-        Composite extensionsComposite = new Composite(composite, SWT.NONE);
-        RowLayoutFactory.fillDefaults().type(SWT.HORIZONTAL).applyTo(extensionsComposite);
+        
+        Map<String, TaskDiffAction> taskDiffActions = new LinkedHashMap<String, TaskDiffAction>(configurationElements.length);
         
         for ( IConfigurationElement element : configurationElements ) {
             try {
                 final TaskDiffAction taskDiffAction = (TaskDiffAction) element.createExecutableExtension("class");
-                taskDiffAction.init(getTaskRepository(), reviewRequestId, codeRepository, fileDiffs);
+                taskDiffAction.init(getTaskRepository(), reviewRequestId, codeRepository, diffMapper, diffRevisionId);
                 if ( !taskDiffAction.isEnabled() )
                     continue;
                 
-                final String label = element.getAttribute("label");
+                String label = element.getAttribute("label");
                 
-                Button button = new Button(extensionsComposite, SWT.NONE);
-                button.setText(label);
-                button.addSelectionListener(new SelectionListener() {
-                    
-                    public void widgetSelected(SelectionEvent e) {
-                        
-                        IStatus status;
-                        try {
-                            status = taskDiffAction.execute(new NullProgressMonitor());
-                        } catch (Exception e1) {
-                            status = new Status(IStatus.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Internal error while executing action '" + label+"' : " + e1.getMessage(), e1);
-                            ReviewboardUiPlugin.getDefault().getLog().log(status);
-                        }
-                        
-                        if ( !status.isOK() ) {
-                            
-                            int kind = MessageDialog.ERROR;
-                            if ( status.getSeverity() == IStatus.WARNING )
-                                kind = MessageDialog.WARNING;
-                            
-                            MessageDialog.open(kind, null, "Error performing action", status.getMessage(), SWT.SHEET);
-                        }
-                    }
-                    
-                    public void widgetDefaultSelected(SelectionEvent e) {
-                        
-                    }
-                });
+                taskDiffActions.put(label, taskDiffAction);
             } catch (CoreException e) {
                 ReviewboardUiPlugin.getDefault().getLog().log(e.getStatus());
             }
         }
+        
+        if ( taskDiffActions.isEmpty() )
+            return;
+        
+        Composite extensionsComposite = new Composite(composite, SWT.NONE);
+        RowLayoutFactory.fillDefaults().type(SWT.HORIZONTAL).applyTo(extensionsComposite);
+        
+        for ( final Map.Entry<String, TaskDiffAction> taskDiffAction : taskDiffActions.entrySet() ) {
+
+            final String labelTest = taskDiffAction.getKey();
+            
+            Button button = new Button(extensionsComposite, SWT.PUSH);
+            button.setText(labelTest);
+            button.addSelectionListener(new SelectionListener() {
+                
+                public void widgetSelected(SelectionEvent e) {
+                    
+                    IStatus status;
+                    try {
+                        status = taskDiffAction.getValue().execute(new NullProgressMonitor());
+                    } catch (Exception e1) {
+                        status = new Status(IStatus.ERROR, ReviewboardUiPlugin.PLUGIN_ID, "Internal error while executing action '" + labelTest+"' : " + e1.getMessage(), e1);
+                        ReviewboardUiPlugin.getDefault().getLog().log(status);
+                    }
+                    
+                    if ( !status.isOK() ) {
+                        
+                        int kind = MessageDialog.ERROR;
+                        if ( status.getSeverity() == IStatus.WARNING )
+                            kind = MessageDialog.WARNING;
+                        
+                        MessageDialog.open(kind, null, "Error performing action", status.getMessage(), SWT.SHEET);
+                    }
+                }
+                
+                public void widgetDefaultSelected(SelectionEvent e) {
+                    
+                }
+            });
+
+        }
+        
     }
 
     private TaskRepository getTaskRepository() {

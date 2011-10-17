@@ -51,6 +51,7 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
     private final ReviewboardDiffMapper _diffMapper;
     private final TaskData _taskData;
     private final SCMFileContentsLocator _locator;
+    private final int _diffRevisionId;
 
     /**
      * @param file
@@ -59,18 +60,18 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
      * @param codeRepository
      * @param locator the locator, already initialised for the specified <tt>file</tt> )
      */
-    ReviewboardCompareEditorInput(IFileItem file, ReviewboardDiffMapper diffMapper, TaskData taskData, SCMFileContentsLocator locator) {
+    ReviewboardCompareEditorInput(IFileItem file, ReviewboardDiffMapper diffMapper, TaskData taskData, SCMFileContentsLocator locator, int diffRevisionId) {
         super(file, new ReviewCompareAnnotationModel(file, null), new CompareConfiguration());
         _diffMapper = diffMapper;
         _taskData = taskData;
         _locator = locator;
+        this._diffRevisionId = diffRevisionId;
     }
 
     @Override
     protected Object prepareInput(IProgressMonitor monitor)
             throws InvocationTargetException, InterruptedException {
         int taskId = Integer.parseInt(_taskData.getTaskId());
-        int diffRevision = _diffMapper.getDiffRevision();
         int fileId = Integer.parseInt(getFile().getId());
         
         ReviewboardRepositoryConnector connector = ReviewboardCorePlugin.getDefault().getConnector();
@@ -80,7 +81,7 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         try {
             monitor.beginTask("Generating diff", 6);
             
-            IFilePatch patch = getPatchForFile(monitor, taskId, diffRevision, fileId, client);
+            IFilePatch patch = getPatchForFile(monitor, taskId, _diffRevisionId, fileId, client);
             
             appendComments(monitor, client, patch);
             
@@ -103,7 +104,7 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
             throws ReviewboardException {
         
         int reviewRequestId = Integer.parseInt(_taskData.getTaskId());
-        int diffId = _diffMapper.getDiffRevision();
+        int diffId =  _diffRevisionId;
         int fileDiffId = Integer.parseInt(getFile().getId());
         
         // do not add comments twice

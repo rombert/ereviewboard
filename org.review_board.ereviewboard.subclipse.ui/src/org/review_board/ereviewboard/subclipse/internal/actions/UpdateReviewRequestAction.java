@@ -25,6 +25,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
+import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
@@ -49,19 +50,24 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
 
     private TaskRepository repository;
     private int reviewRequestId;
-    private List<FileDiff> fileDiffs;
     private Repository codeRepository;
+    private Integer diffRevisionId;
+    private ReviewboardDiffMapper diffMapper;
 
-    public void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, List<FileDiff> fileDiffs) {
+    public void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, ReviewboardDiffMapper diffMapper, Integer diffRevisionId) {
         
         this.repository = repository;
         this.reviewRequestId = reviewRequestId;
         this.codeRepository = codeRepository;
-        this.fileDiffs = fileDiffs;
+        this.diffMapper = diffMapper;
+        this.diffRevisionId = diffRevisionId;
     }
 
 
     public boolean isEnabled() {
+        
+        if ( diffRevisionId != null )
+            return false; // global action
 
         return codeRepository != null && codeRepository.getTool() == RepositoryType.Subversion;
     }
@@ -91,7 +97,7 @@ public class UpdateReviewRequestAction implements TaskDiffAction {
                 
                 String projectRelativePath = SVNUrlUtils.getRelativePath(projectSvnResource.getRepository().getRepositoryRoot(), projectSvnResource.getUrl(), true);
                 
-                for ( FileDiff fileDiff : fileDiffs  ) {
+                for ( FileDiff fileDiff : diffMapper.getFileDiffs(diffMapper.getLatestDiffRevisionId())  ) {
                     
                     if ( !fileDiff.getDestinationFile().startsWith(projectRelativePath) ) {
                         continue projectLoop;
