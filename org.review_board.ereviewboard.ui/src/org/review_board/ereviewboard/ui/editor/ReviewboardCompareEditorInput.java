@@ -38,6 +38,7 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.DiffData;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.core.util.ByteArrayStorage;
+import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 
 /**
@@ -166,7 +167,13 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         ByteArrayInput baseInput = new ByteArrayInput(baseContent, getFile().getBase().getPath());
         ByteArrayInput targetInput = new ByteArrayInput(targetContent, getFile().getTarget().getPath());
         
-        Object differences = new Differencer().findDifferences(false, monitor, null, null, targetInput, baseInput);
+        // 0.8.x and 0.9.x have different left/right sides https://bugs.eclipse.org/bugs/show_bug.cgi?id=360654
+        Object differences;
+        if ( ReviewboardUiPlugin.getDefault().switchCompareEditorInputSides() ) {
+            differences = new Differencer().findDifferences(false, monitor, null, null, baseInput, targetInput);    
+        } else {
+            differences = new Differencer().findDifferences(false, monitor, null, null, targetInput, baseInput);
+        }
         
         monitor.worked(1);
         

@@ -86,21 +86,20 @@ public class ReviewModelFactory {
             // prefer 'to' as a target
             IFileRevision fileRevision;
             int mappedLine;
+
+            // default to base
+            boolean useBase = true;
             
             // do not append on newly created files
             if ( FileDiff.PRE_CREATION.equals(fileItem.getTarget().getPath()) ) {
-                fileRevision = fileItem.getBase();
-                mappedLine = lineMappings[0];
+                useBase = true;
             // prefer displaying on target if posssible
             } else if ( lineMappings[1] != - 1) {
-                fileRevision = fileItem.getTarget();
-                mappedLine = lineMappings[1];
+                useBase = false;
             }
-            // fallback to base
-            else {
-                fileRevision = fileItem.getBase();
-                mappedLine = lineMappings[0];
-            }
+            
+            fileRevision = useBase ? fileItem.getBase() : fileItem.getTarget();
+            mappedLine = useBase ? lineMappings[0] : lineMappings[1];
             
             ILineRange line = FACTORY.createLineRange();
             line.setStart(mappedLine);

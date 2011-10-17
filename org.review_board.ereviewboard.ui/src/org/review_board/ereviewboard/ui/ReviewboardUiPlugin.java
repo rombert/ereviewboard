@@ -38,9 +38,11 @@
 package org.review_board.ereviewboard.ui;
 
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.mylyn.internal.reviews.ui.ReviewsUiPlugin;
 import org.eclipse.mylyn.tasks.ui.TaskRepositoryLocationUiFactory;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 
 /**
@@ -74,6 +76,16 @@ public class ReviewboardUiPlugin extends Plugin {
     public static ReviewboardUiPlugin getDefault() {
         
         return DEFAULT;
+    }
+    
+    /**
+     * @return true if the compare editor input sides should be switched
+     */
+    public boolean switchCompareEditorInputSides() {
+        
+        Version version = ReviewsUiPlugin.getDefault().getBundle().getVersion();
+
+        return version.getMajor() == 0 && version.getMinor() == 8;
     }
 
 }
