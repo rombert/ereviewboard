@@ -39,12 +39,14 @@ public class ApplyDiffAction implements TaskDiffAction {
     private int reviewRequestId;
     private Repository codeRepository;
     private Integer diffRevisionId;
+    private ReviewboardDiffMapper diffMapper;
 
     public void init(TaskRepository repository, int reviewRequestId, Repository codeRepository, ReviewboardDiffMapper diffMapper, Integer diffRevisionId) {
         
         this.repository = repository;
         this.reviewRequestId = reviewRequestId;
         this.codeRepository = codeRepository;
+        this.diffMapper = diffMapper;
         this.diffRevisionId = diffRevisionId;
     }
 
@@ -64,7 +66,7 @@ public class ApplyDiffAction implements TaskDiffAction {
             
             ReviewboardClient client = connector.getClientManager().getClient(repository);
 
-            IProject matchingProject = reviewboardToSvnMapper.findProjectForRepository(codeRepository, repository);
+            IProject matchingProject = reviewboardToSvnMapper.findProjectForRepository(codeRepository, repository, diffMapper);
             
             Activator.getDefault().trace(TraceLocation.MAIN, "Matched review request with id " + reviewRequestId + " with project " + matchingProject);
             
