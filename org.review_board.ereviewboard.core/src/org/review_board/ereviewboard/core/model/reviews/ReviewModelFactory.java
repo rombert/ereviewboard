@@ -11,6 +11,7 @@
 package org.review_board.ereviewboard.core.model.reviews;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ public class ReviewModelFactory {
     public void appendComments(IFileItem fileItem, List<DiffComment> diffComments, DiffCommentLineMapper diffCommentLineMapper) {
         
         List<DiffComment> sortedDiffComments = new ArrayList<DiffComment>(diffComments);
+        Collections.sort(sortedDiffComments, DiffComment.COMPARATOR_ID);
         
         Map<Range, ITopic> rangeToTopics = new HashMap<Range, ITopic>();
         
@@ -83,7 +85,6 @@ public class ReviewModelFactory {
             
             int[] lineMappings = diffCommentLineMapper.getLineMappings(diffComment.getFirstLine());
             
-            // prefer 'to' as a target
             IFileRevision fileRevision;
             int mappedLine;
 

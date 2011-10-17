@@ -10,11 +10,21 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import java.util.Comparator;
+
 /**
  * @author Robert Munteanu
  */
 public class DiffComment extends Comment {
 
+    public static Comparator<DiffComment> COMPARATOR_ID = new Comparator<DiffComment>() {
+
+        public int compare(DiffComment o1, DiffComment o2) {
+            
+            return Integer.valueOf(o1.getId()).compareTo(o2.getId());
+        }
+    };
+    
     private int firstLine;
     private int numLines;
     private int fileId;

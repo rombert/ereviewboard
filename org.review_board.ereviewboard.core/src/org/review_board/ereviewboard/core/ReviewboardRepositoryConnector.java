@@ -59,6 +59,8 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.TreeMultimap;
 
 /**
  * @author Markus Knittig
@@ -188,7 +190,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
         SortedMap<Date, ReviewboardCommentMapper> sortedComments = new TreeMap<Date, ReviewboardCommentMapper>();
         
-        Multimap<Integer, DiffComment> fileIdIdToDiffComments = ArrayListMultimap.create();
+        TreeMultimap<Integer, DiffComment> fileIdIdToDiffComments = TreeMultimap.create(Ordering.natural(), DiffComment.COMPARATOR_ID);
         
         ReviewboardAttributeMapper attributeMapper = (ReviewboardAttributeMapper) taskData.getAttributeMapper();
         
