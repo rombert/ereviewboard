@@ -215,7 +215,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             for (Review review : reviews) {
 
                 int reviewId = review.getId();
-                List<DiffComment> reviewDiffComments = client.readDiffComments(reviewRequestId, reviewId, monitor);
+                List<DiffComment> reviewDiffComments = client.readDiffCommentsFromReview(reviewRequestId, reviewId, monitor);
                 for ( DiffComment comment : reviewDiffComments )
                     fileIdIdToDiffComments.put(comment.getFileId(), comment);
                 int totalResults  = reviewDiffComments.size(); 

@@ -158,7 +158,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return reviewboardReader.readCount(result);
     }
 
-    public List<DiffComment> readDiffComments(final int reviewRequestId, final int diffId, final int fileDiffId, IProgressMonitor monitor) throws ReviewboardException {
+    public List<DiffComment> readDiffCommentsForFileDiff(final int reviewRequestId, final int diffId, final int fileDiffId, IProgressMonitor monitor) throws ReviewboardException {
         
         PagedLoader<DiffComment> loader = new PagedLoader<DiffComment>(PAGED_RESULT_INCREMENT, monitor, "Retrieving diff comments") {
             @Override
@@ -187,7 +187,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return diffComments;
     }
     
-    public List<DiffComment> readDiffComments(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException {
+    public List<DiffComment> readDiffCommentsFromReview(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException {
         
         PagedLoader<DiffComment> loader = new PagedLoader<DiffComment>(PAGED_RESULT_INCREMENT, monitor, "Retrieving diff comments") {
             @Override

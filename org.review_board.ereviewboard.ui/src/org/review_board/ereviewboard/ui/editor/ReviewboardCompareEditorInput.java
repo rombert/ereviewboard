@@ -111,7 +111,7 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         if ( getFile().getBase().getTopics().isEmpty() && getFile().getTarget().getTopics().isEmpty() ) {
             DiffData diffData = client.getDiffData(reviewRequestId, diffId, fileDiffId, monitor);
             monitor.worked(1);
-            new ReviewModelFactory(client).appendComments(getFile(), client.readDiffComments(reviewRequestId, diffId, fileDiffId, monitor), new DiffCommentLineMapper(diffData));
+            new ReviewModelFactory(client).appendComments(getFile(), client.readDiffCommentsForFileDiff(reviewRequestId, diffId, fileDiffId, monitor), new DiffCommentLineMapper(diffData));
             monitor.worked(1);
         } else {
             monitor.worked(2);
