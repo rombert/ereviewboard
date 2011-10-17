@@ -87,10 +87,16 @@ public class ReviewModelFactory {
             IFileRevision fileRevision;
             int mappedLine;
             
-            if ( lineMappings[1] != - 1) { 
+            // do not append on newly created files
+            if ( FileDiff.PRE_CREATION.equals(fileItem.getTarget().getPath()) ) {
+                fileRevision = fileItem.getBase();
+                mappedLine = lineMappings[0];
+            // prefer displaying on target if posssible
+            } else if ( lineMappings[1] != - 1) {
                 fileRevision = fileItem.getTarget();
                 mappedLine = lineMappings[1];
             }
+            // fallback to base
             else {
                 fileRevision = fileItem.getBase();
                 mappedLine = lineMappings[0];
