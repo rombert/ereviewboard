@@ -83,13 +83,13 @@ public interface ReviewboardClient {
 
     List<ReviewReply> getReviewReplies(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException;
     
-    int countDiffCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException;
+    List<DiffComment> readDiffCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException;
     
     int countScreenshotCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException;
     
     List<DiffComment> readDiffComments(int reviewRequestId, int diffId, int fileDiffId, IProgressMonitor monitor) throws ReviewboardException;
     
-    int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException;
+    List<DiffComment> readDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException;
 
     List<Screenshot> loadScreenshots(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 

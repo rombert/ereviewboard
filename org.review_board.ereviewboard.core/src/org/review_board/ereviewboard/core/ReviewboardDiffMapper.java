@@ -14,6 +14,7 @@ import static org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attr
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +24,10 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.review_board.ereviewboard.core.model.Diff;
+import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.FileDiff;
+
+import com.google.common.collect.Multimap;
 
 /**
  * @author Robert Munteanu
@@ -83,26 +87,37 @@ public class ReviewboardDiffMapper {
         
         return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(timestamp);
     }
-    
 
-    public void addDiff(Diff diff, List<FileDiff> fileDiffs) {
+    public void addDiff(Diff diff, List<FileDiff> fileDiffs, Multimap<Integer, DiffComment> fileIdToDiffComments) {
+        
+        ReviewboardCorePlugin.getDefault().trace(TraceLocation.MAIN, "Matching comments - fileDiff ids are " + fileIdToDiffComments.keySet());
         
         Assert.isNotNull(diff, "diff may not be null");
         TaskAttribute diffsAttribute = taskData.getRoot().getAttribute(DIFFS.toString());
         TaskAttribute diffAttribute = diffsAttribute.createAttribute(PREFIX_DIFF + diff.getRevision());
         diffAttribute.setValue(String.valueOf(diff.getRevision()));
         taskData.getAttributeMapper().setDateValue(diffAttribute.createAttribute(LAST_UPDATED.toString()), diff.getTimestamp());
+        int totalInlineComments = 0;
         
         for ( FileDiff fileDiff : fileDiffs ) {
         
+            ReviewboardCorePlugin.getDefault().trace(TraceLocation.MAIN, "Matching comments - considering fileDiff with id " + fileDiff.getId());
+            
+            Collection<DiffComment> diffComments = fileIdToDiffComments.get(fileDiff.getId());
+            
+            int inlineComments = diffComments.size();
+            totalInlineComments += inlineComments;
+            
             TaskAttribute fileDiffAttribute = diffAttribute.createAttribute(PREFIX_FILE + fileDiff.getId());
             fileDiffAttribute.setValue(String.valueOf(fileDiff.getId()));
             fileDiffAttribute.createAttribute(SOURCE_FILE.toString()).setValue(fileDiff.getSourceFile());
             fileDiffAttribute.createAttribute(DEST_FILE.toString()).setValue(fileDiff.getDestinationFile());
             fileDiffAttribute.createAttribute(SOURCE_REVISION.toString()).setValue(fileDiff.getSourceRevision());
             fileDiffAttribute.createAttribute(DEST_DETAIL.toString()).setValue(fileDiff.getDestinationDetail());
-
+            fileDiffAttribute.createAttribute(NUM_COMMENTS.toString()).setValue(String.valueOf(inlineComments));
         }
+        
+        diffAttribute.createAttribute(NUM_COMMENTS.toString()).setValue(String.valueOf(totalInlineComments));
     }
     
     public Integer getLatestDiffRevisionId() {
@@ -134,5 +149,10 @@ public class ReviewboardDiffMapper {
         Collections.sort(revisions);
         
         return revisions;
+    }
+
+    public int getNumberOfComments(int diffRevisionId) {
+        
+        return Integer.parseInt(diff(diffRevisionId).getAttribute(NUM_COMMENTS.toString()).getValue());
     }
 }

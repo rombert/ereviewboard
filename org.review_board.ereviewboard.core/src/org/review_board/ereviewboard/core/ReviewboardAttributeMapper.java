@@ -48,7 +48,8 @@ public class ReviewboardAttributeMapper extends TaskAttributeMapper {
         SOURCE_FILE("source_file", "Source file", TaskAttribute.TYPE_SHORT_TEXT, null),
         DEST_FILE("dest_file", "Destination file", TaskAttribute.TYPE_SHORT_TEXT, null),
         SOURCE_REVISION("source_revision", "Source revision", TaskAttribute.TYPE_SHORT_TEXT, null),
-        DEST_DETAIL("dest_detail", "Destination detail", TaskAttribute.TYPE_SHORT_TEXT, null);
+        DEST_DETAIL("dest_detail", "Destination detail", TaskAttribute.TYPE_SHORT_TEXT, null),
+        NUM_COMMENTS("num_comments", "Number of comments", TaskAttribute.TYPE_SHORT_TEXT, null);
 
         private final String jsonAttributeName;
         private final String displayName;

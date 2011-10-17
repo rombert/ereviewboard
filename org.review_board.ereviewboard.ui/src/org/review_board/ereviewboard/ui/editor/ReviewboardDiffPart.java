@@ -120,6 +120,8 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         GridLayoutFactory.createFrom(EditorUtil.createSectionClientLayout()).numColumns(2).applyTo(subComposite);
         GridDataFactory.fillDefaults().applyTo(subComposite);
         subSection.setClient(subComposite);
+        String changesText = diffMapper.getNumberOfComments(diffRevision) != 0 ? String.valueOf(diffMapper.getNumberOfComments(diffRevision)) + " inline comments" : "";
+        addTextClient(toolkit, subSection, changesText);
       
         addDescriptiveRow("Author", reviewModelFactory.createUser(taskMapper.getReporter()).getDisplayName(), toolkit, subComposite);
         addDescriptiveRow("Created", diffMapper.getTimestamp(diffRevision), toolkit, subComposite);
@@ -262,4 +264,20 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         return null;
     }
 
+    private Label addTextClient(final FormToolkit toolkit, final Section section, String text) {
+        final Label label = new Label(section, SWT.NONE);
+        label.setText("  " + text);
+        label.setForeground(toolkit.getColors().getColor(IFormColors.TITLE));
+        label.setVisible(!section.isExpanded());
+
+        section.setTextClient(label);
+        section.addExpansionListener(new ExpansionAdapter() {
+            @Override
+            public void expansionStateChanged(ExpansionEvent e) {
+                label.setVisible(!section.isExpanded());
+            }
+        });
+
+        return label;
+    }
 }

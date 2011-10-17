@@ -57,6 +57,9 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.*;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 /**
  * @author Markus Knittig
  *
@@ -150,11 +153,11 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 
                 Policy.advance(monitor, 1);
                 
-                createTaskDataComments(client, taskData, diffs, screenshots, monitor);
+                Multimap<Integer, DiffComment> fileIdToDiffComments = createTaskDataComments(client, taskData, diffs, screenshots, monitor);
                 
                 createTaskDataAttachments(client, taskData, taskRepository, diffs, screenshots, monitor);
                 
-                createTaskDataPatchSet(client, taskData, diffs, monitor);
+                createTaskDataPatchSet(client, taskData, diffs, fileIdToDiffComments, monitor);
 
                 return taskData;
             } finally {
@@ -177,13 +180,16 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     /**
      * Advances monitor by one + {@value #REVIEW_DIFF_TICKS} + {@value #SCREENSHOT_COMMENT_TICKS}
      * @param screenshots 
+     * @return 
      * 
      */
-    private void createTaskDataComments(ReviewboardClient client, TaskData taskData, List<Diff> diffs, List<Screenshot> screenshots, IProgressMonitor monitor)
+    private Multimap<Integer, DiffComment> createTaskDataComments(ReviewboardClient client, TaskData taskData, List<Diff> diffs, List<Screenshot> screenshots, IProgressMonitor monitor)
             throws  ReviewboardException {
 
         SortedMap<Date, ReviewboardCommentMapper> sortedComments = new TreeMap<Date, ReviewboardCommentMapper>();
-
+        
+        Multimap<Integer, DiffComment> fileIdIdToDiffComments = ArrayListMultimap.create();
+        
         ReviewboardAttributeMapper attributeMapper = (ReviewboardAttributeMapper) taskData.getAttributeMapper();
         
         for (Diff diff : diffs ) {
@@ -209,7 +215,10 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             for (Review review : reviews) {
 
                 int reviewId = review.getId();
-                int totalResults = client.countDiffComments(reviewRequestId, reviewId, monitor);
+                List<DiffComment> reviewDiffComments = client.readDiffComments(reviewRequestId, reviewId, monitor);
+                for ( DiffComment comment : reviewDiffComments )
+                    fileIdIdToDiffComments.put(comment.getFileId(), comment);
+                int totalResults  = reviewDiffComments.size(); 
                 
                 Policy.advance(reviewDiffMonitor, 1);
 
@@ -241,8 +250,11 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                         replyComment.setAuthor(attributeMapper.getRepositoryPerson(attributeMapper.getTaskRepository(), reviewReply.getUser()));
                         replyComment.setHeading("In reply to review #" + reviewId + ": ");
                         replyComment.setTop(reviewReply.getBodyTop());
-                        
-                        int diffComments = client.countDiffCommentsForReply(reviewRequestId, reviewId, reviewReply.getId(), reviewDiffMonitor);
+                        List<DiffComment> reviewReplyDiffComments = client.readDiffCommentsForReply(reviewRequestId, reviewId, reviewReply.getId(), reviewDiffMonitor);
+                        for ( DiffComment diffComment : reviewReplyDiffComments )
+                            fileIdIdToDiffComments.put(diffComment.getFileId(), diffComment);
+
+                        int diffComments = reviewDiffComments.size();
                         Policy.advance(counterMonitor, 1);
                         
                         int screenshotComments = client.countScreenshotCommentsForReply(reviewRequestId, reviewId, reviewReply.getId(), reviewDiffMonitor);
@@ -304,12 +316,15 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         
         for ( Map.Entry<Date, ReviewboardCommentMapper>  entry : sortedComments.entrySet() )
             entry.getValue().applyTo(taskData, commentIndex++, entry.getKey());
+        
+        return fileIdIdToDiffComments;
     }
     
     /**
      * Advances monitor by {@value #FILE_DIFF_TICKS} ticks
+     * @param fileIdToDiffComments 
      */
-    private void createTaskDataPatchSet(ReviewboardClient client, TaskData taskData, List<Diff> diffs, IProgressMonitor monitor) throws ReviewboardException {
+    private void createTaskDataPatchSet(ReviewboardClient client, TaskData taskData, List<Diff> diffs, Multimap<Integer, DiffComment> fileIdToDiffComments, IProgressMonitor monitor) throws ReviewboardException {
         
         if ( diffs.isEmpty() )
             return;
@@ -322,7 +337,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             ReviewboardDiffMapper diffMapper = new ReviewboardDiffMapper(taskData);
             
             for ( Diff diff : diffs ) {
-                diffMapper.addDiff(diff, client.getFileDiffs(reviewRequestId, diff.getRevision(), monitor));
+                diffMapper.addDiff(diff, client.getFileDiffs(reviewRequestId, diff.getRevision(), monitor), fileIdToDiffComments);
                 Policy.advance(fileDiffMonitor, 1);
             }
         } finally {

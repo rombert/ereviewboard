@@ -131,14 +131,21 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return loader.doLoad();
     }
     
-    public int countDiffCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException {
+    public List<DiffComment> readDiffCommentsForReply(final int reviewRequestId, final int reviewId, final int reviewReplyId, IProgressMonitor monitor) throws ReviewboardException {
 
-    	ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).descend(PATH_REVIEWS, reviewId).
-    			descend(PATH_REPLIES, reviewReplyId).descend(PATH_DIFF_COMMENTS).countsOnly();
-    	
-        String result = httpClient.executeGet(queryBuilder.createQuery(), reviewDiffMonitor);
+        PagedLoader<DiffComment> loader = new PagedLoader<DiffComment>(PAGED_RESULT_INCREMENT, monitor, "Retrieving diff comments") {
+            @Override
+            protected PagedResult<DiffComment> doLoadInternal(int start, int maxResults, IProgressMonitor monitor)
+                    throws ReviewboardException {
+                
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).descend(PATH_REVIEWS, reviewId).
+                        descend(PATH_REPLIES, reviewReplyId).descend(PATH_DIFF_COMMENTS);
+                
+                return reviewboardReader.readDiffComments(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+            }
+        };
         
-        return reviewboardReader.readCount(result);
+        return loader.doLoad();
     }
     
     public int countScreenshotCommentsForReply(int reviewRequestId, int reviewId, int reviewReplyId, IProgressMonitor reviewDiffMonitor) throws ReviewboardException {
@@ -180,12 +187,22 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return diffComments;
     }
     
-    public int countDiffComments(int reviewRequestId, int reviewId, IProgressMonitor monitor) throws ReviewboardException {
-    	
-        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
-                descend(PATH_REVIEWS, reviewId).descend(PATH_DIFF_COMMENTS).countsOnly();
+    public List<DiffComment> readDiffComments(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException {
         
-        return reviewboardReader.readCount(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+        PagedLoader<DiffComment> loader = new PagedLoader<DiffComment>(PAGED_RESULT_INCREMENT, monitor, "Retrieving diff comments") {
+            @Override
+            protected PagedResult<DiffComment> doLoadInternal(int start, int maxResults, IProgressMonitor monitor)
+                    throws ReviewboardException {
+                
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                        descend(PATH_REVIEWS, reviewId).descend(PATH_DIFF_COMMENTS);
+                
+                return reviewboardReader.readDiffComments(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+            }
+        };
+        
+        return loader.doLoad();
+        
     }
 
     private List<Repository> getRepositories(IProgressMonitor monitor) throws ReviewboardException {
