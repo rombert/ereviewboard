@@ -124,4 +124,7 @@ public interface ReviewboardClient {
 
     DiffData getDiffData(int reviewRequestId, int diffRevision, int fileId, IProgressMonitor monitor)
             throws ReviewboardException;
+
+    
+    DiffComment createDiffComment(int reviewRequestId, int reviewId, int fileDiffId, DiffComment diffComment, IProgressMonitor monitor) throws ReviewboardException;
 }

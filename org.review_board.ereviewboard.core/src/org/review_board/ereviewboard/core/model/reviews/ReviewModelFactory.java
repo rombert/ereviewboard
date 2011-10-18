@@ -58,9 +58,11 @@ public class ReviewModelFactory {
             fileItem.setId(String.valueOf(fileDiff.getId()));
             
             IFileRevision from = FACTORY.createFileRevision();
+            from.setId(String.valueOf(fileDiff.getId()));
             from.setPath(fileDiff.getSourceFile());
             from.setRevision(fileDiff.getSourceRevision());
-            
+
+            // TODO: should we set and id for 'to' as well? might become problematic to have the same ids
             IFileRevision to = FACTORY.createFileRevision();
             to.setPath(fileDiff.getDestinationFile());
             to.setRevision(fileDiff.getDestinationDetail());

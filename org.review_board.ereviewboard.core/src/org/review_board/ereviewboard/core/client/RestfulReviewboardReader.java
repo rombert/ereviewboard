@@ -550,6 +550,32 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
+    
+    private DiffComment mapDiffComment(JSONObject jsonDiffComment) throws JSONException {
+        
+        DiffComment comment = new DiffComment();
+        
+        mapComment(jsonDiffComment, comment);
+        comment.setFirstLine(jsonDiffComment.getInt("first_line"));
+        comment.setNumLines(jsonDiffComment.getInt("num_lines"));
+        String fileHref = jsonDiffComment.getJSONObject("links").getJSONObject("filediff").getString("href");
+        int fileId = Integer.parseInt( fileHref.replaceFirst(".*files/", "").replace("/", "") );
+        comment.setFileId(fileId);
+        
+        return comment;
+    }
+    
+    public DiffComment readDiffComment(String result) throws ReviewboardException {
+        
+        try {
+            JSONObject jsonDiffComment = checkedGetJSonRootObject(result);
+            
+            return mapDiffComment(jsonDiffComment.getJSONObject("diff_comment"));
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+
 
     private void mapComment(JSONObject jsonComment, Comment comment) throws JSONException {
        
@@ -661,4 +687,5 @@ public class RestfulReviewboardReader {
         
         return Integer.parseInt(value);
     }
+
 }

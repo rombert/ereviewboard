@@ -141,7 +141,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 
                 IFileItem item = (IFileItem) selection.getFirstElement();
                 
-                ReviewUi.setActiveReview(new ReviewboardReviewBehaviour(getTaskEditorPage().getTask()));
+                ReviewUi.setActiveReview(new ReviewboardReviewBehaviour(getTaskEditorPage().getTask(), item, diffRevision, getClient()));
                 
                 SCMFileContentsLocator locator = getSCMFileContentsLocator(taskMapper, item.getBase());
                 if ( locator == null ) {

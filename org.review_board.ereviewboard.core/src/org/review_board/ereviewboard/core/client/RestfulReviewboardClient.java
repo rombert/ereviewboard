@@ -583,4 +583,20 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         return reviewboardReader.readReview(result);
     }
+    
+    public DiffComment createDiffComment(int reviewRequestId, int reviewId, int fileDiffId, DiffComment diffComment, IProgressMonitor monitor) throws ReviewboardException {
+        
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("filediff_id", String.valueOf(fileDiffId));
+        parameters.put("first_line", String.valueOf(diffComment.getFirstLine()));
+        parameters.put("num_lines", String.valueOf(diffComment.getNumLines()));
+        parameters.put("text", String.valueOf(diffComment.getText()));
+        
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                descend(PATH_REVIEWS, reviewId).descend(PATH_DIFF_COMMENTS);
+        
+        String result = httpClient.executePost(queryBuilder.createQuery(), parameters, monitor);
+        
+        return reviewboardReader.readDiffComment(result);
+    }
 }

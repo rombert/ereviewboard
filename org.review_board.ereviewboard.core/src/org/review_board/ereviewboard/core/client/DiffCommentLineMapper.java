@@ -34,4 +34,23 @@ public class DiffCommentLineMapper {
         return _unifiedDiffLineMappings.get(diffLineNumber);
     }
 
+    public int getDiffMappingForOldFile(int oldFileLineNumber) {
+        
+        return getDiffMappingForIndex(oldFileLineNumber, 0);
+    }
+    
+    public int getDiffMappingForNewFile(int newFileLineNumber) {
+        
+        return getDiffMappingForIndex(newFileLineNumber, 1);
+    }
+    
+
+    private int getDiffMappingForIndex(int leftSideLineNumber, int index) {
+        for ( Map.Entry<Integer, int[]> lineEntry : _unifiedDiffLineMappings.entrySet() )
+            if ( lineEntry.getValue()[index] == leftSideLineNumber )
+                return lineEntry.getKey().intValue();
+        
+        throw new IllegalArgumentException("No diff mapping entry for line " + leftSideLineNumber);
+    }
+
 }

@@ -1,0 +1,38 @@
+{
+	"stat": "ok", 
+	"diff_comment": {
+		"issue_opened": false, 
+		"interfilediff": null, 
+		"num_lines": 1, 
+		"links": {
+			"user": {
+				"href": "http://localhost:8080/api/users/robert/", 
+				"method": "GET", 
+				"title": "robert"
+			}, 
+			"self": {
+				"href": "http://localhost:8080/api/review-requests/1/reviews/19/diff-comments/14/", 
+				"method": "GET"
+			}, 
+			"filediff": {
+				"href": "http://localhost:8080/api/review-requests/1/files/55/", 
+				"method": "GET", 
+				"title": "/rb-test/src/com/example/Fifththth.java (PRE-CREATION) -> /rb-test/src/com/example/Fifththth.java ((revision 0))"
+			}, 
+			"update": {
+				"href": "http://localhost:8080/api/review-requests/1/reviews/19/diff-comments/14/", 
+				"method": "PUT"
+			}, 
+			"delete": {
+				"href": "http://localhost:8080/api/review-requests/1/reviews/19/diff-comments/14/",
+				"method": "DELETE"
+			}
+		}, 
+		"timestamp": "2011-10-18 00:32:27",
+		"public": false,
+		"text": "Here is a new comment",
+		"first_line": 7, 
+		"id": 14, 
+		"issue_status": ""
+	}
+}

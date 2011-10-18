@@ -331,6 +331,21 @@ public class RestfulReviewboardReaderTest {
     }
     
     @Test
+    public void readDiffComment() throws ReviewboardException, IOException {
+        
+        DiffComment diffComment = reader.readDiffComment(readJsonTestResource("diff_comment.json"));
+        
+        assertThat("diffComment.id", diffComment.getId(), is(14));
+        assertThat("diffComment.username", diffComment.getUsername(), is("robert"));
+        assertThat("diffComment.text", diffComment.getText(), is("Here is a new comment"));
+        assertThat("diffComment.timestamp", diffComment.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2011-10-18 00:32:27")));
+        assertThat("diffComment.numLines", diffComment.getNumLines(), is(1));
+        assertThat("diffComment.firstLine", diffComment.getFirstLine(), is(7));
+        assertThat("diffComment.fileId", diffComment.getFileId(), is(55));
+        
+    }
+    
+    @Test
     public void readDiffs() throws ReviewboardException, IOException {
         
         // http://www.reviewboard.org/docs/manual/1.5/webapi/2.0/resources/diff-list/
