@@ -80,6 +80,14 @@ public interface ReviewboardClient {
     byte[] getRawFileDiff(int reviewRequestId, int diffRevision, int fileId, IProgressMonitor monitor) throws ReviewboardException;
     
     List<Review> getReviews(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
+    
+    /**
+     * @param reviewRequestId
+     * @param monitor
+     * @return the draft review for this user, possibly <code>null</code>
+     * @throws ReviewboardException
+     */
+    Review getDraftReview(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
     List<ReviewReply> getReviewReplies(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException;
     

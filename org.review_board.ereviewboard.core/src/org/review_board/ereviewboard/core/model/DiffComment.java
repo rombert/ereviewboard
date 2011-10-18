@@ -28,6 +28,7 @@ public class DiffComment extends Comment {
     private int firstLine;
     private int numLines;
     private int fileId;
+    private Boolean _public;
 
     public int getFirstLine() {
         return firstLine;
@@ -52,4 +53,26 @@ public class DiffComment extends Comment {
     public int getFileId() {
         return fileId;
     }
+
+    
+    /**
+     * Returns true if the comment is public
+     * 
+     * <p>The field is not present in the RB API and is calculated when loading diff comments attached
+     * to reviews and review replies and may not always be present.</p>.
+     * 
+     * @return true if the comment is public , false is it is a draft, null if not known.
+     */
+    public Boolean getPublic() {
+    
+        return _public;
+    }
+
+    
+    public void setPublic(Boolean _public) {
+    
+        this._public = _public;
+    }
+
+    
 }

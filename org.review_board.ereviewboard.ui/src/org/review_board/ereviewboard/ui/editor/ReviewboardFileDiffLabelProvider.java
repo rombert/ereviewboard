@@ -20,6 +20,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.internal.WorkbenchImages;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
+import org.review_board.ereviewboard.ui.util.Labels;
 
 /**
  * @author Robert Munteanu
@@ -49,10 +50,13 @@ public class ReviewboardFileDiffLabelProvider extends LabelProvider implements I
         IFileItem fileItem = (IFileItem) element;
         String fileDiffId = fileItem.getId();
 
-        int commentCount = _diffMapper.getCommentCountForFileDiff(Integer.parseInt(fileDiffId));
+        int commentCount = _diffMapper.getPublicCommentCountForFileDiff(Integer.parseInt(fileDiffId));
+        int draftCount = _diffMapper.getDraftCommentCountForFileDiff(Integer.parseInt(fileDiffId));
 
-        if (commentCount > 0)
-            styledString.append(" [ " + commentCount + " comments ]", StyledString.DECORATIONS_STYLER);
+        String comment = Labels.commentsAndDrafts(commentCount, draftCount);
+        if ( comment.length() > 0 ) {
+            styledString.append("[ ").append(comment, StyledString.DECORATIONS_STYLER).append(" ]");
+        }
 
         return styledString;
     }

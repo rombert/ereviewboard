@@ -37,7 +37,7 @@ public class ReviewboardQueryBuilder {
     public static final String PATH_GROUPS = "groups";
 
     public static final String PATH_DRAFT = "draft";
-
+    
     private final QueryBuilder _queryBuilder;
     
     public ReviewboardQueryBuilder() {

@@ -45,6 +45,7 @@ import org.json.JSONObject;
 import org.review_board.ereviewboard.core.exception.ReviewboardApiException;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
+import org.review_board.ereviewboard.core.exception.ReviewboardObjectDoesNotExistException;
 import org.review_board.ereviewboard.core.model.*;
 import org.review_board.ereviewboard.core.model.DiffData.Chunk;
 import org.review_board.ereviewboard.core.model.DiffData.Line;
@@ -94,6 +95,8 @@ public class RestfulReviewboardReader {
                 
                 if ( ErrorCode.INVALID_FORM_DATA.is(code) )
                     throw new ReviewboardInvalidFormDataException(gatherFieldErrors(object));
+                else if ( ErrorCode.OBJECT_DOES_NOT_EXIST.is(code) )
+                    throw new ReviewboardObjectDoesNotExistException(message);
                 
                 throw new ReviewboardApiException(message, code);
             }

@@ -50,6 +50,7 @@ import org.eclipse.mylyn.commons.net.Policy;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.exception.ReviewboardObjectDoesNotExistException;
 import org.review_board.ereviewboard.core.model.*;
 
 /**
@@ -111,6 +112,19 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         };
         
         return loader.doLoad();
+    }
+    
+    public Review getDraftReview(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId)
+                .descend(PATH_REVIEWS, PATH_DRAFT);
+        
+        try {
+            return reviewboardReader.readReview(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+        } catch (ReviewboardObjectDoesNotExistException e) {
+            // no review draft is published for this user
+            return null;
+        }
     }
     
     public List<ReviewReply> getReviewReplies(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException {

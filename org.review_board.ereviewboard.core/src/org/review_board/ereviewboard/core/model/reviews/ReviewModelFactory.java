@@ -127,7 +127,7 @@ public class ReviewModelFactory {
             topicComment.setAuthor(author);
             topicComment.setCreationDate(diffComment.getTimestamp());
             topicComment.setDescription(diffComment.getText());
-
+            topicComment.setDraft(Boolean.FALSE.equals(diffComment.getPublic()));
             
             topic.getComments().add(topicComment);
         }

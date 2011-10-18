@@ -23,6 +23,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.mylyn.tasks.core.data.TaskAttribute;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
+import org.review_board.ereviewboard.core.ReviewboardAttributeMapper.Attribute;
 import org.review_board.ereviewboard.core.model.Diff;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.FileDiff;
@@ -95,14 +96,24 @@ public class ReviewboardDiffMapper {
         TaskAttribute diffAttribute = diffsAttribute.createAttribute(PREFIX_DIFF + diff.getRevision());
         diffAttribute.setValue(String.valueOf(diff.getRevision()));
         taskData.getAttributeMapper().setDateValue(diffAttribute.createAttribute(LAST_UPDATED.toString()), diff.getTimestamp());
-        int totalInlineComments = 0;
+        int totalPublicComments = 0;
+        int totalDraftComments = 0;
         
         for ( FileDiff fileDiff : fileDiffs ) {
         
             Collection<DiffComment> diffComments = fileIdToDiffComments.get(fileDiff.getId());
-            
-            int inlineComments = diffComments.size();
-            totalInlineComments += inlineComments;
+            int draftComments = 0;
+            int publicComments = 0;
+            for ( DiffComment diffComment : diffComments ) {
+                if ( Boolean.FALSE.equals(diffComment.getPublic()) )
+                    draftComments++;
+                else
+                    publicComments++;
+                    
+                    
+            }
+            totalPublicComments += publicComments;
+            totalDraftComments += draftComments;
             
             TaskAttribute fileDiffAttribute = diffAttribute.createAttribute(PREFIX_FILE + fileDiff.getId());
             fileDiffAttribute.setValue(String.valueOf(fileDiff.getId()));
@@ -110,13 +121,20 @@ public class ReviewboardDiffMapper {
             fileDiffAttribute.createAttribute(DEST_FILE.toString()).setValue(fileDiff.getDestinationFile());
             fileDiffAttribute.createAttribute(SOURCE_REVISION.toString()).setValue(fileDiff.getSourceRevision());
             fileDiffAttribute.createAttribute(DEST_DETAIL.toString()).setValue(fileDiff.getDestinationDetail());
-            fileDiffAttribute.createAttribute(NUM_COMMENTS.toString()).setValue(String.valueOf(inlineComments));
+            fileDiffAttribute.createAttribute(NUM_PUBLIC_COMMENTS.toString()).setValue(String.valueOf(publicComments));
+            fileDiffAttribute.createAttribute(NUM_DRAFT_COMMENTS.toString()).setValue(String.valueOf(draftComments));
         }
         
-        diffAttribute.createAttribute(NUM_COMMENTS.toString()).setValue(String.valueOf(totalInlineComments));
+        diffAttribute.createAttribute(NUM_PUBLIC_COMMENTS.toString()).setValue(String.valueOf(totalPublicComments));
+        diffAttribute.createAttribute(NUM_DRAFT_COMMENTS.toString()).setValue(String.valueOf(totalDraftComments));
     }
     
-    public int getCommentCountForFileDiff(int fileDiffId) {
+    public int getPublicCommentCountForFileDiff(int fileDiffId) {
+        
+        return getIntFileDiffAttribute(fileDiffId, NUM_PUBLIC_COMMENTS);
+    }
+
+    private int getIntFileDiffAttribute(int fileDiffId, Attribute attributeKey) {
         
         for ( Integer diffRevisionId : getDiffRevisions() ) {
             for ( TaskAttribute attribute : diff(diffRevisionId).getAttributes().values() ) {
@@ -125,11 +143,16 @@ public class ReviewboardDiffMapper {
                     continue;
                 
                 if ( Integer.parseInt(attribute.getValue()) == fileDiffId )
-                    return Integer.parseInt(attribute.getAttribute(NUM_COMMENTS.toString()).getValue());
+                    return Integer.parseInt(attribute.getAttribute(attributeKey.toString()).getValue());
             }
         }
         
         throw new IllegalArgumentException("No data for file diff with id " + fileDiffId);
+    }
+    
+    public int getDraftCommentCountForFileDiff(int fileDiffId) {
+        
+        return getIntFileDiffAttribute(fileDiffId, NUM_DRAFT_COMMENTS);
     }
     
     public Integer getLatestDiffRevisionId() {
@@ -163,8 +186,13 @@ public class ReviewboardDiffMapper {
         return revisions;
     }
 
-    public int getNumberOfComments(int diffRevisionId) {
+    public int getNumberOfPublicComments(int diffRevisionId) {
         
-        return Integer.parseInt(diff(diffRevisionId).getAttribute(NUM_COMMENTS.toString()).getValue());
+        return Integer.parseInt(diff(diffRevisionId).getAttribute(NUM_PUBLIC_COMMENTS.toString()).getValue());
+    }
+
+    public int getNumberOfDraftComments(int diffRevisionId) {
+        
+        return Integer.parseInt(diff(diffRevisionId).getAttribute(NUM_DRAFT_COMMENTS.toString()).getValue());
     }
 }

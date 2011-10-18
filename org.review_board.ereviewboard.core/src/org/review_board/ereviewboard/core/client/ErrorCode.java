@@ -7,7 +7,7 @@ package org.review_board.ereviewboard.core.client;
  */
 public enum ErrorCode {
 
-    INVALID_FORM_DATA(105);
+    OBJECT_DOES_NOT_EXIST(100), INVALID_FORM_DATA(105);
 
     private final int _errorCode;
 

@@ -50,6 +50,7 @@ import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 import org.review_board.ereviewboard.ui.editor.ext.TaskDiffAction;
+import org.review_board.ereviewboard.ui.util.Labels;
 
 /**
  * @author Robert Munteanu
@@ -118,7 +119,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         GridLayoutFactory.createFrom(EditorUtil.createSectionClientLayout()).numColumns(2).applyTo(subComposite);
         GridDataFactory.fillDefaults().applyTo(subComposite);
         subSection.setClient(subComposite);
-        String changesText = diffMapper.getNumberOfComments(diffRevision) != 0 ? NLS.bind( "{0} inline comments", String.valueOf(diffMapper.getNumberOfComments(diffRevision))) : "";
+        String changesText = Labels.commentsAndDrafts(diffMapper.getNumberOfPublicComments(diffRevision), diffMapper.getNumberOfDraftComments(diffRevision)); 
         addTextClient(toolkit, subSection, changesText);
       
         addDescriptiveRow("Author", reviewModelFactory.createUser(taskMapper.getReporter()).getDisplayName(), toolkit, subComposite);

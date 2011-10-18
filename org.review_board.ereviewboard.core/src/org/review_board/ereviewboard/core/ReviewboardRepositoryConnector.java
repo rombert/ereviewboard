@@ -135,7 +135,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
             ReviewboardClient client = getClientManager().getClient(taskRepository);
             
-            monitor.beginTask("Getting task data", 4 + REVIEW_DIFF_TICKS + SCREENSHOT_COMMENT_TICKS + FILE_DIFF_TICKS);
+            monitor.beginTask("Getting task data", 5 + REVIEW_DIFF_TICKS + SCREENSHOT_COMMENT_TICKS + FILE_DIFF_TICKS);
 
             try {
                 
@@ -180,7 +180,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     }
 
     /**
-     * Advances monitor by one + {@value #REVIEW_DIFF_TICKS} + {@value #SCREENSHOT_COMMENT_TICKS}
+     * Advances monitor by two + {@value #REVIEW_DIFF_TICKS} + {@value #SCREENSHOT_COMMENT_TICKS}
      * @param screenshots 
      * @return 
      * 
@@ -205,7 +205,11 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         
         int reviewRequestId = Integer.parseInt(taskData.getTaskId());
         List<Review> reviews = client.getReviews(reviewRequestId, monitor);
-
+        Policy.advance(monitor, 1);
+        
+        Review draftReview = client.getDraftReview(reviewRequestId, monitor);
+        if ( draftReview != null )
+            reviews.add(draftReview);
         Policy.advance(monitor, 1);
 
         int shipItCount = 0;
@@ -218,8 +222,10 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
                 int reviewId = review.getId();
                 List<DiffComment> reviewDiffComments = client.readDiffCommentsFromReview(reviewRequestId, reviewId, monitor);
-                for ( DiffComment comment : reviewDiffComments )
+                for ( DiffComment comment : reviewDiffComments ) {
+                    comment.setPublic(review.isPublicReview());
                     fileIdIdToDiffComments.put(comment.getFileId(), comment);
+                }
                 int totalResults  = reviewDiffComments.size(); 
                 
                 Policy.advance(reviewDiffMonitor, 1);
