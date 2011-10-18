@@ -26,6 +26,7 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.DiffData;
 import org.review_board.ereviewboard.core.model.Review;
+import org.review_board.ereviewboard.core.model.reviews.TopicAddedListener;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 
 /**
@@ -37,13 +38,15 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
     private IFileItem _fileItem;
     private ReviewboardClient _client;
     private int _diffRevisionId;
+    private TopicAddedListener _topicAddedListener;
 
-    public ReviewboardReviewBehaviour(ITask task, IFileItem fileItem, int diffRevisionId, ReviewboardClient client) {
+    public ReviewboardReviewBehaviour(ITask task, IFileItem fileItem, int diffRevisionId, ReviewboardClient client, TopicAddedListener listener) {
         super(task);
         
         _fileItem = fileItem;
         _client = client;
         _diffRevisionId = diffRevisionId;
+        _topicAddedListener = listener;
     }
 
     @Override
@@ -83,6 +86,8 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
             monitor.worked(1);
             
             setAuthorFromPostedDiffComment(topic, diffComment);
+            
+            _topicAddedListener.topicAdded(topic);
             
             return Status.OK_STATUS;
         } catch (ReviewboardException e) {

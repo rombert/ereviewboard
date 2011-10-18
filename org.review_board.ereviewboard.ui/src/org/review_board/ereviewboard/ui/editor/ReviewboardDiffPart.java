@@ -16,37 +16,53 @@ import java.util.Map;
 
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.mylyn.internal.tasks.ui.actions.SynchronizeEditorAction;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
+import org.eclipse.mylyn.internal.tasks.ui.util.TasksUiInternal;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
 import org.eclipse.mylyn.reviews.core.model.IFileRevision;
+import org.eclipse.mylyn.reviews.core.model.ITopic;
 import org.eclipse.mylyn.reviews.ui.ReviewUi;
+import org.eclipse.mylyn.tasks.core.AbstractRepositoryConnector;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
+import org.eclipse.mylyn.tasks.ui.AbstractRepositoryConnectorUi;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
+import org.eclipse.mylyn.tasks.ui.TasksUiUtil;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.IFormColors;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
+import org.eclipse.ui.internal.progress.TaskInfo;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
+import org.review_board.ereviewboard.core.model.reviews.TopicAddedListener;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 import org.review_board.ereviewboard.ui.editor.ext.TaskDiffAction;
@@ -78,7 +94,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
     
     @Override
     public void createControl(Composite parent, FormToolkit toolkit) {
-        
+
         Section section = createSection(parent, toolkit, true);
         Composite composite = toolkit.createComposite(section);
         GridLayoutFactory.createFrom(EditorUtil.createSectionClientLayout()).applyTo(composite);
@@ -131,6 +147,8 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         
         GridDataFactory.fillDefaults().span(2,1).grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
         
+        final TopicAddedListener listener = new RefreshEditorTopicAddedListener(getTaskEditorPage());
+
         List<IFileItem> fileItems= reviewModelFactory.createFileItems(taskMapper.getReporter(), diffMapper, diffRevision);
         diffTableViewer.setInput(fileItems.toArray(new IFileItem[fileItems.size()]));
         
@@ -142,7 +160,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 
                 IFileItem item = (IFileItem) selection.getFirstElement();
                 
-                ReviewUi.setActiveReview(new ReviewboardReviewBehaviour(getTaskEditorPage().getTask(), item, diffRevision, getClient()));
+                ReviewUi.setActiveReview(new ReviewboardReviewBehaviour(getTaskEditorPage().getTask(), item, diffRevision, getClient(), listener));
                 
                 SCMFileContentsLocator locator = getSCMFileContentsLocator(taskMapper, item.getBase());
                 if ( locator == null ) {
