@@ -15,8 +15,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.reviews.core.model.IComment;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
+import org.eclipse.mylyn.reviews.core.model.IFileRevision;
 import org.eclipse.mylyn.reviews.core.model.ILineLocation;
 import org.eclipse.mylyn.reviews.core.model.ILocation;
+import org.eclipse.mylyn.reviews.core.model.IReviewItem;
 import org.eclipse.mylyn.reviews.core.model.ITopic;
 import org.eclipse.mylyn.reviews.ui.ReviewBehavior;
 import org.eclipse.mylyn.tasks.core.ITask;
@@ -64,8 +66,7 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
             
             DiffCommentLineMapper lineMapper = new DiffCommentLineMapper(diffData);
             
-            int firstLine = topic.getItem() == _fileItem.getBase() ? lineMapper.getDiffMappingForOldFile(location.getTotalMin())
-                    : lineMapper.getDiffMappingForNewFile(location.getTotalMin());
+            int firstLine = findFirstLine(topic, location, lineMapper);
             int numLines = Math.max(location.getTotalMax() - location.getTotalMin(), 1);
             String text = topic.getDescription();
             int fileDiffId = Integer.parseInt(_fileItem.getBase().getId().toString());
@@ -97,6 +98,30 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
         } finally {
             monitor.done();
         }
+    }
+
+    private int findFirstLine(ITopic topic, ILineLocation location, DiffCommentLineMapper lineMapper) {
+        
+        IReviewItem topicItem = topic.getItem();
+        IFileRevision baseRevision = _fileItem.getBase();
+        IFileRevision targetRevision = _fileItem.getTarget();
+        boolean mapForOldFile = topicItem == baseRevision;
+        boolean mapForNewFile = topicItem == targetRevision;
+        
+        int firstLine;
+        if ( mapForOldFile ^ mapForNewFile ) {
+            firstLine = mapForOldFile ? lineMapper.getDiffMappingForOldFile(location.getTotalMin())
+                    : lineMapper.getDiffMappingForNewFile(location.getTotalMin());    
+        } else {
+            // old Reviews UI versions pass a generic 'fileItem' item to the topic which
+            // can not be used to determine the revision to annotate
+            try {
+                firstLine = lineMapper.getDiffMappingForNewFile(location.getTotalMin());
+            } catch (RuntimeException e) {
+                firstLine = lineMapper.getDiffMappingForOldFile(location.getTotalMin());
+            }
+        }
+        return firstLine;
     }
 
     private void setAuthorFromPostedDiffComment(ITopic topic, DiffComment diffComment) {
