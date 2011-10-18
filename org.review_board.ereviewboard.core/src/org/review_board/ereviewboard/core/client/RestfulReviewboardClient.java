@@ -51,6 +51,7 @@ import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.exception.ReviewboardObjectDoesNotExistException;
+import org.review_board.ereviewboard.core.exception.ReviewboardResourceNotFoundException;
 import org.review_board.ereviewboard.core.model.*;
 
 /**
@@ -122,7 +123,10 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         try {
             return reviewboardReader.readReview(httpClient.executeGet(queryBuilder.createQuery(), monitor));
         } catch (ReviewboardObjectDoesNotExistException e) {
-            // no review draft is published for this user
+            // no review draft exists for this user
+            return null;
+        } catch ( ReviewboardResourceNotFoundException e) {
+            // no review draft exists for this user
             return null;
         }
     }

@@ -57,6 +57,7 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.mylyn.commons.net.*;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.exception.ReviewboardResourceNotFoundException;
 
 /**
  * HTTP Client for calling the Review Board API. Handles {@link HttpClient}
@@ -232,7 +233,7 @@ public class ReviewboardHttpClient {
             int statusCode = executeRequest(request, monitor);
             
             if ( statusCode == HttpStatus.SC_NOT_FOUND )
-                throw new ReviewboardException("No resource found at location " + request.getPath());
+                throw new ReviewboardResourceNotFoundException(request.getPath());
             
             return getResponseBodyAsString(request, monitor);
         } finally {
