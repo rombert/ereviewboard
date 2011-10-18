@@ -28,5 +28,12 @@
             id="org.review_board.ereviewboard.ui.pageFactory">
       </pageFactory>
    </extension>
-
+   <extension
+         id="org.review_board.ereviewboard.ui.publishReview"
+         point="org.review_board.ereviewboard.ui.taskDiffActions">
+         <taskDiffAction
+               id="org.review_board.ereviewboard.ui.publishReview"
+               label="Review..."
+               class="org.review_board.ereviewboard.internal.actions.ReviewAction"/>
+	</extension>
 </plugin>

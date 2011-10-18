@@ -21,6 +21,8 @@ import org.review_board.ereviewboard.core.model.Repository;
  * 
  */
 public interface TaskDiffAction {
+    
+    int STATUS_CODE_REFRESH_REVIEW_REQUEST = 1;
 
     /**
      * @param repository

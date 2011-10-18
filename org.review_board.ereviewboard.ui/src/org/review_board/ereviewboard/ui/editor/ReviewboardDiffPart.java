@@ -231,6 +231,9 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                         
                         MessageDialog.open(kind, null, "Error performing action", status.getMessage(), SWT.SHEET);
                     }
+                    
+                    if ( status.getCode() == TaskDiffAction.STATUS_CODE_REFRESH_REVIEW_REQUEST )
+                        org.review_board.ereviewboard.ui.util.EditorUtil.refreshEditorPage(getTaskEditorPage());
                 }
                 
                 public void widgetDefaultSelected(SelectionEvent e) {
@@ -243,11 +246,12 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
     }
 
     private TaskRepository getTaskRepository() {
-        TaskRepository repository = TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, getTaskData().getRepositoryUrl());
-        return repository;
+        
+        return TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, getTaskData().getRepositoryUrl());
     }
     
     private ReviewboardClient getClient() {
+        
         return ReviewboardCorePlugin.getDefault().getConnector().getClientManager().getClient(getTaskRepository());
     }
     
