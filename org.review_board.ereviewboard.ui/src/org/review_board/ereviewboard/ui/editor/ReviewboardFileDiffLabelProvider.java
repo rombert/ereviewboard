@@ -54,9 +54,8 @@ public class ReviewboardFileDiffLabelProvider extends LabelProvider implements I
         int draftCount = _diffMapper.getDraftCommentCountForFileDiff(Integer.parseInt(fileDiffId));
 
         String comment = Labels.commentsAndDrafts(commentCount, draftCount);
-        if ( comment.length() > 0 ) {
-            styledString.append("[ ").append(comment, StyledString.DECORATIONS_STYLER).append(" ]");
-        }
+        if ( comment.length() > 0 )
+            styledString.append(" [ " + comment + " ] ", StyledString.DECORATIONS_STYLER);
 
         return styledString;
     }
