@@ -229,6 +229,12 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 int totalResults  = reviewDiffComments.size(); 
                 
                 Policy.advance(reviewDiffMonitor, 1);
+                
+                if ( !review.isPublicReview() ) {
+                    // no need to read the reviews or map comments for a draft review
+                    Policy.advance(reviewDiffMonitor, 1);
+                    continue;
+                }
 
                 boolean shipit = review.getShipIt();
                 
