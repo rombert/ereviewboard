@@ -18,7 +18,6 @@ public class RefreshEditorTopicAddedListener implements TopicAddedListener {
         _taskEditorPage = taskEditorPage;
     }
     
-    
     public void topicAdded(ITopic topic) {
         
         EditorUtil.refreshEditorPage(_taskEditorPage);
