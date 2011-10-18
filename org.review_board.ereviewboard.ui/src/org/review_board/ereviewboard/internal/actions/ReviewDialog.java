@@ -1,13 +1,8 @@
 package org.review_board.ereviewboard.internal.actions;
 
-import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.mylyn.reviews.ui.ProgressDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -16,7 +11,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -28,7 +22,7 @@ import org.review_board.ereviewboard.core.model.Review;
  * @author Robert Munteanu
  *
  */
-class ReviewDialog extends ProgressDialog {
+class ReviewDialog extends ReviewboardDialog {
 
     private final ReviewboardClient _client;
     private final int _reviewRequestId;
@@ -45,14 +39,11 @@ class ReviewDialog extends ProgressDialog {
     }
 
     @Override
-    protected Control createPageControls(Composite parent) {
+    protected void createPageControlsWithComposite(Composite composite) {
         
         setTitle("Review");
         setMessage("Add optional top and bottom comments and then publish the review.");
         
-        Composite composite = new Composite(parent, SWT.NONE);
-        GridLayoutFactory.fillDefaults().numColumns(1).margins(4, 4).applyTo(composite);
-
         Label topLabel = new Label(composite, SWT.NONE);
         topLabel.setText("Top");
         
@@ -96,41 +87,17 @@ class ReviewDialog extends ProgressDialog {
         
         Label comments = new Label(composite, SWT.NONE);
         comments.setText(NLS.bind("{0} draft comment(s) will be published.", _numberOfDraftComments));
-        
-        return composite;
     }
     
     @Override
-    public boolean close() {
-        if (getReturnCode() == OK) {
-            boolean shouldClose = execute();
-            if (!shouldClose) {
-                return false;
-            }
-        }
-        return super.close();
-    }
+    protected void executeAction(IProgressMonitor monitor) throws ReviewboardException {
+        
+        monitor.beginTask("Publishing review", 1);
 
-    private boolean execute() {
         try {
-            run(true, true, new IRunnableWithProgress() {
-                public void run(IProgressMonitor monitor) throws InvocationTargetException,
-                        InterruptedException {
-                    try {
-                        _client.createReview(_reviewRequestId, _review, monitor);
-                    } catch (ReviewboardException e) {
-                        throw new InvocationTargetException(e);
-                    }
-                }
-            });
-            
-            return true;
-        } catch (InvocationTargetException e1) {
-            setMessage(e1.getMessage(), IMessageProvider.ERROR);
-            return false;
-        } catch (InterruptedException e1) {
-            Thread.currentThread().interrupt();
-            return true;
+            _client.createReview(_reviewRequestId, _review, monitor);
+        } finally {
+            monitor.done();
         }
     }
 }

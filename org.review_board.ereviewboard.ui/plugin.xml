@@ -35,5 +35,9 @@
                id="org.review_board.ereviewboard.ui.publishReview"
                label="Review..."
                class="org.review_board.ereviewboard.internal.actions.ReviewAction"/>
+         <taskDiffAction
+               id="org.review_board.ereviewboard.ui.discardReview"
+               label="Discard Review draft..."
+               class="org.review_board.ereviewboard.internal.actions.DiscardReviewAction"/>
 	</extension>
 </plugin>

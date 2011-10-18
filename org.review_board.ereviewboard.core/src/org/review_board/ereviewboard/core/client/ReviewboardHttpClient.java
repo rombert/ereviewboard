@@ -48,6 +48,7 @@ import java.util.Map;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthenticationException;
 import org.apache.commons.httpclient.auth.BasicScheme;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -263,6 +264,11 @@ public class ReviewboardHttpClient {
         }
         
         return executeMethod(putMethod, monitor);
+    }
+
+    public void executeDelete(String url, IProgressMonitor monitor) throws ReviewboardException {
+        
+        executeMethod(new DeleteMethod(url), monitor);
     }
 
 

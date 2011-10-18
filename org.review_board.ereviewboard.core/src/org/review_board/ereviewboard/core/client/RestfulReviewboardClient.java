@@ -115,7 +115,7 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return loader.doLoad();
     }
     
-    public Review getDraftReview(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+    public Review getReviewDraft(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
 
         ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId)
                 .descend(PATH_REVIEWS, PATH_DRAFT);
@@ -616,5 +616,16 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         String result = httpClient.executePost(queryBuilder.createQuery(), parameters, monitor);
         
         return reviewboardReader.readDiffComment(result);
+    }
+
+    public void deleteReviewDraft(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+        
+        Review draftReview = getReviewDraft(reviewRequestId, monitor);
+        if ( draftReview == null )
+            return;
+        
+        ReviewboardQueryBuilder builder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).descend(PATH_REVIEWS, draftReview.getId());
+        
+        httpClient.executeDelete(builder.createQuery(), monitor);
     }
 }

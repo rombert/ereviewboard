@@ -87,7 +87,7 @@ public interface ReviewboardClient {
      * @return the draft review for this user, possibly <code>null</code>
      * @throws ReviewboardException
      */
-    Review getDraftReview(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
+    Review getReviewDraft(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 
     List<ReviewReply> getReviewReplies(final int reviewRequestId, final int reviewId, IProgressMonitor monitor) throws ReviewboardException;
     
@@ -135,4 +135,6 @@ public interface ReviewboardClient {
 
     
     DiffComment createDiffComment(int reviewRequestId, int reviewId, int fileDiffId, DiffComment diffComment, IProgressMonitor monitor) throws ReviewboardException;
+
+    void deleteReviewDraft(int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
 }

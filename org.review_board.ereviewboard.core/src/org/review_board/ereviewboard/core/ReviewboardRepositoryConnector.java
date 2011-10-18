@@ -207,7 +207,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
         List<Review> reviews = client.getReviews(reviewRequestId, monitor);
         Policy.advance(monitor, 1);
         
-        Review draftReview = client.getDraftReview(reviewRequestId, monitor);
+        Review draftReview = client.getReviewDraft(reviewRequestId, monitor);
         if ( draftReview != null )
             reviews.add(draftReview);
         Policy.advance(monitor, 1);
