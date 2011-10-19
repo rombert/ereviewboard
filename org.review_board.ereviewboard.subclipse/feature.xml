@@ -3,7 +3,7 @@
       id="org.review_board.ereviewboard.subclipse"
       label="Mylyn Reviews Connector: ReviewBoard Subclipse Integration (Optional)"
       version="0.11.0.qualifier"
-      provider-name="Markus Knittig"
+      provider-name="eReviewBoard developers"
       plugin="org.review_board.ereviewboard.core">
 
    <description>
