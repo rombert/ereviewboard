@@ -8,6 +8,6 @@
     <version>0.11.0-SNAPSHOT</version>
   </parent>
   <artifactId>org.review_board.ereviewboard.subclipse.ui</artifactId>
-  <name>eReviewBoard : Subclipse Integration</name>
+  <name>eReviewBoard : Subclipse UI Plugin</name>
   <packaging>eclipse-plugin</packaging>
 </project>
