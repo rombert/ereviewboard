@@ -11,6 +11,7 @@
     <module>org.review_board.ereviewboard</module>
     <module>org.review_board.ereviewboard.subclipse</module>
     <module>org.review_board.ereviewboard.core</module>
+    <module>org.review_board.ereviewboard.subclipse.core</module>
     <module>org.review_board.ereviewboard.subclipse.ui</module>
     <module>org.review_board.ereviewboard.tests</module>
     <module>org.review_board.ereviewboard.ui</module>

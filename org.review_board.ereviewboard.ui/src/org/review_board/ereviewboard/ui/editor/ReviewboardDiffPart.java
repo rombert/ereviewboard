@@ -55,11 +55,11 @@ import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
+import org.review_board.ereviewboard.core.internal.scm.SCMFileContentsLocator;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.core.model.reviews.TopicAddedListener;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
-import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 import org.review_board.ereviewboard.ui.editor.ext.TaskDiffAction;
 import org.review_board.ereviewboard.ui.util.Labels;
 

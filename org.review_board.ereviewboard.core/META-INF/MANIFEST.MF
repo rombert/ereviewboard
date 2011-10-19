@@ -21,6 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Export-Package: org.review_board.ereviewboard.core,
  org.review_board.ereviewboard.core.client,
  org.review_board.ereviewboard.core.exception,
+ org.review_board.ereviewboard.core.internal.scm;x-friends:="org.review_board.ereviewboard.subclipse.ui",
  org.review_board.ereviewboard.core.model,
  org.review_board.ereviewboard.core.model.reviews,
  org.review_board.ereviewboard.core.util

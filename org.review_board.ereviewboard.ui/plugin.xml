@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="org.review_board.ereviewboard.ui.taskDiffActions" name="taskDiffActions" schema="schema/org.review_board.ereviewboard.ui.taskDiffActions.exsd"/>
-   <extension-point id="org.review_board.ereviewboard.ui.scmFileContentsLocator" name="scmFileContentsLocator" schema="schema/org.review_board.ereviewboard.ui.scmFileContentsLocator.exsd"/>
+   <extension-point id="org.review_board.ereviewboard.ui.taskDiffActions" name="taskDiffActions" schema="schema/taskDiffActions.exsd"/>
+   <extension-point id="org.review_board.ereviewboard.ui.scmFileContentsLocator" name="scmFileContentsLocator" schema="schema/scmFileContentsLocator.exsd"/>
    <extension
          point="org.eclipse.mylyn.tasks.ui.repositories">
       <connectorCore

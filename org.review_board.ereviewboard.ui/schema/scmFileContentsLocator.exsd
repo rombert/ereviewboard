@@ -9,6 +9,43 @@
          Extension point which allows SCM plugins to retrieve remote versions of files.
       </documentation>
    </annotation>
+   
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element internal="true" />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="scmFileContentsLocator"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
 
    <element name="scmFileContentsLocator">
       <complexType>
@@ -25,7 +62,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator"/>
+                  <meta.attribute kind="java" basedOn=":org.review_board.ereviewboard.core.internal.scm.SCMFileContentsLocator"/>
                </appinfo>
             </annotation>
          </attribute>

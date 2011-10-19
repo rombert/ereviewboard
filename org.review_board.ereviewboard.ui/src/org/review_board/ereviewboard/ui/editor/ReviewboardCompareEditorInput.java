@@ -35,11 +35,11 @@ import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.DiffCommentLineMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.internal.scm.SCMFileContentsLocator;
 import org.review_board.ereviewboard.core.model.DiffData;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.core.util.ByteArrayStorage;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
-import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
 
 /**
  * @author Robert Munteanu

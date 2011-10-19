@@ -8,7 +8,7 @@
  * Contributors:
  *     Robert Munteanu - initial API and implementation
  *******************************************************************************/
-package org.review_board.ereviewboard.ui.editor.ext;
+package org.review_board.ereviewboard.core.internal.scm;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;

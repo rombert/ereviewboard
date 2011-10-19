@@ -1,3 +1,4 @@
+package org.review_board.ereviewboard.subclipse.core.internal.actions;
 /*******************************************************************************
  * Copyright (c) 2011 Robert Munteanu and others.
  * All rights reserved. This program and the accompanying materials
@@ -8,7 +9,7 @@
  * Contributors:
  *     Robert Munteanu - initial API and implementation
  *******************************************************************************/
-package org.review_board.ereviewboard.subclipse.internal.actions;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,12 +20,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.review_board.ereviewboard.core.internal.scm.SCMFileContentsLocator;
 import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.RepositoryType;
-import org.review_board.ereviewboard.subclipse.Activator;
-import org.review_board.ereviewboard.subclipse.TraceLocation;
-import org.review_board.ereviewboard.ui.editor.ext.SCMFileContentsLocator;
+import org.review_board.ereviewboard.subclipse.core.internal.Activator;
+import org.review_board.ereviewboard.subclipse.core.internal.TraceLocation;
 import org.tigris.subversion.subclipse.core.repo.SVNRepositoryLocation;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 import org.tigris.subversion.svnclientadapter.SVNRevision;

@@ -17,7 +17,6 @@
     </objectContribution>
    </extension>
    <extension
-         id="org.review_board.ereviewboard.subclipse.ui.updateReviewRequest"
          point="org.review_board.ereviewboard.ui.taskDiffActions">
          <taskDiffAction
                id="org.review_board.ereviewboard.subclipse.ui.updateDiff"
@@ -28,10 +27,7 @@
                label="Apply Diff..."
                class="org.review_board.ereviewboard.subclipse.internal.actions.ApplyDiffAction"/>
    </extension>
-   <extension
-         point="org.review_board.ereviewboard.ui.scmFileContentsLocator">
-         <scmFileContentLocator
-         	id="org.review_board.ereviewboard.subclipse.subclipseSCMFileContentsLocator"
-         	class="org.review_board.ereviewboard.subclipse.internal.actions.SubclipseSCMFileContentsLocator"/>
+   <extension point="org.review_board.ereviewboard.ui.scmFileContentsLocator">
+	   	<scmFileContentsLocator class="org.review_board.ereviewboard.subclipse.core.internal.actions.SubclipseSCMFileContentsLocator"/>
    </extension>
 </plugin>
