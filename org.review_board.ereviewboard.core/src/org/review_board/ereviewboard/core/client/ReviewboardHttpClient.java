@@ -86,7 +86,7 @@ public class ReviewboardHttpClient {
         return httpClient;
     }
 
-    public boolean apiEntryPointExist(IProgressMonitor monitor) {
+    public boolean apiEntryPointExist(IProgressMonitor monitor) throws ReviewboardException {
 
         GetMethod getMethod = new GetMethod(location.getUrl() + "/api/");
         
@@ -289,24 +289,33 @@ public class ReviewboardHttpClient {
         }
     }
 
-    private int executeRequest(HttpMethodBase request, IProgressMonitor monitor) {
+    private int executeRequest(HttpMethodBase request, IProgressMonitor monitor) throws ReviewboardException {
         HostConfiguration hostConfiguration = WebUtil.createHostConfiguration(httpClient, location,
                 monitor);
         try {
             return WebUtil.execute(httpClient, hostConfiguration, request, monitor);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ReviewboardException("Exception executing " + request.getClass().getSimpleName() + 
+                    " on "  + constructUri(request) + " : " + e.getMessage() ,e);
+        }
+    }
+    
+    private static String constructUri(HttpMethodBase request) {
+        try {
+            return request.getURI().toString();
+        } catch (URIException e) {
+            return request.getPath();
         }
     }
 
-    private String getResponseBodyAsString(HttpMethodBase request, IProgressMonitor monitor) {
+    private String getResponseBodyAsString(HttpMethodBase request, IProgressMonitor monitor) throws ReviewboardException {
 
         InputStream stream = null;
         try {
             stream = getResponseBodyAsStream(request, monitor);
             return IOUtils.toString(stream);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ReviewboardException("Exception reading the response body : " + e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(stream);
         }

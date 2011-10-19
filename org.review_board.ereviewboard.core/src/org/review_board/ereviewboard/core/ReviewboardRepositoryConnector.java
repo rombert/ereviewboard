@@ -173,7 +173,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
 
             
         } catch (ReviewboardException e) {
-            Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed getting task data for task with id " + taskId , e);
+            Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed getting task data for task with id " + taskId + " : " + e.getMessage() , e);
             ReviewboardCorePlugin.getDefault().getLog().log(status);
             throw new CoreException(status);
         }
@@ -481,7 +481,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
             
             
         } catch (ReviewboardException e) {
-            Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed retrieving changed review ids", e);
+            Status status = new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed retrieving changed review ids : " + e.getMessage(), e);
             ReviewboardCorePlugin.getDefault().getLog().log(status);
             throw new CoreException(status);
         }
