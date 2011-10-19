@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.6"?>
 
-<target name="ereviewboard" sequenceNumber="34">
+<target name="ereviewboard" sequenceNumber="39">
 <locations>
 <location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.mylyn_feature.feature.group" version="3.6.0.v20110608-1400"/>
@@ -31,6 +31,11 @@
 <unit id="org.tigris.subversion.clientadapter.svnkit.feature.feature.group" version="1.6.15"/>
 <unit id="org.tmatesoft.svnkit.feature.group" version="1.3.5.7406"/>
 <repository location="http://subclipse.tigris.org/update_1.6.x"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.egit.feature.group" version="1.0.0.201106090707-r"/>
+<unit id="org.eclipse.jgit.feature.group" version="1.0.0.201106090707-r"/>
+<repository location="http://download.eclipse.org/egit/updates-1.0"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>

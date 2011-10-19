@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
-Bundle-SymbolicName: org.review_board.ereviewboard.subclipse.core;singleton:=true
+Bundle-SymbolicName: org.review_board.ereviewboard.egit.core;singleton:=true
 Bundle-Version: 0.11.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Localization: OSGI-INF/l10n/bundle
@@ -12,12 +12,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.team.core,
  org.eclipse.mylyn.tasks.core;bundle-version="[3.6.0,4.0.0)",
  org.review_board.ereviewboard.core,
- org.review_board.ereviewboard.subclipse.core,
  org.apache.commons.io;bundle-version="1.4.0",
- org.tigris.subversion.subclipse.core;bundle-version="1.6.0",
  org.eclipse.egit.core;bundle-version="1.0.0",
  org.eclipse.jgit;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-Activator: org.review_board.ereviewboard.subclipse.core.internal.Activator
-Export-Package: org.review_board.ereviewboard.subclipse.core.internal;x-friends:="org.review_board.ereviewboard.subclipse.ui",
- org.review_board.ereviewboard.subclipse.core.internal.actions;x-friends:="org.review_board.ereviewboard.subclipse.ui"
+Bundle-Activator: org.review_board.ereviewboard.egit.core.internal.Activator
+Export-Package: org.review_board.ereviewboard.egit.core.internal;x-friends:="org.review_board.ereviewboard.egit.ui",
+ org.review_board.ereviewboard.egit.core.internal.actions;x-friends:="org.review_board.ereviewboard.egit.ui"

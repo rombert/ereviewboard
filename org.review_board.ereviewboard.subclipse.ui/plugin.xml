@@ -29,5 +29,7 @@
    </extension>
    <extension point="org.review_board.ereviewboard.ui.scmFileContentsLocator">
 	   	<scmFileContentsLocator class="org.review_board.ereviewboard.subclipse.core.internal.actions.SubclipseSCMFileContentsLocator"/>
+     	<scmFileContentsLocator class="org.review_board.ereviewboard.subclipse.core.internal.actions.EGitSCMFileContentsLocator">
+     </scmFileContentsLocator>
    </extension>
 </plugin>
