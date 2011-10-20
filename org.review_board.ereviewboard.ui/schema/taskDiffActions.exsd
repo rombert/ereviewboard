@@ -48,6 +48,11 @@
    </element>
 
    <element name="taskDiffAction">
+      <annotation>
+         <documentation>
+            Implement this extension point to contribute actions to the Diff task editor part.
+         </documentation>
+      </annotation>
       <complexType>
          <attribute name="id" type="string" use="required">
             <annotation>

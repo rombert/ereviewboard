@@ -6,7 +6,7 @@
          <meta.schema plugin="org.review_board.ereviewboard.ui" id="org.review_board.ereviewboard.ui.scmFileContentsLocator" name="scmFileContentsLocator"/>
       </appinfo>
       <documentation>
-         Extension point which allows SCM plugins to retrieve remote versions of files.
+         
       </documentation>
    </annotation>
 
@@ -48,6 +48,11 @@
    </element>
 
    <element name="scmFileContentsLocator">
+      <annotation>
+         <documentation>
+            Implement this extension point to allow retrieval of contents from a SCM repository. This enables display of submitted diffs in the Review Editor.
+         </documentation>
+      </annotation>
       <complexType>
          <attribute name="id" type="string">
             <annotation>
