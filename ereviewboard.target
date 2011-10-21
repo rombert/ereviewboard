@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.6"?>
 
-<target name="ereviewboard" sequenceNumber="39">
+<target name="ereviewboard" sequenceNumber="44">
 <locations>
 <location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.mylyn_feature.feature.group" version="3.6.0.v20110608-1400"/>
@@ -15,11 +15,6 @@
 <unit id="org.json" version="1.0.0.v201011060100"/>
 <unit id="org.junit" version="4.8.2.v4_8_2_v20110321-1705"/>
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20110523182458/repository/"/>
-</location>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.rcp.feature.group" version="3.5.2.R35x_v20100119-9SA0FxwFnoCU5XxWItFdXXb27BA6"/>
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.5.0.v200906151043"/>
-<repository location="http://download.eclipse.org/releases/galileo"/>
 </location>
 <location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.mylyn.reviews.feature.feature.group" version="0.8.0.v20110608-1400"/>
@@ -36,6 +31,12 @@
 <unit id="org.eclipse.egit.feature.group" version="1.0.0.201106090707-r"/>
 <unit id="org.eclipse.jgit.feature.group" version="1.0.0.201106090707-r"/>
 <repository location="http://download.eclipse.org/egit/updates-1.0"/>
+</location>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cvs.feature.group" version="1.1.101.R35x_v20100125-7E79FGD9kKF67BPDZ7PKCE1911"/>
+<unit id="org.eclipse.rcp.feature.group" version="3.5.2.R35x_v20100119-9SA0FxwFnoCU5XxWItFdXXb27BA6"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.5.0.v200906151043"/>
+<repository location="http://download.eclipse.org/releases/galileo"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>

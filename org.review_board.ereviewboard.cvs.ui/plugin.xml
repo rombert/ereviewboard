@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="org.review_board.ereviewboard.ui.scmFileContentsLocator">
+	   	<scmFileContentsLocator class="org.review_board.ereviewboard.cvs.core.internal.actions.CVSSCMFileContentsLocator"/>
+   </extension>
+</plugin>
