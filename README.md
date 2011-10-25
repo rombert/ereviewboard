@@ -14,6 +14,12 @@ There is basic support for editing data:
 
 Please see [the project wiki](ereviewboard/wiki) for more details.
 
+Discussions
+-----------
+
+A [discussion group](https://groups.google.com/group/ereviewboard?hl=en) is available for discussing
+all topics related to the project, whether they are targeted for developers, integrators or users.
+
 Roadmap
 -------
 
