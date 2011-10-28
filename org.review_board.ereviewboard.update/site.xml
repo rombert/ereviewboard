@@ -8,7 +8,14 @@
       <category name="eReviewBoard"/>
    </feature>
    <feature url="features/org.review_board.ereviewboard.subclipse_0.11.0.qualifier.jar" id="org.review_board.ereviewboard.subclipse" version="0.11.0.qualifier">
-      <category name="eReviewBoard"/>
+      <category name="eReviewBoard Integrations"/>
+   </feature>
+   <feature url="features/org.review_board.ereviewboard.egit_0.11.0.qualifier.jar" id="org.review_board.ereviewboard.egit" version="0.11.0.qualifier">
+      <category name="eReviewBoard Integrations"/>
+   </feature>
+   <feature url="features/org.review_board.ereviewboard.cvs_0.11.0.qualifier.jar" id="org.review_board.ereviewboard.cvs" version="0.11.0.qualifier">
+      <category name="eReviewBoard Integrations"/>
    </feature>
    <category-def name="eReviewBoard" label="eReviewBoard"/>
+   <category-def name="eReviewBoard Integrations" label="eReviewBoard Integrations"/>
 </site>
