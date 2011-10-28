@@ -7,7 +7,7 @@
       plugin="org.review_board.ereviewboard.core">
 
    <description>
-      ReviewBoard connector for Mylyn.
+      ReviewBoard connector for Mylyn - EGit integration. Requires an existing EGit installation.
    </description>
 
    <copyright>

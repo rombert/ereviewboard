@@ -7,7 +7,7 @@
       plugin="org.review_board.ereviewboard.core">
 
    <description>
-      ReviewBoard connector for Mylyn.
+      ReviewBoard connector for Mylyn - CVS integration. Requires an existing CVS team provider installation.
    </description>
 
    <copyright>
