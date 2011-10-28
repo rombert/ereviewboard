@@ -107,14 +107,9 @@ Inc. in the United States, other countries, or both.
    </license>
 
    <requires>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.mylyn.tasks.core" version="3.4.0" match="compatible"/>
-      <import plugin="org.eclipse.mylyn.commons.net" version="3.4.0" match="compatible"/>
-      <import plugin="org.eclipse.mylyn.commons.core" version="3.4.0" match="compatible"/>
-      <import plugin="org.eclipse.mylyn.tasks.ui" version="3.4.0" match="compatible"/>
-      <import plugin="org.eclipse.jface"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.ui.forms"/>
+      <import feature="org.eclipse.mylyn.reviews.feature" version="0.8.0" match="compatible"/>
+      <import feature="org.eclipse.mylyn_feature" version="3.6.0" match="compatible"/>
+      <import feature="org.eclipse.mylyn.commons" version="3.6.0" match="compatible"/>
    </requires>
 
    <plugin
