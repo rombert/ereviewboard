@@ -138,6 +138,9 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
 
         IFilePatch[] parsedPatches = ApplyPatchOperation.parsePatch(new ByteArrayStorage(diff));
         
+        if ( parsedPatches.length == 0 )
+            throw new ReviewboardException("Repository returned no diff for this file.");
+        
         if ( parsedPatches.length != 1 )
             throw new ReviewboardException("Parsed " + parsedPatches.length + ", expected 1.");
         
