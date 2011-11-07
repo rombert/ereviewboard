@@ -47,7 +47,7 @@ class ReviewDialog extends ReviewboardDialog {
         Label topLabel = new Label(composite, SWT.NONE);
         topLabel.setText("Top");
         
-        final Text topEditor = new Text(composite, SWT.MULTI | SWT.BORDER);
+        final Text topEditor = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
         GridDataFactory.fillDefaults().grab(true, true).minSize(200, 60).applyTo(topEditor);
         topEditor.addModifyListener(new ModifyListener() {
             
@@ -60,7 +60,7 @@ class ReviewDialog extends ReviewboardDialog {
         Label bottomLabel = new Label(composite, SWT.NONE);
         bottomLabel.setText("Bottom");
         
-        final Text bottomEditor = new Text(composite, SWT.MULTI | SWT.BORDER);
+        final Text bottomEditor = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
         GridDataFactory.fillDefaults().grab(true, true).minSize(200, 60).applyTo(bottomEditor);
         bottomEditor.addModifyListener(new ModifyListener() {
             
