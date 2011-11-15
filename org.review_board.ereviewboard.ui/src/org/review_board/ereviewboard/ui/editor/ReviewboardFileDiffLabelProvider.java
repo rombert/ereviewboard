@@ -20,6 +20,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.internal.WorkbenchImages;
 import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.ui.util.Labels;
 
 /**
@@ -41,7 +42,13 @@ public class ReviewboardFileDiffLabelProvider extends LabelProvider implements I
     @Override
     public String getText(Object element) {
 
-        return ((IReviewItem) element).getName();
+        IFileItem reviewItem = (IFileItem) element;
+        
+        String elementName = reviewItem.getName();
+        if ( FileDiff.DEV_NULL.equals(elementName) )
+            return reviewItem.getBase().getPath();
+        
+        return elementName;
     }
 
     public StyledString getStyledText(Object element) {

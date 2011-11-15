@@ -56,6 +56,7 @@ import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardTaskMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.internal.scm.SCMFileContentsLocator;
+import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.core.model.reviews.TopicAddedListener;
@@ -154,6 +155,11 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                 IStructuredSelection selection = (IStructuredSelection) event.getSelection();
                 
                 IFileItem item = (IFileItem) selection.getFirstElement();
+                
+                if ( FileDiff.DEV_NULL.equals(item.getName()) ) {
+                    MessageDialog.openWarning(null, "Unable to open diff", "The diff for this file can not be generated as it has been deleted.");
+                    return;
+                }
                 
                 ReviewUi.setActiveReview(new ReviewboardReviewBehaviour(getTaskEditorPage().getTask(), item, diffRevision, getClient(), listener));
                 

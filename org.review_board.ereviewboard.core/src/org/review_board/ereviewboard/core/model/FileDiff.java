@@ -22,6 +22,10 @@ import java.io.Serializable;
 public class FileDiff implements Serializable {
     
     public static final String PRE_CREATION = "PRE-CREATION";
+    /**
+     * Used to signal that a given source or destination file is empty
+     */
+    public static final String DEV_NULL ="/dev/null";
 
     private final int id;
     private final String sourceFile;
