@@ -50,9 +50,9 @@ public class ReviewboardToSvnMapper {
 
         if (candidates.size() == 1)
             return candidates.get(0);
-
+        
         // multiple choice - use the latest diff revision to match based on files
-        for (IProject project : candidates) {
+        projects: for (IProject project : candidates) {
 
             Integer latestDiffRevisionId = diffMapper.getLatestDiffRevisionId();
 
@@ -61,10 +61,12 @@ public class ReviewboardToSvnMapper {
 
             ISVNLocalResource projectSvnResource = SVNWorkspaceRoot.getSVNResourceFor(project);
             String projectRelativePath = SVNUrlUtils.getRelativePath(projectSvnResource.getRepository().getRepositoryRoot(), projectSvnResource.getUrl(), true);
+            if ( !projectRelativePath.endsWith("/") )
+                projectRelativePath += "/";
 
-            for (FileDiff fileDiff : diffMapper.getFileDiffs(latestDiffRevisionId.intValue())) 
+            for (FileDiff fileDiff : diffMapper.getFileDiffs(latestDiffRevisionId.intValue()))
                 if (!fileDiff.getDestinationFile().startsWith(projectRelativePath))
-                    break;
+                    continue projects;
             
             return project;
 
