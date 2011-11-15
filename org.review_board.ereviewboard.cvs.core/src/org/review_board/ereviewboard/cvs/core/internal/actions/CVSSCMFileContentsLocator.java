@@ -16,17 +16,24 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.team.core.RepositoryProvider;
+import org.eclipse.team.core.history.IFileHistory;
+import org.eclipse.team.core.history.IFileHistoryProvider;
+import org.eclipse.team.core.history.IFileRevision;
 import org.eclipse.team.internal.ccvs.core.CVSProviderPlugin;
-import org.eclipse.team.internal.ccvs.core.CVSTag;
-import org.eclipse.team.internal.ccvs.core.ICVSRemoteFile;
 import org.eclipse.team.internal.ccvs.core.ICVSRepositoryLocation;
 import org.eclipse.team.internal.ccvs.core.connection.CVSRepositoryLocation;
-import org.eclipse.team.internal.ccvs.core.connection.ExtConnectionMethod;
 import org.review_board.ereviewboard.core.internal.scm.SCMFileContentsLocator;
 import org.review_board.ereviewboard.core.model.FileDiff;
 import org.review_board.ereviewboard.core.model.Repository;
@@ -39,6 +46,21 @@ import org.review_board.ereviewboard.cvs.core.internal.TraceLocation;
  *
  */
 public class CVSSCMFileContentsLocator implements SCMFileContentsLocator {
+    
+    // copied from org.eclipse.mylyn.versions.core.ScmCore.findResource
+    private static IResource findResource(String file) {
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        IPath path = new Path(file);
+        path.makeRelative();
+        while (path.segmentCount() > 1) {
+            IResource resource = root.findMember(path);
+            if (resource != null) {
+                return resource;
+            }
+            path = path.removeFirstSegments(1);
+        }
+        return null;
+    }
 
     private Repository _codeRepository;
     private String _filePath;
@@ -78,23 +100,28 @@ public class CVSSCMFileContentsLocator implements SCMFileContentsLocator {
                 
                 String unqualifiedPath = _filePath.substring(repositoryLocation.getRootDirectory().length()).replace(",v", "");
                 
-                CVSTag tag = new CVSTag(_revision, CVSTag.VERSION);
+                Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("looking for {0} at {1}", new Object[] { unqualifiedPath, _revision }));
                 
-                Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("looking for {0} at {1}", new Object[] { unqualifiedPath, tag }));
+                IResource fileResource = findResource(unqualifiedPath);
+                if ( fileResource == null )
+                    throw new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "No workspace resource found for  " + unqualifiedPath));
                 
-                ICVSRemoteFile remoteFile = repositoryLocation.getRemoteFile(unqualifiedPath, tag);
+                RepositoryProvider provider = RepositoryProvider.getProvider(fileResource.getProject(), CVSProviderPlugin.getTypeId());
+                IFileHistory history = provider.getFileHistoryProvider().getFileHistoryFor(fileResource, IFileHistoryProvider.NONE, monitor);
                 
-                if ( !remoteFile.exists(monitor) )
-                    continue;
+                IFileRevision revision = history.getFileRevision(_revision);
+                if ( revision == null )
+                    throw new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "The file " + unqualifiedPath + " does not have any contents for revision " + _revision));
+                IStorage storage = revision.getStorage(monitor);
                 
-                InputStream contents = remoteFile.getContents(monitor);
+                InputStream contents = storage.getContents();
                 
                 try {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     
                     IOUtils.copy(contents, outputStream);
                 
-                    Activator.getDefault().trace(TraceLocation.DIFF, "Retrieved remote file " + remoteFile);
+                    Activator.getDefault().trace(TraceLocation.DIFF, "Retrieved remote file history" + history);
                     
                     return outputStream.toByteArray();
                     
