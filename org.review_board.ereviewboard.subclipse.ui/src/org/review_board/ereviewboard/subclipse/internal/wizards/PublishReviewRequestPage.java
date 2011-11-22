@@ -10,45 +10,41 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.subclipse.internal.wizards;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IMessageProvider;
-import org.eclipse.jface.fieldassist.AutoCompleteField;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.layout.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.User;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.widgets.*;
+import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.ui.util.KeyStrokeAutoCompleteField;
 
 /**
  * @author Robert Munteanu
  *
  */
 class PublishReviewRequestPage extends WizardPage {
-
-    private AutoCompleteField _toUserComboAutoCompleteField;
-    private AutoCompleteField _toGroupComboAutoCompleteField;
+    private KeyStrokeAutoCompleteField _toUserComboAutoCompleteField;
+    private KeyStrokeAutoCompleteField _toGroupComboAutoCompleteField;
     private final ReviewRequest reviewRequest = new ReviewRequest();
     
     private final CreateReviewRequestWizardContext _context;
+	private final IProject _project;
 
-    public PublishReviewRequestPage(CreateReviewRequestWizardContext context) {
-
+    public PublishReviewRequestPage(CreateReviewRequestWizardContext context, IProject project) {
         super("Publish review request", "Publish review request", null);
         
         setMessage("Fill in the review request details. Description, summary and a target person or a target group are required.", IMessageProvider.INFORMATION);
         
+        _project = project;
         _context = context;
+        
+        
     }
 
     public void createControl(Composite parent) {
@@ -87,14 +83,15 @@ class PublishReviewRequestPage extends WizardPage {
         
         final Text branch = newText(layout);
         branch.addModifyListener(new ModifyListener() {
-            
             public void modifyText(ModifyEvent e) {
-                
                 reviewRequest.setBranch(branch.getText());
-                
                 getContainer().updateButtons();
             }
         });
+        
+        // we initialize the branch name if we can
+		BranchInformationFinder branchFinder = BranchInformationFinderFactory.finderFor(_project);
+		branch.setText(branchFinder.getBranchName());
         
         newLabel(layout, "Description:");
         
@@ -128,7 +125,7 @@ class PublishReviewRequestPage extends WizardPage {
         
         final Text toUserText = newText(layout);
         
-        _toUserComboAutoCompleteField = new AutoCompleteField(toUserText, new TextContentAdapter(), new String[] {});
+        _toUserComboAutoCompleteField = KeyStrokeAutoCompleteField.withCtrlSpace(toUserText, new TextContentAdapter(), new String[] {});
         
         toUserText.addModifyListener(new ModifyListener() {
             
@@ -144,7 +141,7 @@ class PublishReviewRequestPage extends WizardPage {
         
         final Text toGroupText = newText(layout);
         
-        _toGroupComboAutoCompleteField = new AutoCompleteField(toGroupText, new TextContentAdapter(), new String[] {});
+        _toGroupComboAutoCompleteField = KeyStrokeAutoCompleteField.withCtrlSpace(toGroupText, new TextContentAdapter(), new String[] {});
         
         toGroupText.addModifyListener(new ModifyListener() {
             

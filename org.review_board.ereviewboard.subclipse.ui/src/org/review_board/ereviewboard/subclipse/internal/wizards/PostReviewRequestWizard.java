@@ -75,7 +75,7 @@ public class PostReviewRequestWizard extends Wizard {
         _detectLocalChangesPage = new DetectLocalChangesPage(_project, _context, _reviewRequest);
         addPage(_detectLocalChangesPage);
         if ( _reviewRequest == null ) {
-            _publishReviewRequestPage = new PublishReviewRequestPage(_context);
+            _publishReviewRequestPage = new PublishReviewRequestPage(_context, _project);
             addPage(_publishReviewRequestPage);
         } else {
             _updateReviewRequestPage = new UpdateReviewRequestPage();
