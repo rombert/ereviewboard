@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IMessageProvider;
-import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.jface.fieldassist.*;
 import org.eclipse.jface.layout.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -29,7 +29,8 @@ import org.review_board.ereviewboard.ui.util.KeyStrokeAutoCompleteField;
  *
  */
 class PublishReviewRequestPage extends WizardPage {
-    private KeyStrokeAutoCompleteField _toUserComboAutoCompleteField;
+    private static final String PRINTABLE_USER_NAME_SEP = " # ";
+	private KeyStrokeAutoCompleteField _toUserComboAutoCompleteField;
     private KeyStrokeAutoCompleteField _toGroupComboAutoCompleteField;
     private final ReviewRequest reviewRequest = new ReviewRequest();
     
@@ -82,6 +83,10 @@ class PublishReviewRequestPage extends WizardPage {
         newLabel(layout, "Branch:");
         
         final Text branch = newText(layout);
+        // we initialize the branch name if we can
+		BranchInformationFinder branchFinder = BranchInformationFinderFactory.finderFor(_project);
+		branch.setText(branchFinder.getBranchName());
+		
         branch.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 reviewRequest.setBranch(branch.getText());
@@ -89,9 +94,6 @@ class PublishReviewRequestPage extends WizardPage {
             }
         });
         
-        // we initialize the branch name if we can
-		BranchInformationFinder branchFinder = BranchInformationFinderFactory.finderFor(_project);
-		branch.setText(branchFinder.getBranchName());
         
         newLabel(layout, "Description:");
         
@@ -131,7 +133,8 @@ class PublishReviewRequestPage extends WizardPage {
             
             public void modifyText(ModifyEvent e) {
             
-                reviewRequest.setTargetPeople(Collections.singletonList(toUserText.getText()));
+            	String userName = extractUsernameFromPrintableUserName(toUserText.getText());
+                reviewRequest.setTargetPeople(Collections.singletonList(userName));
                 
                 getContainer().updateButtons();
             }
@@ -216,10 +219,32 @@ class PublishReviewRequestPage extends WizardPage {
 
         List<String> usernames = new ArrayList<String>();
         for ( User user : _context.getReviewboardClient().getClientData().getUsers() )
-            usernames.add(user.getUsername());
+            usernames.add(getPrintableUsername(user));
 
         return usernames.toArray(new String[usernames.size()]);
     }
+
+	private String getPrintableUsername(User user) {
+		String userFullName = user.getFullName();
+		if (userFullName.trim().length() > 0) {
+			return user.getUsername() + PRINTABLE_USER_NAME_SEP + userFullName;
+		}
+		return user.getUsername();
+	}
+	
+	private String extractUsernameFromPrintableUserName(String printableName) {
+		if (printableName == null) {
+			return null;
+		}
+		
+		int idxSep = printableName.indexOf(PRINTABLE_USER_NAME_SEP);
+		if (idxSep == -1) {
+			return printableName;
+		}
+		
+		return printableName.substring(0, idxSep);
+	}
+	
     
     private String[] getGroupNames() {
 

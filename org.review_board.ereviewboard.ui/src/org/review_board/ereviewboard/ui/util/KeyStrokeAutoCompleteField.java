@@ -38,7 +38,7 @@ public class KeyStrokeAutoCompleteField {
     public KeyStrokeAutoCompleteField(Control control, IControlContentAdapter controlContentAdapter, String[] proposals, KeyStroke activationKeyStoke) {
         _proposalProvider = new SimpleContentProposalProvider(proposals);
         _proposalProvider.setFiltering(true);
-        _adapter = new ContentProposalAdapter(control, controlContentAdapter, _proposalProvider, activationKeyStoke, null);
+        _adapter = new ContentProposalAdapter(control, controlContentAdapter, _proposalProvider, activationKeyStoke, ASCII_CHARS);
         _adapter.setPropagateKeys(true);
         _adapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
     }
@@ -52,7 +52,20 @@ public class KeyStrokeAutoCompleteField {
     public void setProposals(String[] proposals) {
         _proposalProvider.setProposals(proposals);
     }
+    
+    private static char[] createASCIITableAsCharArray() {
+        int start = 32;
+        int stop = 255;
+        int length = stop - start + 1;
+        char[] chars = new char[length];
+        for (int i = 0; i < length; i++) {
+            chars[i] = (char) (i + start);
+        }
+        return chars;
+    }
+
 
     private SimpleContentProposalProvider _proposalProvider;
     private ContentProposalAdapter _adapter;
+    private static final char[] ASCII_CHARS  = createASCIITableAsCharArray();
 }
