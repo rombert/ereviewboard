@@ -4,11 +4,18 @@
    <description>
       eReviewBoard Update Site
    </description>
-   <feature url="features/org.review_board.ereviewboard_0.10.1.201110170843.jar" id="org.review_board.ereviewboard" version="0.10.1.201110170843">
+   <feature url="features/org.review_board.ereviewboard_0.11.0.201111271629.jar" id="org.review_board.ereviewboard" version="0.11.0.201111271629">
       <category name="eReviewBoard"/>
    </feature>
-   <feature url="features/org.review_board.ereviewboard.subclipse_0.10.1.201110170843.jar" id="org.review_board.ereviewboard.subclipse" version="0.10.1.201110170843">
-      <category name="eReviewBoard"/>
+   <feature url="features/org.review_board.ereviewboard.subclipse_0.11.0.201111271629.jar" id="org.review_board.ereviewboard.subclipse" version="0.11.0.201111271629">
+      <category name="eReviewBoard Integrations"/>
+   </feature>
+   <feature url="features/org.review_board.ereviewboard.egit_0.11.0.201111271629.jar" id="org.review_board.ereviewboard.egit" version="0.11.0.201111271629">
+      <category name="eReviewBoard Integrations"/>
+   </feature>
+   <feature url="features/org.review_board.ereviewboard.cvs_0.11.0.201111271629.jar" id="org.review_board.ereviewboard.cvs" version="0.11.0.201111271629">
+      <category name="eReviewBoard Integrations"/>
    </feature>
    <category-def name="eReviewBoard" label="eReviewBoard"/>
+   <category-def name="eReviewBoard Integrations" label="eReviewBoard Integrations"/>
 </site>
