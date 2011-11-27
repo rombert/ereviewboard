@@ -10,7 +10,13 @@ The connector maps all of the current attributes and allows for patches to be do
 There is basic support for editing data:
 
 1. Closing and reopening review requests;
-1. Posting and updating diffs for selected [SCM integrations](ereviewboard/wiki/SCM-Integrations)
+1. Posting and discarding reviews
+
+For selected [SCM integrations](ereviewboard/wiki/SCM-Integrations), more operations are
+suported:
+
+1. Posting and updating diffs
+1. Opening diffs in a compare editor
 
 Please see [the project wiki](ereviewboard/wiki) for more details.
 
