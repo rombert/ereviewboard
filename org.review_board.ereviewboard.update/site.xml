@@ -4,16 +4,16 @@
    <description>
       eReviewBoard Update Site
    </description>
-   <feature url="org.review_board.ereviewboard_0.11.0.qualifier" id="org.review_board.ereviewboard" version="0.11.0.qualifier">
+   <feature url="org.review_board.ereviewboard_0.12.0.qualifier" id="org.review_board.ereviewboard" version="0.12.0.qualifier">
       <category name="eReviewBoard"/>
    </feature>
-   <feature url="features/org.review_board.ereviewboard.subclipse_0.11.0.qualifier.jar" id="org.review_board.ereviewboard.subclipse" version="0.11.0.qualifier">
+   <feature url="features/org.review_board.ereviewboard.subclipse_0.12.0.qualifier.jar" id="org.review_board.ereviewboard.subclipse" version="0.12.0.qualifier">
       <category name="eReviewBoard Integrations"/>
    </feature>
-   <feature url="features/org.review_board.ereviewboard.egit_0.11.0.qualifier.jar" id="org.review_board.ereviewboard.egit" version="0.11.0.qualifier">
+   <feature url="features/org.review_board.ereviewboard.egit_0.12.0.qualifier.jar" id="org.review_board.ereviewboard.egit" version="0.12.0.qualifier">
       <category name="eReviewBoard Integrations"/>
    </feature>
-   <feature url="features/org.review_board.ereviewboard.cvs_0.11.0.qualifier.jar" id="org.review_board.ereviewboard.cvs" version="0.11.0.qualifier">
+   <feature url="features/org.review_board.ereviewboard.cvs_0.12.0.qualifier.jar" id="org.review_board.ereviewboard.cvs" version="0.12.0.qualifier">
       <category name="eReviewBoard Integrations"/>
    </feature>
    <category-def name="eReviewBoard" label="eReviewBoard"/>

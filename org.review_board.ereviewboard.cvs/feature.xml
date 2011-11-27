@@ -2,7 +2,7 @@
 <feature
       id="org.review_board.ereviewboard.cvs"
       label="Mylyn Reviews Connector: ReviewBoard CVS Integration (Optional)"
-      version="0.11.0.qualifier"
+      version="0.12.0.qualifier"
       provider-name="eReviewBoard developers"
       plugin="org.review_board.ereviewboard.core">
 
