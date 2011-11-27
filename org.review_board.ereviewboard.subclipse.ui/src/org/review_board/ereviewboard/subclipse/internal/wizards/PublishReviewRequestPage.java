@@ -10,45 +10,42 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.subclipse.internal.wizards;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IMessageProvider;
-import org.eclipse.jface.fieldassist.AutoCompleteField;
-import org.eclipse.jface.fieldassist.TextContentAdapter;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.fieldassist.*;
+import org.eclipse.jface.layout.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
-import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.User;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.widgets.*;
+import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.ui.util.KeyStrokeAutoCompleteField;
 
 /**
  * @author Robert Munteanu
  *
  */
 class PublishReviewRequestPage extends WizardPage {
-
-    private AutoCompleteField _toUserComboAutoCompleteField;
-    private AutoCompleteField _toGroupComboAutoCompleteField;
+    private static final String PRINTABLE_USER_NAME_SEP = " # ";
+	private KeyStrokeAutoCompleteField _toUserComboAutoCompleteField;
+    private KeyStrokeAutoCompleteField _toGroupComboAutoCompleteField;
     private final ReviewRequest reviewRequest = new ReviewRequest();
     
     private final CreateReviewRequestWizardContext _context;
+	private final IProject _project;
 
-    public PublishReviewRequestPage(CreateReviewRequestWizardContext context) {
-
+    public PublishReviewRequestPage(CreateReviewRequestWizardContext context, IProject project) {
         super("Publish review request", "Publish review request", null);
         
         setMessage("Fill in the review request details. Description, summary and a target person or a target group are required.", IMessageProvider.INFORMATION);
         
+        _project = project;
         _context = context;
+        
+        
     }
 
     public void createControl(Composite parent) {
@@ -86,15 +83,17 @@ class PublishReviewRequestPage extends WizardPage {
         newLabel(layout, "Branch:");
         
         final Text branch = newText(layout);
+        // we initialize the branch name if we can
+		BranchInformationFinder branchFinder = BranchInformationFinderFactory.finderFor(_project);
+		branch.setText(branchFinder.getBranchName());
+		
         branch.addModifyListener(new ModifyListener() {
-            
             public void modifyText(ModifyEvent e) {
-                
                 reviewRequest.setBranch(branch.getText());
-                
                 getContainer().updateButtons();
             }
         });
+        
         
         newLabel(layout, "Description:");
         
@@ -128,13 +127,14 @@ class PublishReviewRequestPage extends WizardPage {
         
         final Text toUserText = newText(layout);
         
-        _toUserComboAutoCompleteField = new AutoCompleteField(toUserText, new TextContentAdapter(), new String[] {});
+        _toUserComboAutoCompleteField = KeyStrokeAutoCompleteField.withCtrlSpace(toUserText, new TextContentAdapter(), new String[] {});
         
         toUserText.addModifyListener(new ModifyListener() {
             
             public void modifyText(ModifyEvent e) {
             
-                reviewRequest.setTargetPeople(Collections.singletonList(toUserText.getText()));
+            	String userName = extractUsernameFromPrintableUserName(toUserText.getText());
+                reviewRequest.setTargetPeople(Collections.singletonList(userName));
                 
                 getContainer().updateButtons();
             }
@@ -144,7 +144,7 @@ class PublishReviewRequestPage extends WizardPage {
         
         final Text toGroupText = newText(layout);
         
-        _toGroupComboAutoCompleteField = new AutoCompleteField(toGroupText, new TextContentAdapter(), new String[] {});
+        _toGroupComboAutoCompleteField = KeyStrokeAutoCompleteField.withCtrlSpace(toGroupText, new TextContentAdapter(), new String[] {});
         
         toGroupText.addModifyListener(new ModifyListener() {
             
@@ -219,10 +219,32 @@ class PublishReviewRequestPage extends WizardPage {
 
         List<String> usernames = new ArrayList<String>();
         for ( User user : _context.getReviewboardClient().getClientData().getUsers() )
-            usernames.add(user.getUsername());
+            usernames.add(getPrintableUsername(user));
 
         return usernames.toArray(new String[usernames.size()]);
     }
+
+	private String getPrintableUsername(User user) {
+		String userFullName = user.getFullName();
+		if (userFullName.trim().length() > 0) {
+			return user.getUsername() + PRINTABLE_USER_NAME_SEP + userFullName;
+		}
+		return user.getUsername();
+	}
+	
+	private String extractUsernameFromPrintableUserName(String printableName) {
+		if (printableName == null) {
+			return null;
+		}
+		
+		int idxSep = printableName.indexOf(PRINTABLE_USER_NAME_SEP);
+		if (idxSep == -1) {
+			return printableName;
+		}
+		
+		return printableName.substring(0, idxSep);
+	}
+	
     
     private String[] getGroupNames() {
 

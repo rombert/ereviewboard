@@ -56,7 +56,7 @@ public class ChangedFileFinder {
                     " , conflict descriptor " + svnStatus.getConflictDescriptor() + " .");
 
             // can't generate diffs based on unversioned files
-            if ( SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()) )
+            if (SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()) )
                 continue;
 
             // skip all forms of conflicts
@@ -69,8 +69,8 @@ public class ChangedFileFinder {
             if ( svnStatus.getConflictDescriptor() != null )
                 continue;
             
-            // only consider files
-            if (!SVNNodeKind.FILE.equals(svnStatus.getNodeKind()))
+            // only consider files and new added files
+            if (!(SVNNodeKind.FILE.equals(svnStatus.getNodeKind()) || SVNStatusKind.ADDED.equals(svnStatus.getTextStatus())))
                 continue;
 
             boolean copied = svnStatus.isCopied();
