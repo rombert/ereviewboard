@@ -14,9 +14,10 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
+import org.review_board.ereviewboard.ui.util.UiUtils;
 
 
 /**
@@ -25,7 +26,7 @@ import org.eclipse.swt.widgets.Text;
  */
 class UpdateReviewRequestPage extends WizardPage {
 
-    private Text _text;
+    private StyledText _text;
 
     public UpdateReviewRequestPage() {
 
@@ -43,8 +44,7 @@ class UpdateReviewRequestPage extends WizardPage {
         GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.BEGINNING).applyTo(label);
         label.setText("Change description\n(optional)");
         
-        _text= new Text(control, SWT.MULTI| SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-        GridDataFactory.swtDefaults().hint(PostReviewRequestWizard.TEXT_WIDTH, 60).applyTo(_text);
+        _text = UiUtils.newMultilineText(control);
 
         setControl(control);
     }

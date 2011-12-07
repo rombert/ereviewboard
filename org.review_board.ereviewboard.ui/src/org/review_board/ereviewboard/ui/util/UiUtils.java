@@ -45,10 +45,23 @@ import java.util.List;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.source.AnnotationModel;
+import org.eclipse.jface.text.source.IAnnotationAccess;
+import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
+import org.eclipse.ui.texteditor.AnnotationPreference;
+import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
+import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
+import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.User;
 import org.review_board.ereviewboard.ui.internal.control.Proposal;
@@ -58,6 +71,8 @@ import org.review_board.ereviewboard.ui.internal.control.Proposal;
  *
  */
 public class UiUtils {
+    
+    public static final int FULL_TEXT_WIDTH = 500;
 
     public static Button createRadioButton(Composite parent, String text) {
         Button radioButton = new Button(parent, SWT.RADIO);
@@ -79,7 +94,6 @@ public class UiUtils {
         return new Proposal(user.getUsername(), user.getFullName());
     }
 
-    
     public static List<Proposal> adaptGroups(List<ReviewGroup> groups) {
         
         List<Proposal> proposals = new ArrayList<Proposal>(groups.size());
@@ -105,4 +119,52 @@ public class UiUtils {
         return controlDecoration;
     }
 
+    
+    public static StyledText newMultilineText(Composite layout) {
+        
+        return newSpellcheckedText(layout, true);
+    }
+    
+    public static StyledText newSpellcheckedText(Composite layout, boolean multiline) {
+        
+        int style = SWT.BORDER;
+        if ( multiline )
+            style |= SWT.MULTI | SWT.V_SCROLL | SWT.WRAP;
+        else
+            style |= SWT.SINGLE;
+        
+        final SourceViewer sourceViewer = new SourceViewer(layout, null, null, true, style);
+        StyledText text = sourceViewer.getTextWidget();
+        if ( multiline )
+            GridDataFactory.swtDefaults().hint(FULL_TEXT_WIDTH, 60).applyTo(text);
+        else
+            GridDataFactory.swtDefaults().hint(FULL_TEXT_WIDTH, SWT.DEFAULT).applyTo(text);    
+
+        Document document = new Document();
+        SourceViewerConfiguration config = new TextSourceViewerConfiguration(EditorsUI.getPreferenceStore());
+        sourceViewer.configure(config);
+        sourceViewer.setDocument(document, new AnnotationModel());
+        final IAnnotationAccess access = new DefaultMarkerAnnotationAccess();
+
+        SourceViewerDecorationSupport decorationSupport = new SourceViewerDecorationSupport(
+                sourceViewer, null, access, EditorsUI.getSharedTextColors());
+        configureSourceViewerDecorationSupport(decorationSupport);
+
+        return text;
+    }
+    
+    public static StyledText newSinglelineText(Composite layout) {
+        
+        return newSpellcheckedText(layout, false);
+    }
+
+    
+    private static void configureSourceViewerDecorationSupport(
+            SourceViewerDecorationSupport support) {
+
+        for(Object o :new MarkerAnnotationPreferences() .getAnnotationPreferences())
+            support.setAnnotationPreference((AnnotationPreference)o);
+        
+        support.install(EditorsUI.getPreferenceStore());
+    }
 }

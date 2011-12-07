@@ -41,8 +41,6 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  */
 public class PostReviewRequestWizard extends Wizard {
     
-    static final int TEXT_WIDTH = 500;
-
     private final IProject _project;
     private DetectLocalChangesPage _detectLocalChangesPage;
     private PublishReviewRequestPage _publishReviewRequestPage;

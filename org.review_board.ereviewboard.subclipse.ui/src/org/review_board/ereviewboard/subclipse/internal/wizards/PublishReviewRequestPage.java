@@ -16,7 +16,9 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
+
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -56,7 +58,7 @@ class PublishReviewRequestPage extends WizardPage {
         
         newLabel(layout, "Summary:");
         
-        final Text summary = newText(layout);
+        final StyledText summary = UiUtils.newSinglelineText(layout);
         summary.addModifyListener(new ModifyListener() {
             
             public void modifyText(ModifyEvent e) {
@@ -95,7 +97,7 @@ class PublishReviewRequestPage extends WizardPage {
         
         newLabel(layout, "Description:");
         
-        final Text description = newMultilineText(layout);
+        final StyledText description = UiUtils.newMultilineText(layout);
         
         description.addModifyListener(new ModifyListener() {
             
@@ -109,7 +111,7 @@ class PublishReviewRequestPage extends WizardPage {
 
         newLabel(layout, "Testing done:");
         
-        final Text testingDone = newMultilineText(layout);
+        final StyledText testingDone = UiUtils.newMultilineText(layout);
         
         testingDone.addModifyListener(new ModifyListener() {
             
@@ -164,17 +166,10 @@ class PublishReviewRequestPage extends WizardPage {
     }
     
     private Text newText(Composite layout) {
-
-        final Text toUserText = new Text(layout, SWT.BORDER);
-        GridDataFactory.swtDefaults().hint(PostReviewRequestWizard.TEXT_WIDTH, SWT.DEFAULT).applyTo(toUserText);
+        
+        final Text toUserText = new Text(layout, SWT.BORDER | SWT.SINGLE);
+        GridDataFactory.swtDefaults().hint(UiUtils.FULL_TEXT_WIDTH, SWT.DEFAULT).applyTo(toUserText);
         return toUserText;
-    }
-    
-    private Text newMultilineText(Composite layout) {
-
-        final Text description = new Text(layout, SWT.MULTI| SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-        GridDataFactory.swtDefaults().hint(PostReviewRequestWizard.TEXT_WIDTH, 60).applyTo(description);
-        return description;
     }
     
     @Override
