@@ -10,13 +10,9 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.subclipse.internal.wizards;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
-import org.eclipse.jface.fieldassist.AutoCompleteField;
-import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
@@ -26,9 +22,10 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.review_board.ereviewboard.core.model.ReviewGroup;
 import org.review_board.ereviewboard.core.model.ReviewRequest;
-import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.ui.internal.control.EnhancedAutoCompleteField;
+import org.review_board.ereviewboard.ui.internal.control.Proposal;
+import org.review_board.ereviewboard.ui.util.UiUtils;
 
 /**
  * @author Robert Munteanu
@@ -36,8 +33,8 @@ import org.review_board.ereviewboard.core.model.User;
  */
 class PublishReviewRequestPage extends WizardPage {
 
-    private AutoCompleteField _toUserComboAutoCompleteField;
-    private AutoCompleteField _toGroupComboAutoCompleteField;
+    private EnhancedAutoCompleteField _toUserComboAutoCompleteField;
+    private EnhancedAutoCompleteField _toGroupComboAutoCompleteField;
     private final ReviewRequest reviewRequest = new ReviewRequest();
     
     private final CreateReviewRequestWizardContext _context;
@@ -128,7 +125,7 @@ class PublishReviewRequestPage extends WizardPage {
         
         final Text toUserText = newText(layout);
         
-        _toUserComboAutoCompleteField = new AutoCompleteField(toUserText, new TextContentAdapter(), new String[] {});
+        _toUserComboAutoCompleteField = new EnhancedAutoCompleteField(toUserText, new Proposal[0]);
         
         toUserText.addModifyListener(new ModifyListener() {
             
@@ -139,12 +136,12 @@ class PublishReviewRequestPage extends WizardPage {
                 getContainer().updateButtons();
             }
         });
-
+        
         newLabel(layout, "Target group:");
         
         final Text toGroupText = newText(layout);
         
-        _toGroupComboAutoCompleteField = new AutoCompleteField(toGroupText, new TextContentAdapter(), new String[] {});
+        _toGroupComboAutoCompleteField = new EnhancedAutoCompleteField(toGroupText, new Proposal[0]);
         
         toGroupText.addModifyListener(new ModifyListener() {
             
@@ -208,29 +205,11 @@ class PublishReviewRequestPage extends WizardPage {
     public void setVisible(boolean visible) {
     
         if ( visible) {
-            _toUserComboAutoCompleteField.setProposals(getUsernames());
-            _toGroupComboAutoCompleteField.setProposals(getGroupNames());
+            _toUserComboAutoCompleteField.setProposals(UiUtils.adaptUsers(_context.getReviewboardClient().getClientData().getUsers()));
+            _toGroupComboAutoCompleteField.setProposals(UiUtils.adaptGroups(_context.getReviewboardClient().getClientData().getGroups()));
         }
         
         super.setVisible(visible);
-    }
-    
-    private String[] getUsernames() {
-
-        List<String> usernames = new ArrayList<String>();
-        for ( User user : _context.getReviewboardClient().getClientData().getUsers() )
-            usernames.add(user.getUsername());
-
-        return usernames.toArray(new String[usernames.size()]);
-    }
-    
-    private String[] getGroupNames() {
-
-        List<String> groupNames = new ArrayList<String>();
-        for ( ReviewGroup group : _context.getReviewboardClient().getClientData().getGroups() )
-            groupNames.add(group.getName());
-
-        return groupNames.toArray(new String[groupNames.size()]);
     }
 
     public ReviewRequest getReviewRequest() {

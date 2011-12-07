@@ -24,5 +24,6 @@ Bundle-Activator: org.review_board.ereviewboard.ui.ReviewboardUiPlugin
 Bundle-Vendor: %Bundle-Vendor
 Export-Package: org.review_board.ereviewboard.ui,
  org.review_board.ereviewboard.ui.editor.ext,
+ org.review_board.ereviewboard.ui.internal.control;x-internal:=true;x-friends:="org.review_board.ereviewboard.egit.ui,org.review_board.ereviewboard.cvs.ui,org.review_board.ereviewboard.subclipse.ui",
  org.review_board.ereviewboard.ui.util,
  org.review_board.ereviewboard.ui.wizard

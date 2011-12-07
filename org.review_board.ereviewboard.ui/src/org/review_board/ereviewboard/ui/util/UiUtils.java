@@ -34,12 +34,24 @@
  * Contributors:
  *     Markus Knittig - adapted Trac, Redmine & Atlassian implementations for
  *                      Review Board
+ *     Robert Munteanu - improvements
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.eclipse.jface.fieldassist.ControlDecoration;
+import org.eclipse.jface.fieldassist.FieldDecoration;
+import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.review_board.ereviewboard.core.model.ReviewGroup;
+import org.review_board.ereviewboard.core.model.User;
+import org.review_board.ereviewboard.ui.internal.control.Proposal;
 
 /**
  * @author Markus Knittig
@@ -51,6 +63,46 @@ public class UiUtils {
         Button radioButton = new Button(parent, SWT.RADIO);
         radioButton.setText(text);
         return radioButton;
+    }
+    
+    public static List<Proposal> adaptUsers(Collection<User> users) {
+        
+        List<Proposal> proposals = new ArrayList<Proposal>(users.size());
+        for ( User user : users )
+            proposals.add(adaptUser(user));
+        
+        return proposals;
+    }
+    
+    private static Proposal adaptUser(User user) {
+        
+        return new Proposal(user.getUsername(), user.getFullName());
+    }
+
+    
+    public static List<Proposal> adaptGroups(List<ReviewGroup> groups) {
+        
+        List<Proposal> proposals = new ArrayList<Proposal>(groups.size());
+        for ( ReviewGroup group : groups )
+            proposals.add(adaptGroup(group));
+        
+        return proposals;
+    }
+
+    private static Proposal adaptGroup(ReviewGroup group) {
+        
+        return new Proposal(group.getName(), group.getDisplayName());
+    }
+    
+    public static ControlDecoration installContentAssistControlDecoration(Control control) {
+        
+        ControlDecoration controlDecoration = new ControlDecoration(control, (SWT.TOP | SWT.LEFT));
+        controlDecoration.setShowOnlyOnFocus(true);
+        FieldDecoration contentProposalImage = FieldDecorationRegistry.getDefault().getFieldDecoration(
+                FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
+        controlDecoration.setImage(contentProposalImage.getImage());
+        controlDecoration.setDescriptionText("Content Assist Available");
+        return controlDecoration;
     }
 
 }

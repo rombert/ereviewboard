@@ -44,8 +44,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.fieldassist.AutoCompleteField;
-import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.operation.IRunnableContext;
@@ -66,7 +64,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
@@ -82,6 +79,8 @@ import org.review_board.ereviewboard.core.model.StatusReviewRequestQuery;
 import org.review_board.ereviewboard.core.model.ToUserReviewRequestQuery;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 import org.review_board.ereviewboard.ui.ReviewboardUiUtil;
+import org.review_board.ereviewboard.ui.internal.control.EnhancedAutoCompleteField;
+import org.review_board.ereviewboard.ui.internal.control.Proposal;
 import org.review_board.ereviewboard.ui.util.UiUtils;
 
 /**
@@ -111,16 +110,17 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private String changeNum = "";
 
-    private ComboViewer groupCombo;
+    private Text groupText;
     private Text fromUserText;
     private Text toUserText;
     private ComboViewer repositoryCombo;
 
-    private AutoCompleteField fromUserAutoCompleteField;
-    private AutoCompleteField toUserComboAutoCompleteField;
+    private EnhancedAutoCompleteField groupAutoCompleteField;
+    private EnhancedAutoCompleteField fromUserAutoCompleteField;
+    private EnhancedAutoCompleteField toUserComboAutoCompleteField;
 
-    private List<String> fromUsers;
-    private List<String> toUsers;
+    private List<String> users;
+    private List<String> groups;
 
     private ComboViewer statusCombo;
 
@@ -163,13 +163,13 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
         ReviewboardClientData clientData = client.getClientData();
 
-        groupCombo.setInput(ReviewboardUtil.toStringList(clientData.getGroups()));
         repositoryCombo.setInput(ReviewboardUtil.toStringList(clientData.getRepositories()));
 
-        fromUsers = ReviewboardUtil.toStringList(clientData.getUsers());
-        toUsers = ReviewboardUtil.toStringList(clientData.getUsers());
-        fromUserAutoCompleteField.setProposals(fromUsers.toArray(new String[fromUsers.size()]));
-        toUserComboAutoCompleteField.setProposals(toUsers.toArray(new String[toUsers.size()]));
+        users = ReviewboardUtil.toStringList(clientData.getUsers());
+        groups = ReviewboardUtil.toStringList(clientData.getGroups());
+        groupAutoCompleteField.setProposals(UiUtils.adaptGroups(clientData.getGroups()));
+        fromUserAutoCompleteField.setProposals(UiUtils.adaptUsers(clientData.getUsers()));
+        toUserComboAutoCompleteField.setProposals(UiUtils.adaptUsers(clientData.getUsers()));
         
         repositories = new HashMap<Integer, String>();
         repositoryList = clientData.getRepositories();
@@ -203,7 +203,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
             
             if (reviewRequestQuery instanceof GroupReviewRequestQuery) {
                 GroupReviewRequestQuery specificQuery = (GroupReviewRequestQuery) reviewRequestQuery;
-                ReviewboardUiUtil.selectComboItemByValue(groupCombo, specificQuery.getGroupname());
+                groupText.setText(specificQuery.getGroupname());
                 selection = Selection.GROUP;
             } else if ( reviewRequestQuery instanceof FromUserReviewRequestQuery) {
                 FromUserReviewRequestQuery specificQuery = (FromUserReviewRequestQuery) reviewRequestQuery;
@@ -281,7 +281,10 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
             break;
         
         case GROUP:
-            query = new GroupReviewRequestQuery(status, maxResults, groupCombo.getCombo().getText());
+            if ( !groups.contains ( groupText.getText() ) )
+                return false;
+            
+            query = new GroupReviewRequestQuery(status, maxResults, groupText.getText());
             break;
             
         case REPOSITORY:
@@ -302,14 +305,14 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
             break;
             
         case TO_USER:
-            if ( !toUsers.contains(toUserText.getText()) )
+            if ( !users.contains(toUserText.getText()) )
                 return false;
             
             query = new ToUserReviewRequestQuery(status, maxResults, toUserText.getText());
             break;
             
         case FROM_USER:
-            if ( ! fromUsers.contains(fromUserText.getText() ) )
+            if ( ! users.contains(fromUserText.getText() ) )
                 return false;
 
             query = new FromUserReviewRequestQuery(status, maxResults, fromUserText.getText());
@@ -343,7 +346,7 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         createAllButton(radioComposite);
 
         Composite groupComposite = createRadioCompositeWithCombo(radioComposite, "With group", Selection.GROUP);
-        groupCombo = createGroupCombo(groupComposite);
+        createGroupText(groupComposite);
         recursiveEnable(groupComposite, false);
         
         Composite fromUserComposite = createRadioCompositeWithCombo(radioComposite, "From the user", Selection.FROM_USER);
@@ -406,7 +409,6 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         
         updateRepositoryData(false);
         
-        ReviewboardUiUtil.selectDefaultComboItem(groupCombo);
         ReviewboardUiUtil.selectDefaultComboItem(repositoryCombo);
         maxResultsText.setText(String.valueOf(ReviewRequestQuery.DEFAULT_MAX_RESULTS));
         
@@ -489,17 +491,27 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
         return combo;
     }
 
-    private ComboViewer createGroupCombo(Composite parent) {
-        ComboViewer combo = createCombo(parent);
+    private void createGroupText(Composite parent) {
+        
+        groupText = newWideTextField(parent);
+        groupAutoCompleteField = new EnhancedAutoCompleteField(groupText, new Proposal[0]);
+        parent.addListener(SWT.Modify, new Listener() {
+            public void handleEvent(Event event) {
+                groupText.notifyListeners(SWT.Modify, event);
+            }
+        });
+        groupText.addListener(SWT.Modify, updateButtonsListener);
+    }
 
-        combo.getCombo().addListener(SWT.Modify, updateButtonsListener);
-
-        return combo;
+    private Text newWideTextField(Composite parent) {
+        Text text = new Text(parent, SWT.BORDER);
+        GridDataFactory.swtDefaults().hint(175, SWT.DEFAULT).applyTo(text);
+        return text;
     }
 
     private void createFromUserText(Composite fromUserComposite) {
-        fromUserText = new Text(fromUserComposite, SWT.BORDER);
-        fromUserAutoCompleteField = new AutoCompleteField(fromUserText, new TextContentAdapter(), new String[] {});
+        fromUserText = newWideTextField(fromUserComposite);
+        fromUserAutoCompleteField = new EnhancedAutoCompleteField(fromUserText, new Proposal[0]);
         fromUserComposite.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
                 fromUserText.notifyListeners(SWT.Modify, event);
@@ -510,14 +522,14 @@ public class ReviewboardQueryPage extends AbstractRepositoryQueryPage {
 
     private void createToUserText(Composite toUserComposite) {
     
-        toUserText = new Text(toUserComposite, SWT.BORDER);
-        toUserComboAutoCompleteField = new AutoCompleteField(toUserText, new TextContentAdapter(), new String[] {});
+        toUserText = newWideTextField(toUserComposite);
+        toUserComboAutoCompleteField = new EnhancedAutoCompleteField(toUserText, new Proposal[0]);
         toUserComposite.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
                 toUserText.notifyListeners(SWT.Modify, event);
             }
         });
-        toUserComposite.addListener(SWT.Modify, updateButtonsListener);
+        toUserText.addListener(SWT.Modify, updateButtonsListener);
     }
 
     private ComboViewer createRepositoryCombo(Composite parent) {
