@@ -16,6 +16,8 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.mylyn.tasks.core.ITask;
+import org.eclipse.mylyn.tasks.ui.TasksUi;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -72,6 +74,10 @@ class PublishReviewRequestPage extends WizardPage {
         newLabel(layout, "Bugs closed:");
         
         final Text bugsClosed = newText(layout);
+        ITask activeTask = TasksUi.getTaskActivityManager().getActiveTask();
+        if ( activeTask != null && activeTask.getTaskKey() != null)
+            bugsClosed.setText(activeTask.getTaskKey());
+        
         bugsClosed.addModifyListener(new ModifyListener() {
             
             public void modifyText(ModifyEvent e) {
