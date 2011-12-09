@@ -57,7 +57,6 @@ import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.*;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
@@ -157,7 +156,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 
                 Multimap<Integer, DiffComment> fileIdToDiffComments = createTaskDataComments(client, taskData, diffs, screenshots, monitor);
                 
-                createTaskDataAttachments(client, taskData, taskRepository, diffs, screenshots, monitor);
+                createScreenshotAttachments(client, taskData, taskRepository, screenshots, monitor);
                 
                 createTaskDataPatchSet(client, taskData, diffs, fileIdToDiffComments, monitor);
 
@@ -363,33 +362,14 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
      * Advances monitor by one
      * @param client 
      */
-    private void createTaskDataAttachments(ReviewboardClient client, TaskData taskData, TaskRepository taskRepository, List<Diff> diffs, List<Screenshot> screenshots, IProgressMonitor monitor) throws ReviewboardException {
+    private void createScreenshotAttachments(ReviewboardClient client, TaskData taskData, TaskRepository taskRepository, List<Screenshot> screenshots, IProgressMonitor monitor) throws ReviewboardException {
         
-        if ( diffs.isEmpty() && screenshots.isEmpty() )
+        if ( screenshots.isEmpty() )
             return;
 
-        TaskAttributeMapper attributeMapper = taskData.getAttributeMapper();
-        
-        int mostRecentRevision = diffs.size();
-
         TaskAttribute root = taskData.getRoot();
-        for (Diff diff : diffs) {
-            TaskAttribute attribute = root.createAttribute(TaskAttribute.PREFIX_ATTACHMENT + diff.getRevision());
-            TaskAttachmentMapper mapper = TaskAttachmentMapper.createFrom(attribute);
-            mapper.setFileName(diff.getDisplayName());
-            mapper.setDescription(diff.getDisplayName());
-            mapper.setAuthor(attributeMapper.getRepositoryPerson(root.getAttribute(ReviewboardAttributeMapper.Attribute.SUBMITTER.toString())));
-            mapper.setCreationDate(diff.getTimestamp());
-            mapper.setAttachmentId(Integer.toString(diff.getId()));
-            mapper.setPatch(Boolean.TRUE);
-            mapper.setDeprecated(diff.getRevision() != mostRecentRevision);
-            mapper.setLength(ReviewboardAttachmentHandler.ATTACHMENT_SIZE_UNKNOWN);
-            mapper.applyTo(attribute);
-            
-            attribute.createAttribute(ReviewboardAttachmentHandler.ATTACHMENT_ATTRIBUTE_REVISION).setValue(String.valueOf(diff.getRevision()));
-        }
-        
-        int attachmentIndex = mostRecentRevision;
+
+        int attachmentIndex = 0;
         
         for ( Screenshot screenshot : screenshots ) {
   
