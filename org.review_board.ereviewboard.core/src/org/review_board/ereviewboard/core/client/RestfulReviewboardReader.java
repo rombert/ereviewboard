@@ -288,7 +288,6 @@ public class RestfulReviewboardReader {
         }
     }
     
-    
     private <T extends ReviewRequestBase> T fillReviewRequestBase(T reviewRequest, JSONObject jsonReviewRequest) throws JSONException {
         
         reviewRequest.setId(jsonReviewRequest.getInt("id"));
@@ -380,7 +379,6 @@ public class RestfulReviewboardReader {
         review.setTimestamp(ReviewboardUtil.marshallDate(jsonReview.getString("timestamp")));
         return review;
     }
-
     
     public PagedResult<ReviewReply> readReviewReplies(String source) throws ReviewboardException {
         
@@ -579,7 +577,6 @@ public class RestfulReviewboardReader {
         }
     }
 
-
     private void mapComment(JSONObject jsonComment, Comment comment) throws JSONException {
        
         comment.setId(jsonComment.getInt("id"));
@@ -629,7 +626,6 @@ public class RestfulReviewboardReader {
         checkedGetJSonRootObject(source);
     }
 
-   
     public DiffData readDiffData(String source) throws ReviewboardException{
         
         try {
