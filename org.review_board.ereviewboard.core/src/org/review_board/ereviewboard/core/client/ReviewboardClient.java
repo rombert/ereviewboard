@@ -103,6 +103,8 @@ public interface ReviewboardClient {
 
     List<ScreenshotComment> getScreenshotComments(int reviewRequestId, int id, IProgressMonitor screenshotCommentMonitor) throws ReviewboardException;
 
+    List<Change> getChanges(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException;
+    
     /**
      * Updates the status of the specified review request
      * 

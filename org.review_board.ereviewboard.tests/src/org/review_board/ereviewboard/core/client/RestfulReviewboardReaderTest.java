@@ -58,6 +58,7 @@ import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
 import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.core.model.Change.Field;
 import org.review_board.ereviewboard.core.model.DiffData.Chunk;
 import org.review_board.ereviewboard.core.model.DiffData.Line;
 
@@ -478,5 +479,32 @@ public class RestfulReviewboardReaderTest {
             assertThat(exception.getMessage(), is("myint : `abc` is not an integer."));
             assertThat(ErrorCode.INVALID_FORM_DATA.is(exception.getCode()), is(true));
         }
+    }
+
+    @Test
+    public void readChange() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/1.6/webapi/2.0/resources/change/
+        
+        Change change = reader.readChange(readJsonTestResource("change.json"));
+        
+        assertThat("change.id", change.getId(), is(2));
+        assertThat("change.text", change.getText(), is("Added a diff containing a new file."));
+        assertThat("change.timestamp", change.getTimestamp(), is(ReviewboardAttributeMapper.parseDateValue("2009-02-25 22:32:13")));
+
+        assertThat("change.fieldChanged.size", change.getFieldsChanged().size(), is(1));
+        assertThat("fieldChanged[0].type", change.getFieldsChanged().get(0).getField(), is(Field.diff));
+        assertThat("fieldChanged[0].objectLink", change.getFieldsChanged().get(0).getObjectLink(), is(new ObjectLink(11, Diff.class)));
+    }
+
+    @Test
+    public void readChanges() throws ReviewboardException, IOException {
+        
+        // http://www.reviewboard.org/docs/manual/1.6/webapi/2.0/resources/change/
+        
+        PagedResult<Change> changes = reader.readChanges(readJsonTestResource("changes.json"));
+        
+        assertThat("changes.totalResults", changes.getTotalResults(), is(2));
+        assertThat("changes.size", changes.getResults().size(), is(2));
     }
 }

@@ -29,6 +29,8 @@ public class ReviewboardQueryBuilder {
     public static final String PATH_DIFFS = "diffs";
 
     public static final String PATH_FILES = "files";
+
+    public static final String PATH_CHANGES = "changes";
     
     public static final String PATH_REPOSITORIES = "repositories";
 

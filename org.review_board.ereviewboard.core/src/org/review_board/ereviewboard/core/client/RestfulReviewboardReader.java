@@ -39,18 +39,25 @@ package org.review_board.ereviewboard.core.client;
 
 import java.util.*;
 
+import org.eclipse.core.runtime.IStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardApiException;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
 import org.review_board.ereviewboard.core.exception.ReviewboardObjectDoesNotExistException;
 import org.review_board.ereviewboard.core.model.*;
+import org.review_board.ereviewboard.core.model.Change.Field;
+import org.review_board.ereviewboard.core.model.Change.FieldChange;
 import org.review_board.ereviewboard.core.model.DiffData.Chunk;
 import org.review_board.ereviewboard.core.model.DiffData.Line;
 import org.review_board.ereviewboard.core.model.DiffData.Type;
 import org.review_board.ereviewboard.core.util.ReviewboardUtil;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 /**
  * Class for converting Review Board API call responses (JSON format) to Java objects.
@@ -58,6 +65,8 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
  * @author Markus Knittig
  */
 public class RestfulReviewboardReader {
+    
+    private static final Joiner CSV_JOINER = Joiner.on(',');
 
     public ServerInfo readServerInfo(String source) throws ReviewboardException {
         
@@ -298,11 +307,7 @@ public class RestfulReviewboardReader {
         reviewRequest.setBranch(jsonReviewRequest.getString("branch"));
         
         // bugs
-        JSONArray jsonBugs = jsonReviewRequest.getJSONArray("bugs_closed");
-        List<String> bugs = new ArrayList<String>();
-        for (int j = 0; j < jsonBugs.length(); j++)
-            bugs.add(jsonBugs.getString(j));
-        reviewRequest.setBugsClosed(bugs);
+        reviewRequest.setBugsClosed(readStringArray(jsonReviewRequest, "bugs_closed"));
         
         // target people
         JSONArray jsonTargetPeople = jsonReviewRequest.getJSONArray("target_people");
@@ -319,6 +324,15 @@ public class RestfulReviewboardReader {
         reviewRequest.setTargetGroups(targetGroups);
         
         return reviewRequest;
+    }
+
+    private List<String> readStringArray(JSONObject object, String arrayName) throws JSONException {
+        
+        JSONArray jsonBugs = object.getJSONArray(arrayName);
+        List<String> bugs = new ArrayList<String>();
+        for (int j = 0; j < jsonBugs.length(); j++)
+            bugs.add(jsonBugs.getString(j));
+        return bugs;
     }
 
     public ReviewRequestDraft readReviewRequestDraft(String source) throws ReviewboardException {
@@ -687,4 +701,94 @@ public class RestfulReviewboardReader {
         return Integer.parseInt(value);
     }
 
+    public Change readChange(String source) throws ReviewboardException {
+     
+        try {
+            JSONObject jsonChange = checkedGetJSonRootObject(source).getJSONObject("change");
+
+            return readChangeObject(jsonChange);
+
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
+    
+    private Change readChangeObject(JSONObject jsonChange) throws JSONException {
+        
+        JSONObject jsonFieldsChanged = jsonChange.getJSONObject("fields_changed");
+        List<FieldChange> fieldChanges = Lists.<Change.FieldChange>newArrayList();
+        
+        for ( Field field : Field.values() ) {
+            
+            if ( !jsonFieldsChanged.has(field.toString()) )
+                continue;
+            
+            JSONObject jsonFieldChange = jsonFieldsChanged.getJSONObject(field.toString());
+            
+            switch ( field ) {
+            
+                case bugs_closed:
+                    String newBugs = CSV_JOINER.join(readStringArray(jsonFieldChange, "added"));
+                    String oldBugs = CSV_JOINER.join(readStringArray(jsonFieldChange, "removed"));
+                    
+                    fieldChanges.add(new FieldChange(field, null, newBugs, oldBugs, null, null));
+                    break;
+            
+                case diff:
+                    
+                    JSONObject addedDiff = jsonFieldChange.getJSONObject("added");
+                    
+                    fieldChanges.add(new FieldChange(field, new ObjectLink(addedDiff.getInt("id"), Diff.class), null, null, null, null));
+                    break;
+                    
+                    // TODO unhandled
+                case screenshots:
+                case file_attachments:
+                case target_groups:
+                case target_people:
+                    continue;
+                    
+                case status:
+                    
+                    fieldChanges.add(new FieldChange(field, null, ReviewRequestStatus.parseStatus(jsonFieldChange.getString("new")).toString(), 
+                            ReviewRequestStatus.parseStatus(jsonFieldChange.getString("old")).toString(), null, null));
+                    break;
+                    
+                case summary:
+                case description:
+                case testing_done:
+                case branch:
+                    
+                    fieldChanges.add(new FieldChange(field, null, jsonFieldChange.getString("new"), jsonFieldChange.getString("old"), null, null));
+                    break;
+
+                default:
+                    
+                    ReviewboardCorePlugin.getDefault().log(IStatus.WARNING, "Could not parse change due to unhandled field with name " + field.toString());
+                    continue;
+            }
+        }
+        
+        return new Change(jsonChange.getInt("id"), jsonChange.getString("text"), 
+                ReviewboardUtil.marshallDate(jsonChange.getString("timestamp")), fieldChanges);
+    }
+    
+    public PagedResult<Change> readChanges(String source) throws ReviewboardException {
+        
+        try {
+            JSONObject json = checkedGetJSonRootObject(source);
+            
+            int totalResults = json.getInt("total_results");
+            JSONArray jsonChanges = json.getJSONArray("changes");
+            
+            List<Change> changesList = Lists.newArrayList();
+            for (int i = 0; i < jsonChanges.length(); i++)
+                changesList.add(readChangeObject(jsonChanges.getJSONObject(i)));
+            
+            return PagedResult.create(changesList, totalResults);
+            
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+    }
 }

@@ -159,7 +159,7 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
                 createScreenshotAttachments(client, taskData, taskRepository, screenshots, monitor);
                 
                 createTaskDataPatchSet(client, taskData, diffs, fileIdToDiffComments, monitor);
-
+                
                 return taskData;
             } finally {
                 
@@ -679,5 +679,38 @@ public class ReviewboardRepositoryConnector extends AbstractRepositoryConnector 
     public ITaskMapping getTaskMapping(TaskData taskData) {
         
         return new ReviewboardTaskMapper(taskData);
+    }
+
+    @Override
+    public TaskHistory getTaskHistory(TaskRepository repository, ITask task,
+            IProgressMonitor monitor) throws CoreException {
+        
+        try {
+            TaskHistory history = new TaskHistory(repository, task);
+            
+            ReviewboardClient client = getClientManager().getClient(repository);
+            
+            List<Change> changes = client.getChanges(Integer.valueOf(task.getTaskId()), monitor);
+            
+            for ( Change change : changes ) {
+                
+                TaskRevision taskRevision = new TaskRevision(String.valueOf(change.getId()), change.getTimestamp(), repository.createPerson("unknown"));
+                
+                for ( Change.FieldChange fieldChange : change.getFieldsChanged() )
+                    taskRevision.add(new TaskRevision.Change(fieldChange.getField().toString(), fieldChange.getField().toString(), fieldChange.getOld(), fieldChange.getNew()));
+                
+                history.add(taskRevision);
+            }
+            
+            return history;
+        } catch (ReviewboardException e) {
+            throw new CoreException(new Status(IStatus.ERROR, ReviewboardCorePlugin.PLUGIN_ID, "Failed retreving history for review with id " + task.getTaskId() + " : " + e.getMessage(), e));
+        }
+    }
+    
+    @Override
+    public boolean canGetTaskHistory(TaskRepository repository, ITask task) {
+        
+        return true;
     }
 }

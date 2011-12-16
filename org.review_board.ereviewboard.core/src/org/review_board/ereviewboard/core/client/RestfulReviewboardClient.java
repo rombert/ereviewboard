@@ -374,6 +374,24 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         return loader.doLoad();
     }
     
+    public List<Change> getChanges(final int reviewRequestId, IProgressMonitor monitor) throws ReviewboardException {
+        
+        PagedLoader<Change> loader = new PagedLoader<Change>(PAGED_RESULT_INCREMENT, monitor, "Retrieving changes") {
+            
+            @Override
+            protected PagedResult<Change> doLoadInternal(int start, int maxResults, IProgressMonitor monitor)
+                    throws ReviewboardException {
+                
+                ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder().descend(PATH_REVIEW_REQUESTS, reviewRequestId).
+                        descend(PATH_CHANGES).paginate(start, maxResults);
+                
+                return reviewboardReader.readChanges(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+            }
+        };
+        
+        return loader.doLoad();
+    }
+    
     public boolean hasRepositoryData() {
         
         synchronized ( clientDataSync ) {
