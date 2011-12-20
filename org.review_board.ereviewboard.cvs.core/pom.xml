@@ -4,7 +4,7 @@
   <parent>
     <artifactId>ereviewboard</artifactId>
     <groupId>org.review_board.ereviewboard</groupId>
-    <version>0.12.0-SNAPSHOT</version>
+    <version>0.13.0-SNAPSHOT</version>
   </parent>
   <artifactId>org.review_board.ereviewboard.cvs.core</artifactId>
   <name>eReviewBoard : CVS Core Plugin</name>
