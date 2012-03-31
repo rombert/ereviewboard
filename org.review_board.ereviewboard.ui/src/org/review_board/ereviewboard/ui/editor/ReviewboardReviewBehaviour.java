@@ -50,9 +50,9 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
         _diffRevisionId = diffRevisionId;
         _topicAddedListener = listener;
     }
-
+    
     @Override
-    public IStatus addTopic(ITopic topic, IProgressMonitor monitor) {
+    public IStatus addTopic(IReviewItem fileItem, ITopic topic, IProgressMonitor monitor) {
         
         monitor.beginTask("Posting draft comment", 3);
         

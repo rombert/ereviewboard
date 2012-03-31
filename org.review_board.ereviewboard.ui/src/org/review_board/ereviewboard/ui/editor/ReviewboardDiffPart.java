@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -31,6 +32,7 @@ import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.mylyn.internal.reviews.ui.compare.FileItemCompareEditorInput;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
 import org.eclipse.mylyn.reviews.core.model.IFileRevision;
@@ -144,7 +146,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         GridDataFactory.fillDefaults().span(2,1).grab(true, true).hint(500, SWT.DEFAULT).applyTo(diffTableViewer.getControl());
         
         final TopicAddedListener listener = new RefreshEditorTopicAddedListener(getTaskEditorPage());
-
+        
         List<IFileItem> fileItems= reviewModelFactory.createFileItems(taskMapper.getReporter(), diffMapper, diffRevision);
         diffTableViewer.setInput(fileItems.toArray(new IFileItem[fileItems.size()]));
         
@@ -169,7 +171,9 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                     return;
                 }
                 
-                CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, diffMapper, getTaskData(), locator, diffRevision));
+                ReviewboardReviewBehaviour reviewBehaviour = new ReviewboardReviewBehaviour(getTaskEditorPage().getTask() , item, diffRevision, getClient(), listener);
+                
+                CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, reviewBehaviour, getTaskData(), locator, diffRevision));
             }
    
         });

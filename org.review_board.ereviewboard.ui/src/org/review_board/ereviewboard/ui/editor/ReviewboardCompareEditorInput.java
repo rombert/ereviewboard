@@ -19,18 +19,15 @@ import org.eclipse.compare.patch.ApplyPatchOperation;
 import org.eclipse.compare.patch.IFilePatch;
 import org.eclipse.compare.patch.IFilePatchResult;
 import org.eclipse.compare.patch.PatchConfiguration;
-import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.mylyn.internal.reviews.ui.annotations.ReviewCompareAnnotationModel;
-import org.eclipse.mylyn.internal.reviews.ui.operations.ReviewCompareEditorInput;
+import org.eclipse.mylyn.internal.reviews.ui.compare.FileItemCompareEditorInput;
+import org.eclipse.mylyn.internal.tasks.core.sync.GetTaskHistoryJob;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
-import org.eclipse.mylyn.reviews.core.model.IFileRevision;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
-import org.review_board.ereviewboard.core.ReviewboardDiffMapper;
 import org.review_board.ereviewboard.core.ReviewboardRepositoryConnector;
 import org.review_board.ereviewboard.core.client.DiffCommentLineMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
@@ -39,30 +36,27 @@ import org.review_board.ereviewboard.core.internal.scm.SCMFileContentsLocator;
 import org.review_board.ereviewboard.core.model.DiffData;
 import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.core.util.ByteArrayStorage;
-import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 
 /**
  * @author Robert Munteanu
  *
  */
 @SuppressWarnings("restriction")
-class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
+class ReviewboardCompareEditorInput extends FileItemCompareEditorInput {
     
-    private final ReviewboardDiffMapper _diffMapper;
     private final TaskData _taskData;
     private final SCMFileContentsLocator _locator;
     private final int _diffRevisionId;
 
     /**
      * @param file
-     * @param diffMapper
+     * @param reviewBehaviour
      * @param taskData
      * @param codeRepository
      * @param locator the locator, already initialised for the specified <tt>file</tt> )
      */
-    ReviewboardCompareEditorInput(IFileItem file, ReviewboardDiffMapper diffMapper, TaskData taskData, SCMFileContentsLocator locator, int diffRevisionId) {
-        super(file, new ReviewCompareAnnotationModel(file, null), new CompareConfiguration());
-        _diffMapper = diffMapper;
+    ReviewboardCompareEditorInput(IFileItem file, ReviewboardReviewBehaviour reviewBehaviour, TaskData taskData, SCMFileContentsLocator locator, int diffRevisionId) {
+        super(new CompareConfiguration(), file, reviewBehaviour);
         _taskData = taskData;
         _locator = locator;
         this._diffRevisionId = diffRevisionId;
@@ -71,23 +65,19 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
     @Override
     protected Object prepareInput(IProgressMonitor monitor)
             throws InvocationTargetException, InterruptedException {
-        int taskId = Integer.parseInt(_taskData.getTaskId());
-        int fileId = Integer.parseInt(getFile().getId());
         
         ReviewboardRepositoryConnector connector = ReviewboardCorePlugin.getDefault().getConnector();
         
         ReviewboardClient client = connector.getClientManager().getClient(TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, _taskData.getRepositoryUrl()));
         
         try {
-            monitor.beginTask("Generating diff", 6);
+            monitor.beginTask("Loading file contents and comments", 5);
             
-            IFilePatch patch = getPatchForFile(monitor, taskId, _diffRevisionId, fileId, client);
+            loadContents(monitor);
+            appendComments(monitor, client);
             
-            appendComments(monitor, client, patch);
             
-            IFilePatchResult patchResult = applyPatch(monitor, patch);
-
-            return findDifferences(monitor, patchResult);
+            return super.prepareInput(monitor);
             
         } catch (ReviewboardException e) {
             throw new InvocationTargetException(e);
@@ -100,8 +90,25 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         }
     }
 
-    private void appendComments(IProgressMonitor monitor, ReviewboardClient client, IFilePatch patch)
-            throws ReviewboardException {
+    private void loadContents(IProgressMonitor monitor) throws ReviewboardException, CoreException, IOException {
+
+        
+        if ( getFile().getBase().getContent() == null && getFile().getTarget().getContent() == null ) {
+            
+            ReviewboardRepositoryConnector connector = ReviewboardCorePlugin.getDefault().getConnector();
+            
+            ReviewboardClient client = connector.getClientManager().getClient(TasksUi.getRepositoryManager().getRepository(ReviewboardCorePlugin.REPOSITORY_KIND, _taskData.getRepositoryUrl()));
+
+            IFilePatch patch = getPatchForFile(monitor, Integer.parseInt(_taskData.getTaskId()), _diffRevisionId, Integer.parseInt(getFile().getId()), client);
+            IFilePatchResult result = applyPatch(monitor, patch);
+            getFile().getBase().setContent(IOUtils.toString(result.getOriginalContents()));
+            getFile().getTarget().setContent(IOUtils.toString(result.getPatchedContents()));
+        }
+        
+        monitor.worked(1);
+    }
+
+    private void appendComments(IProgressMonitor monitor, ReviewboardClient client) throws ReviewboardException {
         
         int reviewRequestId = Integer.parseInt(_taskData.getTaskId());
         int diffId =  _diffRevisionId;
@@ -150,7 +157,7 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
     private IFilePatchResult applyPatch(IProgressMonitor monitor, IFilePatch patch) throws CoreException {
         
         PatchConfiguration patchConfiguration = new PatchConfiguration();
-        IStorage source = lookupResource(getFile().getBase(), monitor);
+        IStorage source = lookupResource(monitor);
         monitor.worked(1);
         
         IFilePatchResult patchResult = patch.apply(source, patchConfiguration, monitor);
@@ -158,29 +165,8 @@ class ReviewboardCompareEditorInput extends ReviewCompareEditorInput {
         return patchResult;
     }
 
-    private IStorage lookupResource(IFileRevision fileRevision, IProgressMonitor monitor) throws CoreException {
+    private IStorage lookupResource(IProgressMonitor monitor) throws CoreException {
         
         return new ByteArrayStorage(_locator.getContents(monitor));
-    }
-
-    private Object findDifferences(IProgressMonitor monitor, IFilePatchResult patchResult) throws IOException {
-        
-        byte[] baseContent = IOUtils.toByteArray(patchResult.getOriginalContents());
-        byte[] targetContent = IOUtils.toByteArray(patchResult.getPatchedContents());
-        
-        ByteArrayInput baseInput = new ByteArrayInput(baseContent, getFile().getBase().getPath());
-        ByteArrayInput targetInput = new ByteArrayInput(targetContent, getFile().getTarget().getPath());
-        
-        // 0.8.x and 0.9.x have different left/right sides https://bugs.eclipse.org/bugs/show_bug.cgi?id=360654
-        Object differences;
-        if ( ReviewboardUiPlugin.getDefault().switchCompareEditorInputSides() ) {
-            differences = new Differencer().findDifferences(false, monitor, null, null, baseInput, targetInput);    
-        } else {
-            differences = new Differencer().findDifferences(false, monitor, null, null, targetInput, baseInput);
-        }
-        
-        monitor.worked(1);
-        
-        return differences;
     }
 }
