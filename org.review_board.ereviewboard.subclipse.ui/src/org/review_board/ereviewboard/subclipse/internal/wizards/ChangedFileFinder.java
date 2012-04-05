@@ -53,7 +53,7 @@ public class ChangedFileFinder {
             Activator.getDefault().trace(TraceLocation.MAIN, "Considering file " + svnStatus.getFile() + 
                     " with text status " + svnStatus.getTextStatus() + 
                     " , prop status " + svnStatus.getPropStatus() + 
-                    " , conflict descriptor " + svnStatus.getConflictDescriptor() + " .");
+                    " , conflict old " + svnStatus.getConflictOld() + " .");
 
             // can't generate diffs based on unversioned files
             if ( SVNStatusKind.UNVERSIONED.equals(svnStatus.getTextStatus()) )
@@ -66,7 +66,7 @@ public class ChangedFileFinder {
             if ( SVNStatusKind.CONFLICTED.equals(svnStatus.getPropStatus()) )
                 continue;
             
-            if ( svnStatus.getConflictDescriptor() != null )
+            if ( svnStatus.getConflictOld() != null )
                 continue;
             
             // only consider files

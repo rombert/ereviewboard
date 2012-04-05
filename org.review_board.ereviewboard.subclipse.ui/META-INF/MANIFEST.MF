@@ -19,5 +19,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.review_board.ereviewboard.ui,
  org.review_board.ereviewboard.subclipse.core,
  org.apache.commons.io;bundle-version="1.4.0",
- org.tigris.subversion.subclipse.core;bundle-version="1.6.0"
+ org.tigris.subversion.subclipse.core;bundle-version="1.4.0"
 Bundle-Activator: org.review_board.ereviewboard.subclipse.Activator
