@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.egit.core.GitProvider;
 import org.eclipse.egit.core.project.GitProjectData;
 import org.eclipse.egit.core.project.RepositoryMapping;
+import org.eclipse.jgit.errors.InvalidObjectIdException;
 import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -49,7 +50,12 @@ public class EGitSCMFileContentsLocator implements SCMFileContentsLocator {
         if ( FileDiff.PRE_CREATION.equals(revision) )
             return new byte[0];
         
-        ObjectId objectId = ObjectId.fromString(revision);
+        ObjectId objectId;
+		try {
+			objectId = ObjectId.fromString(revision);
+		} catch (InvalidObjectIdException e) {
+			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The revision " + revision + " is not a valid git objectId", e));
+		}
 
         for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 
