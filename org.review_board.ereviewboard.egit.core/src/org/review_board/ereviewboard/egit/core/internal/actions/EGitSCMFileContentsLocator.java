@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.egit.core.GitProvider;
 import org.eclipse.egit.core.project.GitProjectData;
 import org.eclipse.egit.core.project.RepositoryMapping;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.InvalidObjectIdException;
 import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -71,9 +72,8 @@ public class EGitSCMFileContentsLocator implements SCMFileContentsLocator {
 					// Try on next GIT project.
 					continue;
 				}
-				
+			
 				Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("Trying to find {0} in {1}.", objectId, repository));
-				
 				try {
 					ObjectLoader objectLoader = repository.open(objectId);
 					
@@ -87,9 +87,10 @@ public class EGitSCMFileContentsLocator implements SCMFileContentsLocator {
 				} catch (IOException e) {
 					Activator.getDefault().log(IStatus.WARNING, NLS.bind("Failed loading {0} from {1}", objectId, repository), e);
 				}
-			} catch (Throwable e) {
-				// Try on next GIT project.
-				continue;
+	        } catch (AmbiguousObjectException e) {
+	        	Activator.getDefault().log(IStatus.WARNING, NLS.bind("Revision {0} could not be resolved at repository {1}", revision, repository), e);
+	        } catch (IOException e) {
+	        	Activator.getDefault().log(IStatus.WARNING, NLS.bind("Revision {0} could not be resolved at repository {1}", revision, repository), e);
 			}
 			
         }
