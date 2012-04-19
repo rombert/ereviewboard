@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.egit.core.GitProvider;
 import org.eclipse.egit.core.project.GitProjectData;
 import org.eclipse.egit.core.project.RepositoryMapping;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.InvalidObjectIdException;
 import org.eclipse.jgit.errors.LargeObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -50,13 +51,6 @@ public class EGitSCMFileContentsLocator implements SCMFileContentsLocator {
         if ( FileDiff.PRE_CREATION.equals(revision) )
             return new byte[0];
         
-        ObjectId objectId;
-		try {
-			objectId = ObjectId.fromString(revision);
-		} catch (InvalidObjectIdException e) {
-			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The revision " + revision + " is not a valid git objectId", e));
-		}
-
         for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 
             RepositoryProvider provider = RepositoryProvider.getProvider(project);
@@ -72,24 +66,38 @@ public class EGitSCMFileContentsLocator implements SCMFileContentsLocator {
             
             org.eclipse.jgit.lib.Repository repository = repositoryMapping.getRepository();
             
-            Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("Trying to find {0} in {1}.", objectId, repository));
-            
-            try {
-                ObjectLoader objectLoader = repository.open(objectId);
-                
-                Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("{0} found in {1}", objectId, repository));
-                
-                return objectLoader.getCachedBytes();
-            } catch (LargeObjectException e) {
-                Activator.getDefault().log(IStatus.WARNING, NLS.bind("Failed loading {0} from {1}", objectId, repository), e);
-            } catch (MissingObjectException e) {
-                Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("{0} not found in {1}", objectId, repository));
-            } catch (IOException e) {
-                Activator.getDefault().log(IStatus.WARNING, NLS.bind("Failed loading {0} from {1}", objectId, repository), e);
-            }
+			try {
+				ObjectId objectId = repository.resolve(revision);
+				if (objectId == null) {
+					// Try on next GIT project.
+					continue;
+				}
+			
+				Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("Trying to find {0} in {1}.", objectId, repository));
+				try {
+					ObjectLoader objectLoader = repository.open(objectId);
+					
+					Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("{0} found in {1}", objectId, repository));
+					
+					return objectLoader.getCachedBytes();
+				} catch (LargeObjectException e) {
+					Activator.getDefault().log(IStatus.WARNING, NLS.bind("Failed loading {0} from {1}", objectId, repository), e);
+				} catch (MissingObjectException e) {
+					Activator.getDefault().trace(TraceLocation.DIFF, NLS.bind("{0} not found in {1}", objectId, repository));
+				} catch (IOException e) {
+					Activator.getDefault().log(IStatus.WARNING, NLS.bind("Failed loading {0} from {1}", objectId, repository), e);
+				}
+	        } catch (AmbiguousObjectException e) {
+	        	Activator.getDefault().log(IStatus.WARNING, NLS.bind("Revision {0} could not be resolved at repository {1}", revision, repository), e);
+	        } catch (IOException e) {
+	        	Activator.getDefault().log(IStatus.WARNING, NLS.bind("Revision {0} could not be resolved at repository {1}", revision, repository), e);
+			}
+			
         }
         
-        throw new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "No repository found containing " + objectId));
+		throw new CoreException(new Status(IStatus.WARNING, Activator.PLUGIN_ID, 
+			"No repository found to revision id: " + revision + ".\nYou should have the GIT project "
+					+ this.codeRepository.getName() + " loaded and shared as GIT project on Eclipse."));
     }
 
 }
