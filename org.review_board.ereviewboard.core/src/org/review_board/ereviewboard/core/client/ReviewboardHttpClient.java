@@ -89,7 +89,7 @@ public class ReviewboardHttpClient {
     public boolean apiEntryPointExist(IProgressMonitor monitor) throws ReviewboardException {
 
         GetMethod getMethod = new GetMethod(location.getUrl() + "/api/");
-        
+
         return executeRequest(getMethod, monitor) != HttpStatus.SC_NOT_FOUND;
     }
 
