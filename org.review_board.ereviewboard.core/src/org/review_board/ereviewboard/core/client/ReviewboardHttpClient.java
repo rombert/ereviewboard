@@ -90,7 +90,7 @@ public class ReviewboardHttpClient {
 
         GetMethod getMethod = new GetMethod(location.getUrl() + "/api/");
         
-        return executeRequest(getMethod, monitor) == HttpStatus.SC_OK;
+        return executeRequest(getMethod, monitor) != HttpStatus.SC_NOT_FOUND;
     }
 
     public String login(String username, String password, IProgressMonitor monitor) throws ReviewboardException {
