@@ -87,10 +87,9 @@ public class ReviewboardHttpClient {
     }
 
     public boolean apiEntryPointExist(IProgressMonitor monitor) throws ReviewboardException {
-
         GetMethod getMethod = new GetMethod(location.getUrl() + "/api/");
-
-        return executeRequest(getMethod, monitor) != HttpStatus.SC_NOT_FOUND;
+        int status = executeRequest(getMethod, monitor);
+        return status == HttpStatus.SC_OK || status == HttpStatus.SC_UNAUTHORIZED;
     }
 
     public String login(String username, String password, IProgressMonitor monitor) throws ReviewboardException {
