@@ -126,6 +126,9 @@ public class PostReviewRequestWizard extends Wizard {
 
                         String basePath = projectSvnResource.getUrl().toString()
                                 .substring(svnRepository.getRepositoryRoot().toString().length());
+                        if ( basePath.length() == 0 ) {
+                            basePath = "/";
+                        }
 
                         Activator.getDefault().trace(TraceLocation.MAIN, "Detected base path " + basePath);
                         
