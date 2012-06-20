@@ -13,7 +13,7 @@ package org.review_board.ereviewboard.ui.wizard;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.mylyn.internal.provisional.commons.ui.WorkbenchUtil;
+import org.eclipse.mylyn.commons.workbench.browser.BrowserUtil;
 import org.eclipse.mylyn.tasks.core.ITaskMapping;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.wizards.NewTaskWizard;
@@ -23,6 +23,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+
 
 /**
  * @author Robert Munteanu
@@ -63,10 +64,8 @@ public class ReviewboardNewTaskWizard extends NewTaskWizard {
             link.addSelectionListener(new SelectionListener() {
                 
                 public void widgetSelected(SelectionEvent e) {
-
-                    WorkbenchUtil.openUrl(
-                            "https://github.com/rombert/ereviewboard/wiki/SCM-Integrations",
-                            IWorkbenchBrowserSupport.AS_EXTERNAL);
+                    
+                    BrowserUtil.openUrl("https://github.com/rombert/ereviewboard/wiki/SCM-Integrations", IWorkbenchBrowserSupport.AS_EXTERNAL);
                 }
                 
                 public void widgetDefaultSelected(SelectionEvent e) {
