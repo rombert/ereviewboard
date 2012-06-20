@@ -107,7 +107,7 @@ Inc. in the United States, other countries, or both.
    </license>
 
    <requires>
-      <import feature="org.eclipse.egit" version="1.0.0" match="compatible"/>
+      <import feature="org.eclipse.egit" version="1.0.0" match="greaterOrEqual"/>
       <import feature="org.review_board.ereviewboard" version="0.11.0" match="compatible"/>
    </requires>
 
