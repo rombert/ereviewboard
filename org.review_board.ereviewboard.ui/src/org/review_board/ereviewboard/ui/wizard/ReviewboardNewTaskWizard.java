@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.ui.wizard;
 
+import java.net.URL;
+
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.mylyn.internal.provisional.commons.ui.WorkbenchUtil;
 import org.eclipse.mylyn.tasks.core.ITaskMapping;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.wizards.NewTaskWizard;
@@ -22,7 +24,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.eclipse.ui.PlatformUI;
+
 
 /**
  * @author Robert Munteanu
@@ -64,9 +67,11 @@ public class ReviewboardNewTaskWizard extends NewTaskWizard {
                 
                 public void widgetSelected(SelectionEvent e) {
 
-                    WorkbenchUtil.openUrl(
-                            "https://github.com/rombert/ereviewboard/wiki/SCM-Integrations",
-                            IWorkbenchBrowserSupport.AS_EXTERNAL);
+                    try {
+                        PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL("https://github.com/rombert/ereviewboard/wiki/SCM-Integrations"));
+                    } catch (Exception e1) {
+                        MessageDialog.openError(getShell(), "Open Location", "Browser initialization failed:\n\n" + e1.getMessage());
+                    }
                 }
                 
                 public void widgetDefaultSelected(SelectionEvent e) {
