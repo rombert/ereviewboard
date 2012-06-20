@@ -141,7 +141,7 @@ Inc. in the United States, other countries, or both.
          unpack="false"/>
 
    <plugin
-         id="com.google.guava"
+         id="com.google.collect"
          download-size="0"
          install-size="0"
          version="0.0.0"
