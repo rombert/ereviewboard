@@ -107,7 +107,7 @@ Inc. in the United States, other countries, or both.
    </license>
 
    <requires>
-      <import feature="org.eclipse.mylyn.reviews.feature" version="0.8.0" match="compatible"/>
+      <import feature="org.eclipse.mylyn.reviews.feature" version="0.8.0" match="greaterOrEqual"/>
       <import feature="org.eclipse.mylyn_feature" version="3.6.0" match="compatible"/>
       <import feature="org.eclipse.mylyn.commons" version="3.6.0" match="compatible"/>
    </requires>
