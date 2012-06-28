@@ -4,7 +4,7 @@
   <parent>
     <artifactId>ereviewboard</artifactId>
     <groupId>org.review_board.ereviewboard</groupId>
-    <version>0.14.0-SNAPSHOT</version>
+    <version>0.13.1-SNAPSHOT</version>
   </parent>
   <artifactId>org.review_board.ereviewboard.egit.core</artifactId>
   <name>eReviewBoard : EGit Core Plugin</name>
