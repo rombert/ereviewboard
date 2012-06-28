@@ -4,16 +4,16 @@
    <description>
       eReviewBoard Update Site
    </description>
-   <feature url="features/org.review_board.ereviewboard_0.13.0.201206272018.jar" id="org.review_board.ereviewboard" version="0.13.0.201206272018">
+   <feature url="features/org.review_board.ereviewboard_0.13.1.201206281821.jar" id="org.review_board.ereviewboard" version="0.13.1.201206281821">
       <category name="eReviewBoard"/>
    </feature>
-   <feature url="features/org.review_board.ereviewboard.subclipse_0.13.0.201206272018.jar" id="org.review_board.ereviewboard.subclipse" version="0.13.0.201206272018">
+   <feature url="features/org.review_board.ereviewboard.subclipse_0.13.1.201206281821.jar" id="org.review_board.ereviewboard.subclipse" version="0.13.1.201206281821">
       <category name="eReviewBoard Integrations"/>
    </feature>
-   <feature url="features/org.review_board.ereviewboard.egit_0.13.0.201206272018.jar" id="org.review_board.ereviewboard.egit" version="0.13.0.201206272018">
+   <feature url="features/org.review_board.ereviewboard.egit_0.13.1.201206281821.jar" id="org.review_board.ereviewboard.egit" version="0.13.1.201206281821">
       <category name="eReviewBoard Integrations"/>
    </feature>
-   <feature url="features/org.review_board.ereviewboard.cvs_0.13.0.201206272018.jar" id="org.review_board.ereviewboard.cvs" version="0.13.0.201206272018">
+   <feature url="features/org.review_board.ereviewboard.cvs_0.13.1.201206281821.jar" id="org.review_board.ereviewboard.cvs" version="0.13.1.201206281821">
       <category name="eReviewBoard Integrations"/>
    </feature>
    <category-def name="eReviewBoard" label="eReviewBoard"/>
