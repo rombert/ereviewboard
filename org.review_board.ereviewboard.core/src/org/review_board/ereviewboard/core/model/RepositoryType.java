@@ -17,7 +17,7 @@ package org.review_board.ereviewboard.core.model;
  */
 public enum RepositoryType {
 
-    Bazaar("Bazaar"), ClearCase("Clear Case"), CVS("CVS"), Git("Git"), Mercurial("Mercurial"), Perforce("Perforce"), PerforceVMWare("Perforce (VMware)"), PlasticSCM("Plastic SCM"), Subversion("Subversion");
+    Bazaar("Bazaar"), ClearCase("Clear Case"), CVS("CVS"), Git("Git"), Mercurial("Mercurial"), Perforce("Perforce"), PerforceNetApp("Perforce NetApp"), PerforceVMWare("Perforce (VMware)"), PlasticSCM("Plastic SCM"), Subversion("Subversion");
 
     private final String displayName;
 
