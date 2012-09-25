@@ -27,7 +27,7 @@ public enum RepositoryType {
             if ( repositoryType.getDisplayName().equals(displayName) )
                 return repositoryType;
         
-        throw new IllegalArgumentException("Unkonwn " + RepositoryType.class.getSimpleName() + 
+        throw new IllegalArgumentException("Unknown " + RepositoryType.class.getSimpleName() + 
                 " display name '" + displayName + "'");
     }
     
