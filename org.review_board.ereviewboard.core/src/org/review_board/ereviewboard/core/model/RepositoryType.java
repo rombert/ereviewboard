@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2011 Robert Munteanu and others.
+ * Copyright (c) 2004, 2012 Robert Munteanu and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.review_board.ereviewboard.core.model;
 
+import com.google.common.base.Objects;
+
 /**
  * 
  * @author Robert Munteanu
@@ -17,14 +19,19 @@ package org.review_board.ereviewboard.core.model;
  */
 public enum RepositoryType {
 
-    Bazaar("Bazaar"), ClearCase("ClearCase"), CVS("CVS"), Git("Git"), Mercurial("Mercurial"), Perforce("Perforce"), PerforceNetApp("Perforce NetApp"), PerforceVMWare("Perforce (VMware)"), PlasticSCM("Plastic SCM"), Subversion("Subversion");
+    Bazaar("Bazaar"), ClearCase("ClearCase") {
+        @Override
+        protected boolean matchesDisplayName(String displayName) {
+            return super.matchesDisplayName(displayName) || "Clear Case".equals(displayName);
+        }
+    }, CVS("CVS"), Git("Git"), Mercurial("Mercurial"), Perforce("Perforce"), PerforceNetApp("Perforce NetApp"), PerforceVMWare("Perforce (VMware)"), PlasticSCM("Plastic SCM"), Subversion("Subversion");
 
     private final String displayName;
 
     public static RepositoryType fromDisplayName(String displayName) {
         
         for (RepositoryType repositoryType : RepositoryType.values() )
-            if ( repositoryType.getDisplayName().equals(displayName) )
+            if ( repositoryType.matchesDisplayName(displayName) )
                 return repositoryType;
         
         throw new IllegalArgumentException("Unknown " + RepositoryType.class.getSimpleName() + 
@@ -34,6 +41,11 @@ public enum RepositoryType {
     private RepositoryType(String displayName) {
         
         this.displayName = displayName;
+    }
+    
+    protected boolean matchesDisplayName(String displayName) {
+        
+        return Objects.equal(displayName, this.displayName);
     }
     
     public String getDisplayName() {
