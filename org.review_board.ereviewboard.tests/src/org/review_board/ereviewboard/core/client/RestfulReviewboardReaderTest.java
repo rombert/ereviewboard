@@ -50,6 +50,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.junit.Before;
@@ -186,6 +187,16 @@ public class RestfulReviewboardReaderTest {
         assertThat("repositories[0].tool", repository.getTool(), is(RepositoryType.Subversion));
 
         assertThat("repositories[1].tool", repositories.get(1).getTool(), is(RepositoryType.ClearCase));
+    }
+    
+    @Test
+    public void readRepositoryInfo() throws Exception {
+        
+        // http://www.reviewboard.org/docs/manual/1.7/webapi/2.0/resources/repository-info/
+        Map<String, String> repositoryInfo = reader.readRepositoryInfo(readJsonTestResource("repository_info.json"));
+        
+        assertThat("repositoryInfo.size", repositoryInfo.size(), is(3));
+        assertThat("repositoryInfo.uuid", repositoryInfo.get("uuid"), is("5efc13c4-1f27-0410-8691-ff2d1f55687e"));
     }
 
     @Test

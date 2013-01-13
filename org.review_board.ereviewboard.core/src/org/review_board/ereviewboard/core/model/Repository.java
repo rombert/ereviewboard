@@ -38,6 +38,7 @@
 package org.review_board.ereviewboard.core.model;
 
 import java.io.Serializable;
+import java.util.Map;
 
 
 /**
@@ -47,10 +48,16 @@ import java.io.Serializable;
  */
 public class Repository implements Serializable  {
     
+    /**
+     * Property name for the 'uuid' property found for Subversion repositories
+     */
+    public static final String PN_UUID= "uuid";
+    
     private int id;
     private String name;
     private RepositoryType tool;
     private String path;
+    private Map<String, String> repositoryInfo;
 
     /**
      * @return the id
@@ -108,6 +115,14 @@ public class Repository implements Serializable  {
         this.path = path;
     }
 
+    public Map<String, String> getRepositoryInfo() {
+        return repositoryInfo;
+    }
+    
+    public void setRepositoryInfo(Map<String, String> properties) {
+        this.repositoryInfo = properties;
+    }
+    
     @Override
     public String toString() {
         return name;

@@ -42,6 +42,7 @@ import org.tigris.subversion.subclipse.core.*;
 import org.tigris.subversion.subclipse.core.resources.LocalResourceStatus;
 import org.tigris.subversion.subclipse.core.resources.SVNWorkspaceRoot;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
+import org.tigris.subversion.svnclientadapter.ISVNInfo;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
 
 /**
@@ -168,6 +169,20 @@ class DetectLocalChangesPage extends WizardPage {
                     Assert.isNotNull(svnProvider, "No " + SVNTeamProvider.class.getSimpleName() + " for " + _project);
                     
                     ISVNLocalResource projectSvnResource = SVNWorkspaceRoot.getSVNResourceFor(_project);
+                    String localRepositoryUuid;
+                    try {
+						ISVNInfo info = projectSvnResource.getRepository().getSVNClient().getInfo(projectSvnResource.getUrl());
+						localRepositoryUuid = info.getUuid();
+					} catch (SVNException e1) {
+					    throw new InvocationTargetException(e1, "Unable to find uuid for repository at" + projectSvnResource.getRepository().getUrl());
+					} catch (SVNClientException e1) {
+					    throw new InvocationTargetException(e1, "Unable to find uuid for repository at" + projectSvnResource.getRepository().getUrl());
+					}
+                    
+                    if ( localRepositoryUuid == null ) {
+                    	setErrorMessage("No uuid found for local SVN repository, unable to continue");
+                    	return;
+                    }
                     
                     ReviewboardClientManager clientManager = ReviewboardCorePlugin.getDefault().getConnector().getClientManager();
                     ReviewboardClient rbClient = null;
@@ -176,7 +191,8 @@ class DetectLocalChangesPage extends WizardPage {
                     
                     setSvnRepositoryLocation(projectSvnResource.getRepository());
                     
-                    Activator.getDefault().trace(TraceLocation.MAIN, "Local repository is " + getSvnRepositoryLocation().getRepositoryRoot().toString());
+                    Activator.getDefault().trace(TraceLocation.MAIN, "Local repository is " + getSvnRepositoryLocation().getRepositoryRoot().toString() + 
+                            ", uuid is " + localRepositoryUuid);
                     
                     List<String> clientUrls = clientManager.getAllClientUrl();
                     if ( clientUrls.isEmpty() ) {
@@ -220,7 +236,8 @@ class DetectLocalChangesPage extends WizardPage {
                             
                             hasSvnRepos = true;
                             
-                            if ( getSvnRepositoryLocation().getRepositoryRoot().toString().equals(repository.getPath()) ) {
+                            if ( localRepositoryUuid.equals(repository.getRepositoryInfo().get(Repository.PN_UUID)) ) {
+                            	
                                 reviewBoardRepository = repository;
                                 taskRepository = repositoryCandidate;
                                 rbClient = client;

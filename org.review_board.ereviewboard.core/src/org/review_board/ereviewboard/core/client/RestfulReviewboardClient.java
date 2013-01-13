@@ -238,6 +238,16 @@ public class RestfulReviewboardClient implements ReviewboardClient {
         
         return loader.doLoad();
     }
+    
+    private void loadRepositoryInfo(Repository repository, IProgressMonitor monitor) throws ReviewboardException {
+        
+        ReviewboardQueryBuilder queryBuilder = new ReviewboardQueryBuilder()
+            .descend(PATH_REPOSITORIES, repository.getId()).descend(PATH_INFO);
+        
+        Map<String, String> repositoryInfo = reviewboardReader.readRepositoryInfo(httpClient.executeGet(queryBuilder.createQuery(), monitor));
+        
+        repository.setRepositoryInfo(repositoryInfo);
+    }
 
     private List<User> getUsers(IProgressMonitor monitor) throws ReviewboardException {
     
@@ -416,11 +426,19 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 // repositories with small data sets will not need very accurate progress reporting anyway
                 clientData.setUsers(getUsers(Policy.subMonitorFor(monitor, 90)));
                 
-                clientData.setGroups(getReviewGroups(Policy.subMonitorFor(monitor, 5)));
+                clientData.setGroups(getReviewGroups(Policy.subMonitorFor(monitor, 4)));
             
-                clientData.setRepositories(getRepositories(Policy.subMonitorFor(monitor, 4)));
+                List<Repository> repositories = getRepositories(Policy.subMonitorFor(monitor, 4));
                 
-                clientData.setTimeZone(getTimeZone(Policy.subMonitorFor(monitor, 1)));
+                IProgressMonitor repositoryInfoMonitor = Policy.subMonitorFor(monitor,1);
+                
+                for ( Repository repository : repositories )
+                    if ( repository.getTool() == RepositoryType.Subversion)
+                        loadRepositoryInfo(repository, repositoryInfoMonitor);
+                
+                clientData.setRepositories(repositories);
+                
+                clientData.setTimeZone(getTimeZone(repositoryInfoMonitor));
             
                 clientData.lastupdate = new Date().getTime();
             } finally  {

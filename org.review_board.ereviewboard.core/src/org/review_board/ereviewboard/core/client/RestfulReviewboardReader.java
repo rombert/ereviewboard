@@ -58,6 +58,7 @@ import org.review_board.ereviewboard.core.util.ReviewboardUtil;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Class for converting Review Board API call responses (JSON format) to Java objects.
@@ -284,6 +285,29 @@ public class RestfulReviewboardReader {
             throw new ReviewboardException(e.getMessage(), e);
         }
     }
+    
+    public Map<String, String> readRepositoryInfo(String source) throws ReviewboardException {
+        
+        Map<String, String> repositoryInfo = Maps.newHashMap();
+        
+        try {
+            JSONObject rootObject = checkedGetJSonRootObject(source);
+            JSONObject info = rootObject.getJSONObject("info");
+            
+            
+            for ( Iterator<?> keyIterator = info.keys(); keyIterator.hasNext(); ) {
+                String key = (String) keyIterator.next();
+                String value = info.getString(key);
+                
+                repositoryInfo.put(key, value);
+            }
+            
+            return repositoryInfo;
+        } catch (JSONException e) {
+            throw new ReviewboardException(e.getMessage(), e);
+        }
+        
+    }    
 
     public ReviewRequest readReviewRequest(String source) throws ReviewboardException {
         
