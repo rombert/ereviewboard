@@ -19,4 +19,14 @@ public class ReviewboardUtilTest extends TestCase {
         List<Integer> list = Arrays.asList(new Integer[] { 1, 2, 3 });
         assertEquals("1, 2, 3", ReviewboardUtil.joinList(list));
     }
+    
+    public void testMarshallDate_1_6() {
+        
+        assertEquals(1282951578000l, ReviewboardUtil.marshallDate("2010-08-28 02:26:18.474").getTime());
+    }
+
+    public void testMarshallDate_1_7() {
+        
+        assertEquals(1282951578000l, ReviewboardUtil.marshallDate("2010-08-28T02:26:18.474Z").getTime());
+    }
 }

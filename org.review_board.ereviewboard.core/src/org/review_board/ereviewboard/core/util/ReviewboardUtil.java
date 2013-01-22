@@ -56,12 +56,13 @@ public final class ReviewboardUtil {
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private ReviewboardUtil() {
-        super();
     }
 
     public static Date marshallDate(String time) {
         Date date = null;
 
+        time = time.replace('T', ' ').replace("Z", "");
+        
         try {
             date = dateFormat.parse(time);
         } catch (ParseException e) {
@@ -69,10 +70,6 @@ public final class ReviewboardUtil {
         }
 
         return date;
-    }
-
-    public static String unmarshallDate(Date date) {
-        return dateFormat.format(date);
     }
 
     public static String getReviewRequestUrl(String repositoryUrl, String taskId) {
