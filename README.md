@@ -35,7 +35,7 @@ Dowloads
 --------
 
 * The connector is available through [the Eclipse marketplace](http://marketplace.eclipse.org/content/ereviewboard)
-* Archived update sites are periodically posted in the [downloads section](ereviewboard/archives/master)
+* Archived update sites are periodically posted in the [sourceforge.net downloads section](https://sourceforge.net/projects/ereviewboard/files/latest/download)
 * A p2 update site is available at [http://rombert.github.com/ereviewboard/update/](http://rombert.github.com/ereviewboard/update/).
 
 Builds
