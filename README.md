@@ -12,13 +12,13 @@ There is basic support for editing data:
 1. Closing and reopening review requests;
 1. Posting and discarding reviews
 
-For selected [SCM integrations](ereviewboard/wiki/SCM-Integrations), more operations are
-suported:
+For selected [SCM integrations](https://github.com/rombert/ereviewboard/wiki/SCM-Integrations),
+more operations are suported:
 
 1. Posting and updating diffs
 1. Opening diffs in a compare editor
 
-Please see [the project wiki](ereviewboard/wiki) for more details.
+Please see [the project wiki](https://github.com/rombert/ereviewboard/wiki) for more details.
 
 Discussions
 -----------
