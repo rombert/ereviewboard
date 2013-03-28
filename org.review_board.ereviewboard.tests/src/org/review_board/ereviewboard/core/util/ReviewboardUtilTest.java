@@ -1,7 +1,9 @@
 package org.review_board.ereviewboard.core.util;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -22,11 +24,16 @@ public class ReviewboardUtilTest extends TestCase {
     
     public void testMarshallDate_1_6() {
         
-        assertEquals(1282951578000l, ReviewboardUtil.marshallDate("2010-08-28 02:26:18.474").getTime());
+        assertEquals(1282962378000l, toGmtMillis(ReviewboardUtil.marshallDate("2010-08-28 02:26:18.474")));
     }
 
     public void testMarshallDate_1_7() {
         
-        assertEquals(1282951578000l, ReviewboardUtil.marshallDate("2010-08-28T02:26:18.474Z").getTime());
+        assertEquals(1282962378000l, toGmtMillis(ReviewboardUtil.marshallDate("2010-08-28T02:26:18.474Z")));
+    }
+    
+    private static long toGmtMillis(Date date) {
+        
+       return TimeZone.getDefault().getOffset(date.getTime()) + date.getTime();
     }
 }
