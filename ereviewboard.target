@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="ereviewboard" sequenceNumber="58">
+<?pde version="3.8"?><target name="ereviewboard" sequenceNumber="59">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.cvs.feature.group" version="1.2.1.r362_v20101111-7B77FKv99HL0GvIAF99I8H14B7E"/>
@@ -26,10 +26,10 @@
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20110523182458/repository/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.tmatesoft.svnkit.feature.group" version="1.7.8.r9538_v20130107_2001"/>
-<unit id="org.tigris.subversion.clientadapter.feature.feature.group" version="1.8.3"/>
-<unit id="org.tigris.subversion.subclipse.feature.group" version="1.8.18"/>
-<unit id="org.tigris.subversion.clientadapter.svnkit.feature.feature.group" version="1.7.8.1"/>
+<unit id="org.tmatesoft.svnkit.feature.group" version="1.7.9.r9659_v20130411_2103"/>
+<unit id="org.tigris.subversion.clientadapter.feature.feature.group" version="1.8.6"/>
+<unit id="org.tigris.subversion.subclipse.feature.group" version="1.8.22"/>
+<unit id="org.tigris.subversion.clientadapter.svnkit.feature.feature.group" version="1.7.9.2"/>
 <repository location="http://subclipse.tigris.org/update_1.8.x"/>
 </location>
 </locations>
