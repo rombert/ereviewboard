@@ -15,19 +15,21 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.mylyn.reviews.core.model.IComment;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
-import org.eclipse.mylyn.reviews.core.model.IFileRevision;
+import org.eclipse.mylyn.reviews.core.model.IFileVersion;
 import org.eclipse.mylyn.reviews.core.model.ILineLocation;
 import org.eclipse.mylyn.reviews.core.model.ILocation;
 import org.eclipse.mylyn.reviews.core.model.IReviewItem;
-import org.eclipse.mylyn.reviews.core.model.ITopic;
+import org.eclipse.mylyn.reviews.core.model.ICommentContainer;
 import org.eclipse.mylyn.reviews.ui.ReviewBehavior;
 import org.eclipse.mylyn.tasks.core.ITask;
+import org.eclipse.team.core.history.IFileRevision;
 import org.review_board.ereviewboard.core.client.DiffCommentLineMapper;
 import org.review_board.ereviewboard.core.client.ReviewboardClient;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
 import org.review_board.ereviewboard.core.model.DiffComment;
 import org.review_board.ereviewboard.core.model.DiffData;
 import org.review_board.ereviewboard.core.model.Review;
+import org.review_board.ereviewboard.core.model.reviews.ReviewModelFactory;
 import org.review_board.ereviewboard.core.model.reviews.TopicAddedListener;
 import org.review_board.ereviewboard.ui.ReviewboardUiPlugin;
 
@@ -41,23 +43,25 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
     private ReviewboardClient _client;
     private int _diffRevisionId;
     private TopicAddedListener _topicAddedListener;
+    private ReviewModelFactory _reviewModelFactory;
 
-    public ReviewboardReviewBehaviour(ITask task, IFileItem fileItem, int diffRevisionId, ReviewboardClient client, TopicAddedListener listener) {
+    public ReviewboardReviewBehaviour(ITask task, IFileItem fileItem, int diffRevisionId, ReviewboardClient client, ReviewModelFactory reviewModelFactory, TopicAddedListener listener) {
         super(task);
-        
+        _reviewModelFactory = reviewModelFactory;
         _fileItem = fileItem;
         _client = client;
         _diffRevisionId = diffRevisionId;
         _topicAddedListener = listener;
     }
     
+   
     @Override
-    public IStatus addTopic(IReviewItem fileItem, ITopic topic, IProgressMonitor monitor) {
-        
+    public IStatus addComment(IReviewItem reviewItem, IComment comment, IProgressMonitor monitor) {
         monitor.beginTask("Posting draft comment", 3);
         
         try {
-            ILineLocation location = (ILineLocation) topic.getLocation();
+            
+            ILineLocation location = (ILineLocation) comment.getLocations().get(0);
             
             int fileId = Integer.parseInt(_fileItem.getId());
             int reviewRequestId = Integer.parseInt(getTask().getTaskId());
@@ -66,9 +70,9 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
             
             DiffCommentLineMapper lineMapper = new DiffCommentLineMapper(diffData);
             
-            int firstLine = findFirstLine(topic, location, lineMapper);
-            int numLines = Math.max(location.getTotalMax() - location.getTotalMin(), 1);
-            String text = topic.getDescription();
+            int firstLine = findFirstLine(reviewItem, location, lineMapper);
+            int numLines = Math.max(location.getRangeMax() - location.getRangeMin(), 1);
+            String text = comment.getDescription();
             int fileDiffId = Integer.parseInt(_fileItem.getBase().getId().toString());
             
             DiffComment diffComment = new DiffComment();
@@ -86,9 +90,9 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
             diffComment = _client.createDiffComment(reviewRequestId, draftReview.getId(), fileDiffId, diffComment, monitor);
             monitor.worked(1);
             
-            setAuthorFromPostedDiffComment(topic, diffComment);
+            setAuthorFromPostedDiffComment(comment, diffComment);
             
-            _topicAddedListener.topicAdded(topic);
+            _topicAddedListener.topicAdded(comment);
             
             return Status.OK_STATUS;
         } catch (ReviewboardException e) {
@@ -100,39 +104,44 @@ public class ReviewboardReviewBehaviour extends ReviewBehavior {
         }
     }
 
-    private int findFirstLine(ITopic topic, ILineLocation location, DiffCommentLineMapper lineMapper) {
+    private int findFirstLine(IReviewItem reviewItem, ILineLocation location, DiffCommentLineMapper lineMapper) {
         
-        IReviewItem topicItem = topic.getItem();
-        IFileRevision baseRevision = _fileItem.getBase();
-        IFileRevision targetRevision = _fileItem.getTarget();
-        boolean mapForOldFile = topicItem == baseRevision;
-        boolean mapForNewFile = topicItem == targetRevision;
+       
+        IFileVersion baseRevision = _fileItem.getBase();
+        IFileVersion targetRevision = _fileItem.getTarget();
+        boolean mapForOldFile = reviewItem == baseRevision;
+        boolean mapForNewFile = reviewItem == targetRevision;
         
         int firstLine;
         if ( mapForOldFile ^ mapForNewFile ) {
-            firstLine = mapForOldFile ? lineMapper.getDiffMappingForOldFile(location.getTotalMin())
-                    : lineMapper.getDiffMappingForNewFile(location.getTotalMin());    
+            firstLine = mapForOldFile ? lineMapper.getDiffMappingForOldFile(location.getRangeMin())
+                    : lineMapper.getDiffMappingForNewFile(location.getRangeMin());    
         } else {
             // old Reviews UI versions pass a generic 'fileItem' item to the topic which
             // can not be used to determine the revision to annotate
             try {
-                firstLine = lineMapper.getDiffMappingForNewFile(location.getTotalMin());
+                firstLine = lineMapper.getDiffMappingForNewFile(location.getRangeMin());
             } catch (RuntimeException e) {
-                firstLine = lineMapper.getDiffMappingForOldFile(location.getTotalMin());
+                firstLine = lineMapper.getDiffMappingForOldFile(location.getRangeMin());
             }
         }
         return firstLine;
     }
 
-    private void setAuthorFromPostedDiffComment(ITopic topic, DiffComment diffComment) {
-    
-        topic.getAuthor().setId(diffComment.getUsername());
-        topic.getAuthor().setDisplayName(_client.getClientData().getUser(diffComment.getUsername()).getFullName());
+    private void setAuthorFromPostedDiffComment(IComment comment, DiffComment diffComment) {
         
-        for ( IComment comment : topic.getComments() ) {
+        comment.setAuthor(_reviewModelFactory.createUser(diffComment.getUsername()));
+        comment.getAuthor().setId(diffComment.getUsername());
+        comment.getAuthor().setDisplayName(_client.getClientData().getUser(diffComment.getUsername()).getFullName());    
+      
 
-            comment.getAuthor().setId(diffComment.getUsername());
-            comment.getAuthor().setDisplayName(_client.getClientData().getUser(diffComment.getUsername()).getFullName());
-        }
+      
+      
+    }
+
+
+    @Override
+    public IFileRevision getFileRevision(IFileVersion fileversion) {
+        return fileversion.getFileRevision();
     }
 }

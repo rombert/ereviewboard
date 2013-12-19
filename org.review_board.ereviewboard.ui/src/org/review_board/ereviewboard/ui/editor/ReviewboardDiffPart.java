@@ -35,7 +35,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.mylyn.internal.reviews.ui.compare.FileItemCompareEditorInput;
 import org.eclipse.mylyn.internal.tasks.ui.editors.EditorUtil;
 import org.eclipse.mylyn.reviews.core.model.IFileItem;
-import org.eclipse.mylyn.reviews.core.model.IFileRevision;
+import org.eclipse.mylyn.reviews.core.model.IFileVersion;
 import org.eclipse.mylyn.reviews.ui.ReviewUi;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.TasksUi;
@@ -123,7 +123,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
     }
 
     private void createSubsection(FormToolkit toolkit, Composite composite, final ReviewboardTaskMapper taskMapper, final ReviewboardDiffMapper diffMapper,
-            ReviewModelFactory reviewModelFactory, final Integer diffRevision, int style) {
+            final ReviewModelFactory reviewModelFactory, final Integer diffRevision, int style) {
         
         final Section subSection = toolkit.createSection(composite, style);
         GridDataFactory.fillDefaults().grab(true, false).applyTo(subSection);
@@ -163,7 +163,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                     return;
                 }
                 
-                ReviewUi.setActiveReview(new ReviewboardReviewBehaviour(getTaskEditorPage().getTask(), item, diffRevision, getClient(), listener));
+                ReviewUi.setActiveReview(new ReviewboardReviewBehaviour(getTaskEditorPage().getTask(), item, diffRevision, getClient(), reviewModelFactory, listener));
                 
                 SCMFileContentsLocator locator = getSCMFileContentsLocator(taskMapper, item.getBase());
                 if ( locator == null ) {
@@ -171,7 +171,7 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
                     return;
                 }
                 
-                ReviewboardReviewBehaviour reviewBehaviour = new ReviewboardReviewBehaviour(getTaskEditorPage().getTask() , item, diffRevision, getClient(), listener);
+                ReviewboardReviewBehaviour reviewBehaviour = new ReviewboardReviewBehaviour(getTaskEditorPage().getTask() , item, diffRevision, getClient(),reviewModelFactory, listener);
                 
                 CompareUI.openCompareEditor(new ReviewboardCompareEditorInput(item, reviewBehaviour, getTaskData(), locator, diffRevision));
             }
@@ -260,14 +260,14 @@ public class ReviewboardDiffPart extends AbstractTaskEditorPart {
         return ReviewboardCorePlugin.getDefault().getConnector().getClientManager().getClient(getTaskRepository());
     }
     
-    private SCMFileContentsLocator getSCMFileContentsLocator(ReviewboardTaskMapper taskMapper, IFileRevision fileRevision) {
+    private SCMFileContentsLocator getSCMFileContentsLocator(ReviewboardTaskMapper taskMapper, IFileVersion fileRevision) {
         
         IConfigurationElement[] configurationElements = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_SCM_FILE_CONTENTS_LOCATOR);
 
         for ( IConfigurationElement element : configurationElements ) { 
             try {
                 SCMFileContentsLocator locator = (SCMFileContentsLocator) element.createExecutableExtension("class");
-                locator.init(taskMapper.getRepository(), fileRevision.getPath(), fileRevision.getRevision());
+                locator.init(taskMapper.getRepository(), fileRevision.getPath(), fileRevision.getDescription());
                 if ( locator.isEnabled() )
                     return locator;
             } catch (CoreException e) {

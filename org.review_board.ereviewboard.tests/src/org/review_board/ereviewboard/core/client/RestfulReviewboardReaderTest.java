@@ -42,6 +42,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -484,7 +486,7 @@ public class RestfulReviewboardReaderTest {
         try {
             reader.ensureSuccess(readJsonTestResource("invalid-form-data.json"));
         } catch (ReviewboardException e) {
-            assertThat(e, is(ReviewboardInvalidFormDataException.class));
+            assertTrue(e instanceof ReviewboardInvalidFormDataException);
             
             ReviewboardInvalidFormDataException exception = (ReviewboardInvalidFormDataException) e;
             assertThat(exception.getMessage(), is("myint : `abc` is not an integer."));
