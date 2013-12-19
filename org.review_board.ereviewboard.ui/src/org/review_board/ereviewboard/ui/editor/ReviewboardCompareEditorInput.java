@@ -47,6 +47,7 @@ class ReviewboardCompareEditorInput extends FileItemCompareEditorInput {
     private final TaskData _taskData;
     private final SCMFileContentsLocator _locator;
     private final int _diffRevisionId;
+    protected IFileItem _file;
 
     /**
      * @param file
@@ -60,6 +61,11 @@ class ReviewboardCompareEditorInput extends FileItemCompareEditorInput {
         _taskData = taskData;
         _locator = locator;
         this._diffRevisionId = diffRevisionId;
+        this._file=file;
+    }
+    
+    protected IFileItem getFile(){
+        return this._file;
     }
 
     @Override
@@ -115,7 +121,7 @@ class ReviewboardCompareEditorInput extends FileItemCompareEditorInput {
         int fileDiffId = Integer.parseInt(getFile().getId());
         
         // do not add comments twice
-        if ( getFile().getBase().getTopics().isEmpty() && getFile().getTarget().getTopics().isEmpty() ) {
+        if ( getFile().getBase().getComments().isEmpty() && getFile().getTarget().getComments().isEmpty() ) {
             DiffData diffData = client.getDiffData(reviewRequestId, diffId, fileDiffId, monitor);
             monitor.worked(1);
             new ReviewModelFactory(client).appendComments(getFile(), client.readDiffCommentsForFileDiff(reviewRequestId, diffId, fileDiffId, monitor), new DiffCommentLineMapper(diffData));
