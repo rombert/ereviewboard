@@ -267,7 +267,7 @@ public class ReviewboardHttpClient {
 
     public void executeDelete(String url, IProgressMonitor monitor) throws ReviewboardException {
         
-        executeMethod(new DeleteMethod(url), monitor);
+        executeMethod(new DeleteMethod(stripSlash(location.getUrl()) + url), monitor);
     }
 
 
