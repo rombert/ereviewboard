@@ -64,7 +64,7 @@ class ReviewboardCompareEditorInput extends FileItemCompareEditorInput {
         this._file=file;
     }
     
-    protected IFileItem getFile(){
+    public IFileItem getFile(){
         return this._file;
     }
 
