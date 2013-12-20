@@ -1,21 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="ereviewboard" sequenceNumber="59">
+<?pde version="3.8"?><target name="ereviewboard" sequenceNumber="66">
 <locations>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cvs.feature.group" version="1.2.1.r362_v20101111-7B77FKv99HL0GvIAF99I8H14B7E"/>
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.6.1.v20100914-1218"/>
-<repository location="http://download.eclipse.org/releases/helios/"/>
-</location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.egit.feature.group" version="1.0.0.201106090707-r"/>
 <unit id="org.eclipse.jgit.feature.group" version="1.0.0.201106090707-r"/>
 <repository location="http://download.eclipse.org/egit/updates-1.0"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.mylyn_feature.feature.group" version="3.7.0.v20120319-0200"/>
-<unit id="org.eclipse.mylyn.commons.feature.group" version="3.7.0.v20120319-0200"/>
-<unit id="org.eclipse.mylyn.reviews.feature.feature.group" version="0.9.0.v20120319-0200"/>
-<repository location="http://archive.eclipse.org/mylyn/drops/3.7.0/v20120319-0200"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.apache.commons.io" version="2.0.1.v201105210651"/>
@@ -31,6 +20,17 @@
 <unit id="org.tigris.subversion.subclipse.feature.group" version="1.8.22"/>
 <unit id="org.tigris.subversion.clientadapter.svnkit.feature.feature.group" version="1.7.9.2"/>
 <repository location="http://subclipse.tigris.org/update_1.8.x"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.mylyn_feature.feature.group" version="3.9.0.v20130612-0100"/>
+<unit id="org.eclipse.mylyn.reviews.feature.feature.group" version="2.0.0.v20130612-0100"/>
+<unit id="org.eclipse.mylyn.commons.feature.group" version="3.9.0.v20130612-0100"/>
+<repository location="http://archive.eclipse.org/mylyn/drops/3.9.0/v20130612-0100"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.7.2.v20120130-0943"/>
+<unit id="org.eclipse.cvs.feature.group" version="1.3.100.v20110520-0800-7B78FHl9VF7BD7KBM4GP9C"/>
+<repository location="http://download.eclipse.org/releases/indigo"/>
 </location>
 </locations>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
