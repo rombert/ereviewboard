@@ -7,7 +7,8 @@ class subversion {
     file {'/var/www/svn':
         ensure => directory,
         owner => apache,
-        group => apache
+        group => apache,
+        require => Package['httpd']
     }
 
     exec {'svnadmin create':
@@ -15,6 +16,7 @@ class subversion {
         creates => '/var/www/svn/repo',
         path    => '/usr/bin',
         user   => 'apache',
-        logoutput => 'on_failure'
+        logoutput => 'on_failure',
+        require => [File['/var/www/svn'], Package['subversion']]
     }
 }

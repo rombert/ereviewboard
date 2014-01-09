@@ -32,5 +32,6 @@ class { 'selinux':
 }
 
 include reviewboard
+include reviewboard::subversion
 include subversion
 include subversion::httpd

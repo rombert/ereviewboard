@@ -13,7 +13,18 @@ class subversion::httpd {
         source => 'puppet:///modules/subversion/httpd/subversion.conf',
         notify => Service['httpd']
     }
-	
-	Class['subversion::httpd'] -> Class['subversion']
-	Class['subversion::httpd'] -> Package['httpd']
+
+	file {'/tmp/repo':
+		ensure => directory,
+		recurse => true,
+		source => 'puppet:///modules/subversion/repo-content'
+	}
+
+	exec{'import initial repo content':
+		command => 'svn import -m "Initial import" --username admin --password admin --non-interactive /tmp/repo http://localhost/svn/repo',
+		unless => 'svn ls  --username admin --password admin http://localhost/svn/repo | grep -q simple-project',
+		path => '/usr/bin',
+		require => [File['/tmp/repo'], Service['httpd']],
+		logoutput => 'on_failure'
+	}
 }
