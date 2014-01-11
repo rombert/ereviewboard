@@ -21,8 +21,8 @@ class subversion::httpd {
 	}
 
 	exec{'import initial repo content':
-		command => 'svn import -m "Initial import" --username admin --password admin --non-interactive /tmp/repo http://localhost/svn/repo',
-		unless => 'svn ls  --username admin --password admin http://localhost/svn/repo | grep -q simple-project',
+		command => 'svn import -m "Initial import" --username admin --password admin --non-interactive /tmp/repo http://localhost:5040/svn/repo',
+		unless => 'svn ls  --username admin --password admin http://localhost:5040/svn/repo | grep -q simple-project',
 		path => '/usr/bin',
 		require => [File['/tmp/repo'], Service['httpd']],
 		logoutput => 'on_failure'

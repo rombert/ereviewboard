@@ -21,14 +21,26 @@ class reviewboard {
         ensure => installed
     }
 
+    file {'/usr/lib/firewalld/services/http.xml':
+        ensure => present,
+        source => 'puppet:///modules/reviewboard/httpd-firewalld.xml'
+    }
+
     exec {'enable http in firewall':
         command => 'firewall-cmd --add-service=http',
         unless => 'firewall-cmd --query-service=http',
         user => 'root',
         path => ['/bin','/usr/bin'],
-        require => Package['httpd']
+        require => [Package['httpd'], File['/usr/lib/firewalld/services/http.xml']]
     }
 
+    file_line {'httpd port is 5040':
+        ensure  => present,
+        line    => 'Listen 5040',
+        match   => '^Listen .*$',
+        path    => '/etc/httpd/conf/httpd.conf',
+        require => Package['httpd']
+    }
 
     # Install and configure reviewboard
     exec {'rb-site':

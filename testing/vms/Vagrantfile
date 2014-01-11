@@ -5,6 +5,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 # NOTE - you need to install
+# - http://forge.puppetlabs.com/puppetlabs/stdlib
 # - https://forge.puppetlabs.com/puppetlabs/mysql
 # - https://forge.puppetlabs.com/spiette/selinux
 # 
@@ -19,10 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # doesn't already exist on the user's system.
   config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/fedora-18-x64-vbox4210.box"
 
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network :forwarded_port, guest: 80, host: 8082
+  config.vm.network :forwarded_port, guest: 5040, host: 5040
   
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "manifests"
