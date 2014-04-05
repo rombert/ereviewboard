@@ -44,7 +44,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,6 +58,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.review_board.ereviewboard.core.ReviewboardAttributeMapper;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.exception.ReviewboardFileNotFoundException;
 import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
 import org.review_board.ereviewboard.core.model.*;
 import org.review_board.ereviewboard.core.model.Change.Field;
@@ -491,6 +491,18 @@ public class RestfulReviewboardReaderTest {
             ReviewboardInvalidFormDataException exception = (ReviewboardInvalidFormDataException) e;
             assertThat(exception.getMessage(), is("myint : `abc` is not an integer."));
             assertThat(ErrorCode.INVALID_FORM_DATA.is(exception.getCode()), is(true));
+        }
+    }
+
+    @Test
+    public void readFileNotFoundException() throws IOException, ReviewboardException {
+        try {
+            reader.ensureSuccess(readJsonTestResource("file-not-found.json"));
+        } catch (ReviewboardFileNotFoundException e) {
+            assertThat(
+                    e.getMessage(),
+                    is("No file named '/simple-project/w/runtime-ereviewboard/simple-project/src/com/example/Logic.java' found in the repository at revision '1'"));
+            assertThat(ErrorCode.FILE_NOT_FOUND.is(e.getCode()), is(true));
         }
     }
 

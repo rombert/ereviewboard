@@ -46,6 +46,7 @@ import org.json.JSONObject;
 import org.review_board.ereviewboard.core.ReviewboardCorePlugin;
 import org.review_board.ereviewboard.core.exception.ReviewboardApiException;
 import org.review_board.ereviewboard.core.exception.ReviewboardException;
+import org.review_board.ereviewboard.core.exception.ReviewboardFileNotFoundException;
 import org.review_board.ereviewboard.core.exception.ReviewboardInvalidFormDataException;
 import org.review_board.ereviewboard.core.exception.ReviewboardObjectDoesNotExistException;
 import org.review_board.ereviewboard.core.model.*;
@@ -107,6 +108,9 @@ public class RestfulReviewboardReader {
                     throw new ReviewboardInvalidFormDataException(gatherFieldErrors(object));
                 else if ( ErrorCode.OBJECT_DOES_NOT_EXIST.is(code) )
                     throw new ReviewboardObjectDoesNotExistException(message);
+                else if (ErrorCode.FILE_NOT_FOUND.is(code))
+                    throw new ReviewboardFileNotFoundException(object.getString("file"),
+                            object.getString("revision"));
                 
                 throw new ReviewboardApiException(message, code);
             }
