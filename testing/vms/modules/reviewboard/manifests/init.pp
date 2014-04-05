@@ -44,7 +44,7 @@ class reviewboard {
 
     # Install and configure reviewboard
     exec {'rb-site':
-        command => 'rb-site install --noinput --domain-name=localhost --db-type=mysql --db-host=localhost --db-name=reviewboard --db-user=reviewboard --db-pass=rb --cache-type=file --cache-info=/var/cache/reviewboard/cache --web-server-type=apache --python-loader=wsgi --admin-user=admin --admin-password=admin --admin-email=robert@lmn.ro /var/www/reviews/',
+        command => 'rb-site install --noinput --domain-name=localhost --db-type=mysql --db-host=localhost --db-name=reviewboard --db-user=reviewboard --db-pass=rb --cache-type=file --cache-info=/var/cache/reviewboard/cache --web-server-type=apache --web-server-port=5040 --python-loader=wsgi --admin-user=admin --admin-password=admin --admin-email=robert@lmn.ro /var/www/reviews/',
         path => '/usr/bin/',
         user => 'root',
         creates => '/var/www/reviews',
