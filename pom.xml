@@ -14,13 +14,14 @@
     <module>org.review_board.ereviewboard.subclipse</module>
     <module>org.review_board.ereviewboard.subclipse.core</module>
     <module>org.review_board.ereviewboard.subclipse.ui</module>
+    <module>org.review_board.ereviewboard.subclipse.tests</module>
     <module>org.review_board.ereviewboard.egit</module>
     <module>org.review_board.ereviewboard.egit.core</module>
     <module>org.review_board.ereviewboard.egit.ui</module>
     <module>org.review_board.ereviewboard.cvs</module>
     <module>org.review_board.ereviewboard.cvs.core</module>
     <module>org.review_board.ereviewboard.cvs.ui</module>
-     <module>org.review_board.ereviewboard.tests</module>
+    <module>org.review_board.ereviewboard.tests</module>
     <module>org.review_board.ereviewboard.update</module>
   </modules>
 
