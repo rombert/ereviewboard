@@ -14,12 +14,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.review_board.ereviewboard.subclipse.Activator;
-import org.review_board.ereviewboard.subclipse.TraceLocation;
 import org.tigris.subversion.svnclientadapter.ISVNClientAdapter;
 import org.tigris.subversion.svnclientadapter.SVNClientException;
+import org.tigris.subversion.svnclientadapter.SVNRevision;
 
 /**
  * The <tt>DiffCreator</tt> creates ReviewBoard-compatible diffs
@@ -31,57 +32,63 @@ import org.tigris.subversion.svnclientadapter.SVNClientException;
  */
 public class DiffCreator {
 
-    private static final String INDEX_MARKER = "Index:";
+    private static final Pattern FILE_LINE = Pattern.compile("^(Index:|\\+{3}|-{3}) (.*?)(\\t.*)?$");
 
     public byte[] createDiff(Set<ChangedFile> selectedFiles, File rootLocation, ISVNClientAdapter svnClient) throws IOException, SVNClientException {
 
-        File tmpFile = null;
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            tmpFile = File.createTempFile("ereviewboard", "diff");
-
-            List<File> changes = new ArrayList<File>(selectedFiles.size());
-            Map<String, String> copies = new HashMap<String, String>();
-            for (ChangedFile changedFile : selectedFiles) {
-                if (changedFile.getCopiedFromPathRelativeToProject() != null)
-                    copies.put(changedFile.getPathRelativeToProject(), changedFile.getCopiedFromPathRelativeToProject());
-                changes.add(changedFile.getFile());
-            }
-
-            svnClient.createPatch(changes.toArray(new File[changes.size()]), rootLocation, tmpFile, false);
-
-            List<String> patchLines = FileUtils.readLines(tmpFile);
-            int replaceIndex = -1;
-            String replaceFrom = null;
-            String replaceTo = null;
-
-            for (int i = 0; i < patchLines.size(); i++) {
-
-                String line = patchLines.get(i);
-
-                if ( line.toString().startsWith(INDEX_MARKER) ) {
-                    String file = line.substring(INDEX_MARKER.length()).trim();
-
-                    String copiedTo = copies.get(file);
-                    if (copiedTo != null) {
-                        Activator.getDefault().trace(TraceLocation.DIFF, "File " + file + " is copied to " + copiedTo + " .");
-                        replaceIndex = i + 2;
-                        replaceFrom = file;
-                        replaceTo = copiedTo;
-                    }
-                } else if (i == replaceIndex) {
-                    line = line.replace(replaceFrom, replaceTo);
-                }
-
-                outputStream.write(line.getBytes());
-                outputStream.write('\n');
-            }
-
-            return outputStream.toByteArray();
-        } finally {
-            FileUtils.deleteQuietly(tmpFile);
+        List<File> changes = new ArrayList<File>(selectedFiles.size());
+        Map<String, String> copies = new HashMap<String, String>();
+        for (ChangedFile changedFile : selectedFiles) {
+            if (changedFile.getCopiedFromPathRelativeToProject() != null)
+                copies.put(changedFile.getPathRelativeToProject(), changedFile.getCopiedFromPathRelativeToProject());
+            changes.add(changedFile.getFile().getAbsoluteFile());
         }
+
+        // TODO - new line between multiple files?
+        // TODO - handle renames
+        for (File file : changes) {
+
+            File tmpFile = File.createTempFile("ereviewboard", ".diff");
+            
+            try {
+                svnClient.diff(file, SVNRevision.BASE, file, SVNRevision.WORKING, tmpFile, false);
+    
+                List<String> patchLines = FileUtils.readLines(tmpFile);
+    
+                for (String line : patchLines) {
+                    Matcher m = FILE_LINE.matcher(line);
+    
+                    if (m.find()) {
+    
+                        StringBuilder newLine = new StringBuilder();
+    
+                        newLine.append(m.group(1)).append(' ');
+    
+                        if (file.getCanonicalPath().startsWith(rootLocation.getCanonicalPath())) {
+                            newLine.append(file.getCanonicalPath().substring(
+                                    rootLocation.getCanonicalPath().length() + 1));
+                        } else {
+                            newLine.append(m.group(2));
+                        }
+                        if (m.group(3) != null) {
+                            newLine.append(m.group(3));
+                        }
+    
+                        line = newLine.toString();
+                    }
+    
+    
+                    outputStream.write(line.getBytes());
+                    outputStream.write('\n');
+                }
+            } finally {
+
+                FileUtils.deleteQuietly(tmpFile);
+            }
+        }
+
+        return outputStream.toByteArray();
     }
 }
