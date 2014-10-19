@@ -41,6 +41,4 @@ Dowloads
 Supporters
 ----------
 
-This project is ![Built and tested on CloudBees](http://static-www.cloudbees.com/images/badges/CBbadge_builton_125.png) . The public CI instance is available at [ereviewboard.ci.cloudbees.com](https://ereviewboard.ci.cloudbees.com/) .
-
 ej-technologies has provided a <a href="http://www.ej-technologies.com/products/jprofiler/overview.html"><img alt="JProfiler" src="http://www.ej-technologies.com/images/banners/jprofiler_large.png"></a> license to use for this project.
