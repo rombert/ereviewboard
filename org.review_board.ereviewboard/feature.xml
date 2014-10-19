@@ -2,7 +2,7 @@
 <feature
       id="org.review_board.ereviewboard"
       label="Mylyn Reviews Connector: ReviewBoard"
-      version="0.13.2"
+      version="0.13.3.qualifier"
       provider-name="eReviewBoard developers"
       plugin="org.review_board.ereviewboard.core">
 

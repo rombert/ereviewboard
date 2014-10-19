@@ -5,7 +5,7 @@
   <parent>
     <artifactId>ereviewboard</artifactId>
     <groupId>org.review_board.ereviewboard</groupId>
-    <version>0.13.2</version>
+    <version>0.13.3-SNAPSHOT</version>
   </parent>
   <artifactId>org.review_board.ereviewboard.egit.ui</artifactId>
   <name>eReviewBoard : EGit UI Plugin</name>
