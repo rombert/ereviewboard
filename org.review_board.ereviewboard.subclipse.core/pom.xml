@@ -4,7 +4,7 @@
   <parent>
     <artifactId>ereviewboard</artifactId>
     <groupId>org.review_board.ereviewboard</groupId>
-    <version>0.13.3</version>
+    <version>0.13.4-SNAPSHOT</version>
   </parent>
   <artifactId>org.review_board.ereviewboard.subclipse.core</artifactId>
   <name>eReviewBoard : Subclipse Core Plugin</name>

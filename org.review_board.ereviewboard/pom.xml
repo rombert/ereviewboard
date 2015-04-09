@@ -5,11 +5,11 @@
   <parent>
     <artifactId>ereviewboard</artifactId>
     <groupId>org.review_board.ereviewboard</groupId>
-    <version>0.13.3</version>
+    <version>0.13.4-SNAPSHOT</version>
   </parent>
   <groupId>org.review_board.ereviewboard</groupId>
   <artifactId>org.review_board.ereviewboard</artifactId>
-  <version>0.13.3</version>
+  <version>0.13.4-SNAPSHOT</version>
   <name>eReviewBoard : Feature</name>
   <packaging>eclipse-feature</packaging>
 </project>
