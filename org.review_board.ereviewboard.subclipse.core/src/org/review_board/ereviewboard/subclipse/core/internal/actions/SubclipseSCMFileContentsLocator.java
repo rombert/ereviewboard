@@ -13,6 +13,8 @@ package org.review_board.ereviewboard.subclipse.core.internal.actions;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 
 import org.apache.commons.io.IOUtils;
@@ -63,7 +65,14 @@ public class SubclipseSCMFileContentsLocator implements SCMFileContentsLocator {
             
             Activator.getDefault().trace(TraceLocation.MAIN, "Retrieving file " + _filePath + " @ " + _revision + " from repo " + repoLocation.getLabel() + " ( " + repoLocation.getLocation() + " )");
             
-            SVNUrl resourceUrl = repoLocation.getUrl().appendPath(_filePath);
+            SVNUrl resourceUrl;
+            try {
+            	new URL(_filePath);
+            	resourceUrl = new SVNUrl(_filePath);
+            }
+            catch (MalformedURLException ex) {
+            	resourceUrl = repoLocation.getUrl().appendPath(_filePath);
+            }
             SVNRevision revision = SVNRevision.getRevision(_revision);
             InputStream content = repoLocation.getSVNClient().getContent(resourceUrl, revision);            
             
