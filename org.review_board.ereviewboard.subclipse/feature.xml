@@ -108,7 +108,7 @@ Inc. in the United States, other countries, or both.
 
    <requires>
       <import feature="org.review_board.ereviewboard" version="0.11.0" match="compatible"/>
-      <import feature="org.tigris.subversion.subclipse" version="1.4.0" match="compatible"/>
+      <import feature="org.tigris.subversion.subclipse" version="1.4.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
