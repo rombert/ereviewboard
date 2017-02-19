@@ -2,7 +2,7 @@
 <feature
       id="org.review_board.ereviewboard.egit"
       label="Mylyn Reviews Connector: ReviewBoard EGit Integration (Optional)"
-      version="0.13.4"
+      version="0.13.5.qualifier"
       provider-name="eReviewBoard developers"
       plugin="org.review_board.ereviewboard.core">
 
