@@ -7,7 +7,7 @@ fi
 
 newVersion=$1
 
-mvn -Dtycho.mode=maven org.eclipse.tycho:tycho-versions-plugin:set-version -DnewVersion=$newVersion
+mvn -Dtycho.mode=maven org.eclipse.tycho:tycho-versions-plugin:0.21.0:set-version -DnewVersion=$newVersion
 
 find -name MANIFEST.MF | xargs dos2unix
 find -name site.xml | xargs sed -i 's#feature url="com#feature url="features/com#' 
