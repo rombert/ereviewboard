@@ -433,7 +433,8 @@ public class RestfulReviewboardClient implements ReviewboardClient {
                 IProgressMonitor repositoryInfoMonitor = Policy.subMonitorFor(monitor,1);
                 
                 for ( Repository repository : repositories )
-                    if ( repository.getTool() == RepositoryType.Subversion)
+                    if (repository.getTool() == RepositoryType.Subversion
+                            || repository.getTool() == RepositoryType.VersionVault)
                         loadRepositoryInfo(repository, repositoryInfoMonitor);
                 
                 clientData.setRepositories(repositories);
