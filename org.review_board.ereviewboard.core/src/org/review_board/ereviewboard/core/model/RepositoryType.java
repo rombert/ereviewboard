@@ -19,7 +19,7 @@ import com.google.common.base.Objects;
  */
 public enum RepositoryType {
 
-    Bazaar("Bazaar"), ClearCase("ClearCase") {
+    Bazaar("Bazaar"), VersionVault("VersionVault"), ClearCase("ClearCase") {
         @Override
         protected boolean matchesDisplayName(String displayName) {
             return super.matchesDisplayName(displayName) || "Clear Case".equals(displayName);
