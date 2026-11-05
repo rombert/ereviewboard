@@ -1,0 +1,5 @@
+# Connector core
+
+Packaging: `eclipse-plugin`. `ReviewboardRepositoryConnector` implements the Mylyn connector and synchronizes Review Board requests into task data including reviews, comments, patch sets and screenshots. `ReviewboardClientManager` manages client instances; `client/` contains the REST API, HTTP transport, pagination, query builder and JSON reader. `model/` represents server entities and query types. Task, repository, attribute, comment and diff mappers bridge those objects to Mylyn; `exception/` handles API and transport failures.
+
+The [UI plugin descriptor](../org.review_board.ereviewboard.ui/index.md) registers the core connector with Mylyn. `core/internal/scm/SCMFileContentsLocator` is the interface used by optional SCM integrations to locate compare base contents; the core must not depend on any one SCM provider. The [core tests](../org.review_board.ereviewboard.tests/overview.md) exercise mappings, queries and parsing. Consult the [manifest](../../org.review_board.ereviewboard.core/META-INF/MANIFEST.MF) for OSGi dependencies and exported packages.

@@ -1,0 +1,7 @@
+# Repository instructions
+
+Read [AGENTS.md](../AGENTS.md), then the [architecture](architecture.md) and the relevant [module overview](index.md) before editing. Treat the root POM and target definition as build authorities, module POMs as packaging authorities, `META-INF/MANIFEST.MF` as bundle dependency/export authorities, and `plugin.xml`, `feature.xml`, `site.xml`, and `schema/*.exsd` as Eclipse registration/distribution authorities. Prefer implementation and tests when documenting behavior. Update the relevant overview or index when a contract changes; avoid duplicating a fact across multiple guides.
+
+This is a legacy Java 5/J2SE-1.5 Eclipse plugin codebase. Keep source-compatible APIs and existing OSGi package boundaries; don't introduce modern Java syntax, implicit Maven dependencies, or direct connector dependencies on optional SCM bundles. Preserve existing file formatting and license headers. Use [Java conventions](code_styles/java.md) and [extension instructions](instructions/extensions.md) for local details.
+
+Run the smallest relevant tests first, then [reactor verification](workflows/build-and-test.md) when dependencies permit. Do not edit `target/` or `bin/` generated output. Credentials and signing keys stay out of version control; do not assume the archived dependency endpoints are reachable.
